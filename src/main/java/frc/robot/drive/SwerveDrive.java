@@ -29,7 +29,10 @@ public class SwerveDrive extends RobotDriveBase {
     public void setModuleStates(SwerveModuleState[] states) {
         for(int i=0; i<modules.length;++i){
             modules[i].setModuleState(states[i]);
-        }   
+        }
+
+        // Reset the motor watchdog timer.
+        feedWatchdog();
     }
     
     @Override
