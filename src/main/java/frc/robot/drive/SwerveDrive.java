@@ -7,7 +7,7 @@ package frc.robot.drive;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 
-/** Add your docs here. */
+/** SwerveDrive implements service drive control. */
 public class SwerveDrive extends RobotDriveBase {
 
     private SwerveModule[] modules;
