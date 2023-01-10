@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 /** Add your docs here. */
 public class SwerveModule {
     //temp theoretical constants
-    private static double kMaxDriveSpeed = 4.9; //meter per second
+    private static double kMaxDriveSpeed = 4.9; //meters per second
     private static double kDriveS = 0.2; //voltage needed to overcome friction
     private static double kDriveV = (12.0 - kDriveS)/kMaxDriveSpeed; //max voltage divided by max speed, voltage needed to maintain constant velocity
     private static double kDriveA = 0;
