@@ -13,7 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 
-/** Add your docs here. */
+/** SwerveDrive implements service drive control. */
 public class SwerveDrive extends RobotDriveBase {
 
     private final SwerveModule[] modules;
@@ -39,7 +39,10 @@ public class SwerveDrive extends RobotDriveBase {
     public void setModuleStates(SwerveModuleState[] states) {
         for(int i=0; i<modules.length;++i){
             modules[i].setModuleState(states[i]);
-        }   
+        }
+
+        // Reset the motor watchdog timer.
+        feedWatchdog();
     }
     
     @Override

@@ -5,7 +5,6 @@
 package frc.robot.drive;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -13,7 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
-/** Add your docs here. */
+/** SwerveModule manages the drive and steering motors of a single swerve drive module. */
 public class SwerveModule {
     //temp theoretical constants
     public static double kMaxDriveSpeed = 4.9; //meters per second
