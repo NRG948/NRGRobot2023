@@ -40,7 +40,7 @@ public class SwerveSubsystem extends SubsystemBase {
       BACK_LEFT_LOCATION,
       BACK_RIGHT_LOCATION);
 
-  // 8 motors
+  // 4 pairs of motors for drive & steering.
   private final TalonFX frontLeftDriveMotor = new TalonFX(1);
   private final TalonFX frontLeftSteeringMotor = new TalonFX(2);
 
@@ -53,26 +53,36 @@ public class SwerveSubsystem extends SubsystemBase {
   private final TalonFX backRightDriveMotor = new TalonFX(5);
   private final TalonFX backRightSteeringMotor = new TalonFX(6);
 
-  // 4 CANcoders for the steering angle
+  // 4 CANcoders for the steering angle.
   private final CANCoder frontLeftAngle = new CANCoder(9);
   private final CANCoder frontRightAngle = new CANCoder(10);
   private final CANCoder backLeftAngle = new CANCoder(12);
   private final CANCoder backRightAngle = new CANCoder(11);
 
-  private final SwerveModule frontLeftModule = CreateSwerveModule(frontLeftDriveMotor, frontLeftSteeringMotor,
-      frontLeftAngle);
-  private final SwerveModule frontRightModule = CreateSwerveModule(frontRightDriveMotor, frontRightSteeringMotor,
-      frontRightAngle);
-  private final SwerveModule backLeftModule = CreateSwerveModule(backLeftDriveMotor, backLeftSteeringMotor,
-      backLeftAngle);
-  private final SwerveModule backRightModule = CreateSwerveModule(backRightDriveMotor, backRightSteeringMotor,
-      backRightAngle);
+  private final SwerveModule frontLeftModule = CreateSwerveModule(
+      frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle);
+  private final SwerveModule frontRightModule = CreateSwerveModule(
+      frontRightDriveMotor, frontRightSteeringMotor, frontRightAngle);
+  private final SwerveModule backLeftModule = CreateSwerveModule(
+      backLeftDriveMotor, backLeftSteeringMotor, backLeftAngle);
+  private final SwerveModule backRightModule = CreateSwerveModule(
+      backRightDriveMotor, backRightSteeringMotor, backRightAngle);
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
 
   private final AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
+
   private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> ahrs.getAngle());
 
+  /**
+   * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
+   * 
+   * @param driveMotor    The drive motor controller.
+   * @param steeringMotor The steering motor controller.
+   * @param wheelAngle    An absolute encoder that measures the wheel angle.
+   * 
+   * @return An initialized {@link SwerveModule} object.
+   */
   private static SwerveModule CreateSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
@@ -81,9 +91,10 @@ public class SwerveSubsystem extends SubsystemBase {
     TalonFXMotorController steeringController = new TalonFXMotorController(steeringMotor);
 
     return new SwerveModule(driveController,
+        // The TalonFX reports the velocity in pulses per 100ms, so we need to
+        // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, steeringController,
         () -> wheelAngle.getAbsolutePosition());
-
   }
 
   /** Creates a new SwerveSubsystem. */
@@ -94,12 +105,11 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Drives the robot based on joystick inputs.
    * 
-   * @param xSpeed        Speed of the robot in the x direction
-   * @param ySpeed        Speed of the robot in the y direction
-   * @param rSpeed        Rotation speed of the robot
-   * @param fieldRelative Whether the x and y values are relative to field
-   * @param squareInputs  Decreases sensitivity at low speeds (Good for rookie
-   *                      drivers)
+   * @param xSpeed        Speed of the robot in the x direction.
+   * @param ySpeed        Speed of the robot in the y direction.
+   * @param rSpeed        Rotation speed of the robot.
+   * @param fieldRelative Whether the x and y values are relative to field.
+   * @param squareInputs  Decreases sensitivity at low speeds.
    */
   public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
