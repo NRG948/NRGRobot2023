@@ -59,13 +59,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private final CANCoder backLeftAngle = new CANCoder(12);
   private final CANCoder backRightAngle = new CANCoder(11);
 
-  private final SwerveModule frontLeftModule = CreateSwerveModule(
+  private final SwerveModule frontLeftModule = createSwerveModule(
       frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle);
-  private final SwerveModule frontRightModule = CreateSwerveModule(
+  private final SwerveModule frontRightModule = createSwerveModule(
       frontRightDriveMotor, frontRightSteeringMotor, frontRightAngle);
-  private final SwerveModule backLeftModule = CreateSwerveModule(
+  private final SwerveModule backLeftModule = createSwerveModule(
       backLeftDriveMotor, backLeftSteeringMotor, backLeftAngle);
-  private final SwerveModule backRightModule = CreateSwerveModule(
+  private final SwerveModule backRightModule = createSwerveModule(
       backRightDriveMotor, backRightSteeringMotor, backRightAngle);
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
@@ -83,7 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-  private static SwerveModule CreateSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle) {
+  private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
 
