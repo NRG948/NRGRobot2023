@@ -8,8 +8,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -19,6 +22,26 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  private final XboxController driveController = new XboxController(0);
+  private JoystickButton driverButtonA = new JoystickButton(driveController, 1); // A Button
+  private JoystickButton driverButtonB = new JoystickButton(driveController, 2); // B Button
+  private JoystickButton driverButtonX = new JoystickButton(driveController, 3); // X Button
+  private JoystickButton driverButtonY = new JoystickButton(driveController, 4); // Y Button
+  private JoystickButton driverLeftBumper = new JoystickButton(driveController, 5);
+  private JoystickButton driverRightBumper = new JoystickButton(driveController, 6);
+  // Left Middle Button
+  private JoystickButton driverStartButton = new JoystickButton(driveController, 7);
+  // Right Middle Button
+  private JoystickButton driverMenuButton = new JoystickButton(driveController, 8);
+
+  private POVButton driverDpadUp = new POVButton(driveController, 0);
+  private POVButton driverDpadRight = new POVButton(driveController, 90);
+  private POVButton driverDpadDown = new POVButton(driveController, 180);
+  private POVButton driverDpadLeft = new POVButton(driveController, 270);
+
+  
+
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
