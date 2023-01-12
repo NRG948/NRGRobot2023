@@ -80,6 +80,12 @@ public class SwerveDrive extends RobotDriveBase {
         ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * SwerveModule.kMaxSteeringSpeed;
 
+        if (squareInputs) {
+            xSpeed *= xSpeed;
+            ySpeed *= ySpeed;
+            rSpeed *= rSpeed;
+        }
+
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(
