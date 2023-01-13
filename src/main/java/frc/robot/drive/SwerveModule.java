@@ -12,61 +12,66 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
-/** SwerveModule manages the drive and steering motors of a single swerve drive module. */
+/**
+ * Manages the drive and steering motors of a single swerve drive module.
+ */
 public class SwerveModule {
-    //temp theoretical constants
-    public static double kMaxDriveSpeed = 4.9; //meters per second
-    private static double kDriveS = 0.2; //voltage needed to overcome friction
-    private static double kDriveV = (12.0 - kDriveS)/kMaxDriveSpeed; //max voltage divided by max speed, voltage needed to maintain constant velocity
+    // temp theoretical constants
+    public static double kMaxDriveSpeed = 4.9; // meters per second
+    private static double kDriveS = 0.2; // voltage needed to overcome friction
+    private static double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
     private static double kDriveA = 0;
 
-    public static double kMaxSteeringSpeed = 2*Math.PI;
-    private static double kSteeringS = 0.2; //voltage needed to overcome friction
-    private static double kSteeringV = (12.0 - kSteeringS)/kMaxSteeringSpeed; //max voltage divided by max speed, voltage needed to maintain constant velocity
+    public static double kMaxSteeringSpeed = 2 * Math.PI;
+    private static double kSteeringS = 0.2; // voltage needed to overcome friction
+    private static double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
+                                                                                // rotational velocity
     private static double kSteeringA = 0;
 
-
-    private MotorController driveMotor; //
+    private MotorController driveMotor;
     private DoubleSupplier velocity;
     private MotorController steeringMotor;
-    private DoubleSupplier angle; //gives a double as angle
-    
+    private DoubleSupplier wheelAngle;
+
     private PIDController drivePID = new PIDController(1.0, 0, 0);
     private PIDController steeringPID = new PIDController(1.0, 0, 0);
 
-    private SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA); //models motor mathematically, calculates voltage needed
+    // models motors mathematically, calculates voltage needed
+    private SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
     private SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV, kSteeringA);
 
     /**
-     * Constucts the swerve module
-     * @param driveMotor Drive motor controller
-     * @param velocity Supplies velocity
-     * @param steeringMotor Steering motor controller
-     * @param angle Supplies angle
+     * Constructs the swerve module.
+     * 
+     * @param driveMotor    The drive motor controller.
+     * @param velocity      Supplies velocity in meters per second.
+     * @param steeringMotor The steering motor controller.
+     * @param wheelAngle    Supplies the wheel angle in degrees.
      */
-    public SwerveModule(MotorController driveMotor, DoubleSupplier velocity, MotorController steeringMotor, DoubleSupplier angle) {
+    public SwerveModule(MotorController driveMotor, DoubleSupplier velocity, MotorController steeringMotor,
+            DoubleSupplier wheelAngle) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
-        this.angle = angle;
+        this.wheelAngle = wheelAngle;
         this.velocity = velocity;
     }
 
     /**
-     * Sets the desired state for the module
+     * Sets the desired state for the module.
      * 
-     * @param state desired state w/ speed and angle
+     * @param state The desired state w/ speed and angle
      */
     public void setModuleState(SwerveModuleState state) {
         // Optimize the state to avoid spinning further than 90 degrees
-        Rotation2d currentAngle = Rotation2d.fromDegrees(angle.getAsDouble());
+        Rotation2d currentAngle = Rotation2d.fromDegrees(wheelAngle.getAsDouble());
         state = SwerveModuleState.optimize(state, currentAngle);
 
         // Calculate the drive motor voltage using PID and FeedForward
-        double driveOutput = drivePID.calculate(velocity.getAsDouble(),state.speedMetersPerSecond);
+        double driveOutput = drivePID.calculate(velocity.getAsDouble(), state.speedMetersPerSecond);
         double driveFeedForward = this.driveFeedForward.calculate(state.speedMetersPerSecond);
 
         // Calculate the steering motor voltage using PID and FeedForward
-        double steeringOutput = steeringPID.calculate(currentAngle.getRadians(),state.angle.getRadians());
+        double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), state.angle.getRadians());
         double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint());
 
         // Sets voltages of motors
@@ -82,5 +87,5 @@ public class SwerveModule {
         driveMotor.stopMotor();
         steeringMotor.stopMotor();
     }
-    
+
 }
