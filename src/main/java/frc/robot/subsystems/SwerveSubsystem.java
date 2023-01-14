@@ -11,8 +11,13 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
@@ -128,6 +133,16 @@ public class SwerveSubsystem extends SubsystemBase {
   public void addShuffleboardTab() {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
+    
+    ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList);
+    layout.add("Gyro", new Sendable() {
+
+      @Override
+      public void initSendable(SendableBuilder builder) {
+          builder.setSmartDashboardType("Gyro");
+          builder.addDoubleProperty("Value", ahrs::getAngle, null);
+      }
+    }).withWidget(BuiltInWidgets.kGyro).withPosition(6, 0).withSize(3,3);
 
   }
 }
