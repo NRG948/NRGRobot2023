@@ -48,6 +48,7 @@ public class RobotContainer {
     swerveSubsystem.setDefaultCommand(driveWithController);
     // Configure the trigger bindings
     configureBindings();
+    swerveSubsystem.addShuffleboardTab();
   }
 
   /**

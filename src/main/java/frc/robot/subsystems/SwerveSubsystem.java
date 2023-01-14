@@ -12,6 +12,8 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
@@ -60,13 +62,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private final CANCoder backRightAngle = new CANCoder(11);
 
   private final SwerveModule frontLeftModule = createSwerveModule(
-      frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle);
+      frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle, "Front Left");
   private final SwerveModule frontRightModule = createSwerveModule(
-      frontRightDriveMotor, frontRightSteeringMotor, frontRightAngle);
+      frontRightDriveMotor, frontRightSteeringMotor, frontRightAngle, "Front Right");
   private final SwerveModule backLeftModule = createSwerveModule(
-      backLeftDriveMotor, backLeftSteeringMotor, backLeftAngle);
+      backLeftDriveMotor, backLeftSteeringMotor, backLeftAngle, "Back Left");
   private final SwerveModule backRightModule = createSwerveModule(
-      backRightDriveMotor, backRightSteeringMotor, backRightAngle);
+      backRightDriveMotor, backRightSteeringMotor, backRightAngle, "Back Right");
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
 
@@ -83,7 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-  private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle) {
+  private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
 
@@ -94,7 +96,8 @@ public class SwerveSubsystem extends SubsystemBase {
         // The TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, steeringController,
-        () -> wheelAngle.getAbsolutePosition());
+        () -> wheelAngle.getAbsolutePosition(), 
+        name);
   }
 
   /** Creates a new SwerveSubsystem. */
@@ -118,5 +121,13 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+  /**
+   * Adds a tab for swerve drive in Shuffleboard.
+   */
+  public void addShuffleboardTab() {
+    ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
+    drivetrain.addShuffleboardLayouts(swerveDriveTab);
+
   }
 }

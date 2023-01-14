@@ -10,7 +10,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /**
  * Manages the drive and steering motors of a single swerve drive module.
@@ -47,6 +54,8 @@ public class SwerveModule {
     private SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
     private SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV, kSteeringA);
 
+    private final String name;
+
     /**
      * Constructs the swerve module.
      * 
@@ -56,11 +65,12 @@ public class SwerveModule {
      * @param wheelAngle    Supplies the wheel angle in degrees.
      */
     public SwerveModule(MotorController driveMotor, DoubleSupplier velocity, MotorController steeringMotor,
-            DoubleSupplier wheelAngle) {
+            DoubleSupplier wheelAngle, String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
         this.wheelAngle = wheelAngle;
         this.velocity = velocity;
+        this.name = name;
     }
 
     /**
@@ -95,4 +105,22 @@ public class SwerveModule {
         steeringMotor.stopMotor();
     }
 
+    /**
+     * Adds the SwerveModule layout to the Shuffleboard tab.
+     * 
+     * @param tab The Shuffleboard tab to add the layout.
+     * @return The SwerveModule layout.
+     */
+    public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
+        ShuffleboardLayout layout = tab.getLayout(name, BuiltInLayouts.kList);
+        layout.add("Rotation", new Sendable() {
+
+            @Override
+            public void initSendable(SendableBuilder builder) {
+                builder.setSmartDashboardType("Gyro");
+                builder.addDoubleProperty("Value", wheelAngle, null);
+            }
+        }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
+        return layout;
+    }
 }

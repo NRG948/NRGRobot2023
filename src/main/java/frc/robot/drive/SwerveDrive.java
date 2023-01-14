@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
@@ -95,4 +96,16 @@ public class SwerveDrive extends RobotDriveBase {
         setModuleStates(states);
     }
 
+    /**
+     * Adds the SwerveModule layouts to the shuffleboard tab.
+     * 
+     * @param tab The suffleboard tab to add layouts
+     */
+    public void addShuffleboardLayouts(ShuffleboardTab tab) {
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].addShuffleboardLayout(tab)
+                    .withSize(3, 3)
+                    .withPosition((i * 3) % 6, ((i / 2) * 3) % 6); 
+        }
+    }
 }
