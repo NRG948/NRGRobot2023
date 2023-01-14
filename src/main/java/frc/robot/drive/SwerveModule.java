@@ -16,17 +16,24 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
  * Manages the drive and steering motors of a single swerve drive module.
  */
 public class SwerveModule {
-    // temp theoretical constants
-    public static double kMaxDriveSpeed = 4.9; // meters per second
-    private static double kDriveS = 0.2; // voltage needed to overcome friction
-    private static double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
-    private static double kDriveA = 0;
+    private static double kFreeSpeedRPM = 6380;
+    private static double kDriveGearRatio = 8.14;
+    private static double kSteeringGearRatio = 12.8;
+    private static double kWheelRadius = 0.047625;
+    private static double kMotorStallTorque = 4.69; // Nm
+    private static double kRobotMass = 67.5853; // Kg
 
-    public static double kMaxSteeringSpeed = 2 * Math.PI;
-    private static double kSteeringS = 0.2; // voltage needed to overcome friction
+    // temp theoretical constants
+    public static double kMaxDriveSpeed = (kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio); // meters per second
+    private static double kDriveS = 1.0; // voltage needed to overcome friction
+    private static double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
+    private static double kDriveA = (2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass);
+
+    public static double kMaxSteeringSpeed = (kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio);
+    private static double kSteeringS = 1.0; // voltage needed to overcome friction
     private static double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
                                                                                 // rotational velocity
-    private static double kSteeringA = 0;
+    private static double kSteeringA = (2 * 4 * kMotorStallTorque) / (2 * kRobotMass);
 
     private MotorController driveMotor;
     private DoubleSupplier velocity;
