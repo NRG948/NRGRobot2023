@@ -124,6 +124,11 @@ public class SwerveSubsystem extends SubsystemBase {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
   }
 
+  // Stops motors from the subsystem - may need to remove this (not sure - Om)
+  public void stopMotors() {
+    drivetrain.stopMotor();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
