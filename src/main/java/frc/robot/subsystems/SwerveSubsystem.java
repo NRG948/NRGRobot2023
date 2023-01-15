@@ -27,8 +27,9 @@ import frc.robot.motors.TalonFXMotorController;
 public class SwerveSubsystem extends SubsystemBase {
 
   // Constants for motor locations
-  private static final double TRACK_LENGTH = 0.6604;
-  private static final double TRACK_WIDTH = 0.4826;
+  private static final double INCHES_PER_METER = 39.37;
+  private static final double TRACK_LENGTH = 26.3 / INCHES_PER_METER;
+  private static final double TRACK_WIDTH = 19.5 / INCHES_PER_METER;
 
   private static final double WHEEL_RADIUS = 0.047625; // Meters
   private static final int ENCODER_RESOLUTION = 2048; // Steps per Rev
@@ -79,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> ahrs.getAngle());
+  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle());
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -107,7 +108,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   /** Creates a new SwerveSubsystem. */
   public SwerveSubsystem() {
-
+    ahrs.reset();
   }
 
   /**
