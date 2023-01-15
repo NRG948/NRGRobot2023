@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -43,6 +44,7 @@ public class SwerveModule {
     private static double kSteeringA = (2 * 4 * kMotorStallTorque) / (2 * kRobotMass);
 
     private MotorController driveMotor;
+    private DoubleSupplier position;
     private DoubleSupplier velocity;
     private MotorController steeringMotor;
     private DoubleSupplier wheelAngle;
@@ -64,11 +66,12 @@ public class SwerveModule {
      * @param steeringMotor The steering motor controller.
      * @param wheelAngle    Supplies the wheel angle in degrees.
      */
-    public SwerveModule(MotorController driveMotor, DoubleSupplier velocity, MotorController steeringMotor,
+    public SwerveModule(MotorController driveMotor, DoubleSupplier position, DoubleSupplier velocity, MotorController steeringMotor,
             DoubleSupplier wheelAngle, String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
         this.wheelAngle = wheelAngle;
+        this.position = position;
         this.velocity = velocity;
         this.name = name;
 
@@ -82,7 +85,7 @@ public class SwerveModule {
      */
     public void setModuleState(SwerveModuleState state) {
         // Optimize the state to avoid spinning further than 90 degrees
-        Rotation2d currentAngle = Rotation2d.fromDegrees(wheelAngle.getAsDouble());
+        Rotation2d currentAngle = getWheelRotation2d();
         state = SwerveModuleState.optimize(state, currentAngle);
 
         // Calculate the drive motor voltage using PID and FeedForward
@@ -100,11 +103,29 @@ public class SwerveModule {
     }
 
     /**
-     * stops the drive and steering motors
+     * Stops the drive and steering motors.
      */
     public void stopMotors() {
         driveMotor.stopMotor();
         steeringMotor.stopMotor();
+    }
+
+    /**
+     * The position of the wheel on its axis of travel.
+     * 
+     * @return The position of the swerve module.
+     */
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(position.getAsDouble(), getWheelRotation2d());
+    }
+
+    /**
+     * Returns the current wheel orientation.
+     * 
+     * @return The current wheel orientation.
+     */
+    public Rotation2d getWheelRotation2d() {
+        return Rotation2d.fromDegrees(position.getAsDouble());
     }
 
     /**

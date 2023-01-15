@@ -13,6 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
@@ -20,6 +23,7 @@ public class SwerveDrive extends RobotDriveBase {
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final DoubleSupplier fieldOrientation;
+
 
     /**
      * constructs the swerve drive
@@ -95,6 +99,19 @@ public class SwerveDrive extends RobotDriveBase {
                         : new ChassisSpeeds(xSpeed, ySpeed, rSpeed));
 
         setModuleStates(states);
+    }
+
+    /**
+     * Returns the swerve module positions.
+     * 
+     * @return Swerve module positions.
+     */
+    public SwerveModulePosition[] getModulesPositions() {
+        SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
+        for(int i = 0; i < modules.length; i++) {
+            modulePosition[i] = modules[i].getPosition(); 
+        }
+        return modulePosition;
     }
 
     /**
