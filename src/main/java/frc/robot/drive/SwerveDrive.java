@@ -77,6 +77,7 @@ public class SwerveDrive extends RobotDriveBase {
     public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
         // Applies deadbands to x, y, and rotation joystick values and multiples all
         // values with max speed.
+        // TODO: should the deadbands be applied in DriveWithController? 
         xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * SwerveModule.kMaxSteeringSpeed;
@@ -105,7 +106,7 @@ public class SwerveDrive extends RobotDriveBase {
         for (int i = 0; i < modules.length; i++) {
             modules[i].addShuffleboardLayout(tab)
                     .withSize(3, 3)
-                    .withPosition((i * 3) % 6, ((i / 2) * 3) % 6); 
+                    .withPosition((i * 3) % 6, ((i / 2) * 3) % 6);
         }
     }
 }

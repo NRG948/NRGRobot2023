@@ -71,6 +71,8 @@ public class SwerveModule {
         this.wheelAngle = wheelAngle;
         this.velocity = velocity;
         this.name = name;
+
+        steeringPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     /**
