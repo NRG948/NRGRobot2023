@@ -94,10 +94,10 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param driveMotor    The drive motor controller.
    * @param steeringMotor The steering motor controller.
    * @param wheelAngle    An absolute encoder that measures the wheel angle.
+   * @param name          The name of the module.
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-
   private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
