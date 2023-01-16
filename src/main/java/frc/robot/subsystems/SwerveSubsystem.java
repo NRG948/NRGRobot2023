@@ -6,8 +6,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -98,9 +97,11 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
+
   private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
+    wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     TalonFXMotorController driveController = new TalonFXMotorController(driveMotor);
     TalonFXMotorController steeringController = new TalonFXMotorController(steeringMotor);
@@ -117,6 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Creates a new SwerveSubsystem. */
   public SwerveSubsystem() {
     ahrs.reset();
+    drivetrain.setDeadband(0.1);
   }
 
   /**
@@ -167,7 +169,9 @@ public class SwerveSubsystem extends SubsystemBase {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
     
-    ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList);
+    ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
+        .withPosition(6, 0)
+        .withSize(3,4);
     layout.add("Gyro", new Sendable() {
 
       @Override
@@ -175,7 +179,7 @@ public class SwerveSubsystem extends SubsystemBase {
           builder.setSmartDashboardType("Gyro");
           builder.addDoubleProperty("Value", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
       }
-    }).withWidget(BuiltInWidgets.kGyro).withPosition(6, 0).withSize(3,3);
+    }).withWidget(BuiltInWidgets.kGyro);
     layout.addDouble("x", () -> odometry.getPoseMeters().getX());
     layout.addDouble("y", () -> odometry.getPoseMeters().getY());
 

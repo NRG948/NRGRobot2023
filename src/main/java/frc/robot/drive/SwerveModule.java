@@ -7,16 +7,17 @@ package frc.robot.drive;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
  * Manages the drive and steering motors of a single swerve drive module.
  */
 public class SwerveModule {
+    private static final double kScalingFactor = 0.8;
     private static double kFreeSpeedRPM = 6380;
     private static double kDriveGearRatio = 8.14;
     private static double kSteeringGearRatio = 12.8;
@@ -32,16 +34,27 @@ public class SwerveModule {
     private static double kRobotMass = 67.5853; // Kg
 
     // temp theoretical constants
-    public static double kMaxDriveSpeed = (kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio); // meters per second
+    public static double kMaxDriveSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio)); // meters
+                                                                                                                 // per
+                                                                                                                 // second
+    public static double kMaxDriveAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass)); // meters
+                                                                                                                // per
+                                                                                                                // second
+                                                                                                                // per
+                                                                                                                // second
     private static double kDriveS = 1.0; // voltage needed to overcome friction
     private static double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
-    private static double kDriveA = (2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass);
+    private static double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration; // voltate needed to maintain constant
+                                                                              // acceleration
 
-    public static double kMaxSteeringSpeed = (kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio);
+    public static double kMaxSteeringSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
+    public static double kMaxSteeringAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
     private static double kSteeringS = 1.0; // voltage needed to overcome friction
     private static double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
                                                                                 // rotational velocity
-    private static double kSteeringA = (2 * 4 * kMotorStallTorque) / (2 * kRobotMass);
+    private static double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration; // voltate needed to mantain
+                                                                                       // constant rotational
+                                                                                       // acceleration
 
     private MotorController driveMotor;
     private DoubleSupplier position;
@@ -50,7 +63,8 @@ public class SwerveModule {
     private DoubleSupplier wheelAngle;
 
     private PIDController drivePID = new PIDController(1.0, 0, 0);
-    private PIDController steeringPID = new PIDController(1.0, 0, 0);
+    private ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
+            new TrapezoidProfile.Constraints(kMaxSteeringSpeed, kMaxSteeringAcceleration));
 
     // models motors mathematically, calculates voltage needed
     private SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
@@ -66,7 +80,8 @@ public class SwerveModule {
      * @param steeringMotor The steering motor controller.
      * @param wheelAngle    Supplies the wheel angle in degrees.
      */
-    public SwerveModule(MotorController driveMotor, DoubleSupplier position, DoubleSupplier velocity, MotorController steeringMotor,
+    public SwerveModule(MotorController driveMotor, DoubleSupplier position, DoubleSupplier velocity,
+            MotorController steeringMotor,
             DoubleSupplier wheelAngle, String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
@@ -76,6 +91,7 @@ public class SwerveModule {
         this.name = name;
 
         steeringPID.enableContinuousInput(-Math.PI, Math.PI);
+        steeringPID.reset(position.getAsDouble(), velocity.getAsDouble());
     }
 
     /**
@@ -94,12 +110,11 @@ public class SwerveModule {
 
         // Calculate the steering motor voltage using PID and FeedForward
         double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), state.angle.getRadians());
-        double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint());
+        double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
 
         // Sets voltages of motors
         this.driveMotor.setVoltage(driveOutput + driveFeedForward);
         this.steeringMotor.setVoltage(steeringOutput + steeringFeedForward);
-
     }
 
     /**

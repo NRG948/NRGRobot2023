@@ -122,8 +122,8 @@ public class SwerveDrive extends RobotDriveBase {
     public void addShuffleboardLayouts(ShuffleboardTab tab) {
         for (int i = 0; i < modules.length; i++) {
             modules[i].addShuffleboardLayout(tab)
-                    .withSize(3, 3)
-                    .withPosition((i * 3) % 6, ((i / 2) * 3) % 6);
+                    .withSize(3, 2)
+                    .withPosition((i * 3) % 6, ((i / 2) * 2) % 4);
         }
     }
 }
