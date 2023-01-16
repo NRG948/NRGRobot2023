@@ -23,38 +23,105 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /**
  * Manages the drive and steering motors of a single swerve drive module.
+ * 
+ * This class uses a combination feedback (i.e. PID) and feedforward control to
+ * achieve desired translational (i.e. drive) and rotational (i.e. steering)
+ * velocities. For more information, see the <a href=
+ * "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-pid.html">
+ * Introduction to PID</a> and <a href=
+ * "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html">
+ * Introduction to DC Motor Feedforward</a> articles of the WPILib
+ * documentation.
+ * <p>
+ * The calculations for the theoretical maximum speeds are taken from the
+ * <a href=
+ * "https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf">
+ * FRC Drivetrain Characterization</a> paper by Noah Gleason and Eli Barnett of
+ * FRC
+ * Team 449 - The Blair Robot Project.
  */
 public class SwerveModule {
-    private static final double kScalingFactor = 0.8;
+    /** The free speed RPM of a Falcon 500 brushless DC motor. */
     private static final double kFreeSpeedRPM = 6380;
-    private static final double kDriveGearRatio = 8.14;
-    private static final double kSteeringGearRatio = 12.8;
-    private static final double kWheelRadius = 0.047625;
+
+    /** The stall torque of a Falcon 500 brushless DC motor. */
     private static final double kMotorStallTorque = 4.69; // Nm
+
+    /**
+     * The gear ratio of the drive motor to the wheel for the Swerve Specialties MK4
+     * swerve module.
+     */
+    private static final double kDriveGearRatio = 8.14;
+
+    /**
+     * The gear ratio of the steering motor to the wheel for the Swerve Specialties
+     * MK4 swerve module.
+     */
+    private static final double kSteeringGearRatio = 12.8;
+
+    /** The wheel radius of a standard 4" wheel in meters. */
+    private static final double kWheelRadius = 0.047625;
+
+    /** The mass of the robot in kilograms. */
     private static final double kRobotMass = 67.5853; // Kg
 
-    // temp theoretical constants
-    public static final double kMaxDriveSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio)); // meters
-                                                                                                                 // per
-                                                                                                                 // second
-    public static final double kMaxDriveAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass)); // meters
-                                                                                                                // per
-                                                                                                                // second
-                                                                                                                // per
-                                                                                                                // second
-    private static final double kDriveS = 1.0; // voltage needed to overcome friction
-    private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
-    private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration; // voltate needed to maintain constant
-                                                                              // acceleration
+    /**
+     * A scaling factor used to adjust from theoretical maximums given that physical
+     * system generally cannot achieve them.
+     */
+    private static final double kScalingFactor = 0.8;
 
-    public static final double kMaxSteeringSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
-    public static final double kMaxSteeringAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
+    /** The maximum drive speed in meters per second. */
+    public static final double kMaxDriveSpeed = kScalingFactor
+            * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio));
+
+    /** The maximum drive acceleration in meters per second per second. */
+    public static final double kMaxDriveAcceleration = kScalingFactor
+            * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass));
+
+    /**
+     * The kS feedforward control constant for translation in Volts. This is the
+     * voltage needed to overcome the internal friction of the motor.
+     */
+    private static final double kDriveS = 1.0;
+
+    /**
+     * The kV feedforward control constant for translation in Volt * seconds. This
+     * is used to calculate the voltage needed to maintain a constant velocity.
+     */
+    private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed;
+
+    /**
+     * The kA feedforward control constant for translation in Volt * seconds^2. This
+     * is used to calculate the voltage needed to maintain a constant acceleration.
+     */
+    private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration;
+
+    /** The maximum rotational velocity of the steering motor. */
+    public static final double kMaxSteeringSpeed = kScalingFactor
+            * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
+
+    /** The maximum rotational acceleration of the steering motor. */
+    public static final double kMaxSteeringAcceleration = kScalingFactor
+            * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
+
+    /**
+     * The kS feedforward control constant for rotation in Volts. This is the
+     * voltage needed to overcome the internal friction of the motor.
+     */
     private static final double kSteeringS = 1.0; // voltage needed to overcome friction
-    private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
-                                                                                // rotational velocity
-    private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration; // voltate needed to mantain
-                                                                                       // constant rotational
-                                                                                       // acceleration
+
+    /**
+     * The kV feedforward control constant for rotation in Volt * seconds. This
+     * is used to calculate the voltage needed to maintain a constant velocity.
+     */
+    private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed;
+
+    /**
+     * The kA feedforward control constant for translation in Volt * seconds^2. This
+     * is used to calculate the voltage needed to maintain a constant acceleration.
+     */
+    private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration;
 
     private final MotorController driveMotor;
     private final DoubleSupplier position;
@@ -68,7 +135,8 @@ public class SwerveModule {
 
     // models motors mathematically, calculates voltage needed
     private final SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
-    private final SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV, kSteeringA);
+    private final SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV,
+            kSteeringA);
 
     private final String name;
 
