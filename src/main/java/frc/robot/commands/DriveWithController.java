@@ -38,6 +38,7 @@ public class DriveWithController extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     System.out.println("END DriveWithController interrupted:" + interrupted);
+    swerveDrive.stopMotors();
   }
 
   // Returns true when the command should end.
