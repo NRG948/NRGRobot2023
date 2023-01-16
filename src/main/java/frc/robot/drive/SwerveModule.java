@@ -26,49 +26,49 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
  */
 public class SwerveModule {
     private static final double kScalingFactor = 0.8;
-    private static double kFreeSpeedRPM = 6380;
-    private static double kDriveGearRatio = 8.14;
-    private static double kSteeringGearRatio = 12.8;
-    private static double kWheelRadius = 0.047625;
-    private static double kMotorStallTorque = 4.69; // Nm
-    private static double kRobotMass = 67.5853; // Kg
+    private static final double kFreeSpeedRPM = 6380;
+    private static final double kDriveGearRatio = 8.14;
+    private static final double kSteeringGearRatio = 12.8;
+    private static final double kWheelRadius = 0.047625;
+    private static final double kMotorStallTorque = 4.69; // Nm
+    private static final double kRobotMass = 67.5853; // Kg
 
     // temp theoretical constants
-    public static double kMaxDriveSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio)); // meters
+    public static final double kMaxDriveSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio)); // meters
                                                                                                                  // per
                                                                                                                  // second
-    public static double kMaxDriveAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass)); // meters
+    public static final double kMaxDriveAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass)); // meters
                                                                                                                 // per
                                                                                                                 // second
                                                                                                                 // per
                                                                                                                 // second
-    private static double kDriveS = 1.0; // voltage needed to overcome friction
-    private static double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
-    private static double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration; // voltate needed to maintain constant
+    private static final double kDriveS = 1.0; // voltage needed to overcome friction
+    private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed; // voltage needed to maintain constant velocity
+    private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration; // voltate needed to maintain constant
                                                                               // acceleration
 
-    public static double kMaxSteeringSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
-    public static double kMaxSteeringAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
-    private static double kSteeringS = 1.0; // voltage needed to overcome friction
-    private static double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
+    public static final double kMaxSteeringSpeed = kScalingFactor * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
+    public static final double kMaxSteeringAcceleration = kScalingFactor * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
+    private static final double kSteeringS = 1.0; // voltage needed to overcome friction
+    private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed; // voltage needed to maintain constant
                                                                                 // rotational velocity
-    private static double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration; // voltate needed to mantain
+    private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration; // voltate needed to mantain
                                                                                        // constant rotational
                                                                                        // acceleration
 
-    private MotorController driveMotor;
-    private DoubleSupplier position;
-    private DoubleSupplier velocity;
-    private MotorController steeringMotor;
-    private DoubleSupplier wheelAngle;
+    private final MotorController driveMotor;
+    private final DoubleSupplier position;
+    private final DoubleSupplier velocity;
+    private final MotorController steeringMotor;
+    private final DoubleSupplier wheelAngle;
 
-    private PIDController drivePID = new PIDController(1.0, 0, 0);
-    private ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
+    private final PIDController drivePID = new PIDController(1.0, 0, 0);
+    private final ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
             new TrapezoidProfile.Constraints(kMaxSteeringSpeed, kMaxSteeringAcceleration));
 
     // models motors mathematically, calculates voltage needed
-    private SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
-    private SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV, kSteeringA);
+    private final SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
+    private final SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV, kSteeringA);
 
     private final String name;
 
