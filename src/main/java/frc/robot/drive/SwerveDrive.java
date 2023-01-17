@@ -10,9 +10,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
@@ -20,6 +22,7 @@ public class SwerveDrive extends RobotDriveBase {
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final DoubleSupplier fieldOrientation;
+
 
     /**
      * constructs the swerve drive
@@ -97,6 +100,19 @@ public class SwerveDrive extends RobotDriveBase {
     }
 
     /**
+     * Returns the swerve module positions.
+     * 
+     * @return Swerve module positions.
+     */
+    public SwerveModulePosition[] getModulesPositions() {
+        SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
+        for(int i = 0; i < modules.length; i++) {
+            modulePosition[i] = modules[i].getPosition(); 
+        }
+        return modulePosition;
+    }
+
+    /**
      * Adds the SwerveModule layouts to the shuffleboard tab.
      * 
      * @param tab The suffleboard tab to add layouts
@@ -104,8 +120,8 @@ public class SwerveDrive extends RobotDriveBase {
     public void addShuffleboardLayouts(ShuffleboardTab tab) {
         for (int i = 0; i < modules.length; i++) {
             modules[i].addShuffleboardLayout(tab)
-                    .withSize(3, 3)
-                    .withPosition((i * 3) % 6, ((i / 2) * 3) % 6); 
+                    .withSize(3, 2)
+                    .withPosition((i * 3) % 6, ((i / 2) * 2) % 4);
         }
     }
 }

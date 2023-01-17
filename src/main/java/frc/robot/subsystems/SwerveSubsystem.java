@@ -6,13 +6,22 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
@@ -23,8 +32,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private static final byte kNavXUpdateFrequencyHz = 50;
 
   // Constants for motor locations
-  private static final double TRACK_LENGTH = 0.6604;
-  private static final double TRACK_WIDTH = 0.4826;
+  private static final double INCHES_PER_METER = 39.37;
+  private static final double TRACK_LENGTH = 26.3 / INCHES_PER_METER;
+  private static final double TRACK_WIDTH = 19.5 / INCHES_PER_METER;
 
   private static final double WHEEL_RADIUS = 0.047625; // Meters
   private static final int ENCODER_RESOLUTION = 2048; // Steps per Rev
@@ -75,7 +85,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> ahrs.getAngle());
+  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle());
+
+  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), drivetrain.getModulesPositions());
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -83,27 +95,31 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param driveMotor    The drive motor controller.
    * @param steeringMotor The steering motor controller.
    * @param wheelAngle    An absolute encoder that measures the wheel angle.
+   * @param name          The name of the module.
    * 
    * @return An initialized {@link SwerveModule} object.
    */
   private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
+    wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     TalonFXMotorController driveController = new TalonFXMotorController(driveMotor);
     TalonFXMotorController steeringController = new TalonFXMotorController(steeringMotor);
 
-    return new SwerveModule(driveController,
+    return new SwerveModule(driveController, 
+        driveMotor::getSelectedSensorPosition,
         // The TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, steeringController,
-        () -> wheelAngle.getAbsolutePosition(), 
+        wheelAngle::getAbsolutePosition, 
         name);
   }
 
   /** Creates a new SwerveSubsystem. */
   public SwerveSubsystem() {
-
+    ahrs.reset();
+    drivetrain.setDeadband(0.1);
   }
 
   /**
@@ -119,16 +135,54 @@ public class SwerveSubsystem extends SubsystemBase {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
   }
 
+  // Stops motors from the subsystem - may need to remove this (not sure - Om)
+  public void stopMotors() {
+    drivetrain.stopMotor();
+  }
+
+  /**
+   * Resets the robots position on the field.
+   * 
+   * @param initialPosition Sets the initial position.
+   */
+  public void resetPosition(Pose2d initialPosition) {
+    odometry.resetPosition(getRotation2d(), drivetrain.getModulesPositions(), initialPosition);
+  }
+
+  /**
+   * Returns the field orientation of the robot as a {@link Rotation2d} object.
+   * 
+   * @return Gets the field orientation of the robot.
+   */
+  public Rotation2d getRotation2d() {
+    return Rotation2d.fromDegrees(-ahrs.getAngle());
+  }
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    odometry.update(getRotation2d(), drivetrain.getModulesPositions());
   }
+
   /**
    * Adds a tab for swerve drive in Shuffleboard.
    */
   public void addShuffleboardTab() {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
+    
+    ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
+        .withPosition(6, 0)
+        .withSize(3,4);
+    layout.add("Gyro", new Sendable() {
+
+      @Override
+      public void initSendable(SendableBuilder builder) {
+          builder.setSmartDashboardType("Gyro");
+          builder.addDoubleProperty("Value", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+      }
+    }).withWidget(BuiltInWidgets.kGyro);
+    layout.addDouble("x", () -> odometry.getPoseMeters().getX());
+    layout.addDouble("y", () -> odometry.getPoseMeters().getY());
 
   }
 }
