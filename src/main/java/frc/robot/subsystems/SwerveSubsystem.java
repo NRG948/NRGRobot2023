@@ -11,7 +11,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,6 +20,7 @@ import frc.robot.drive.SwerveModule;
 import frc.robot.motors.TalonFXMotorController;
 
 public class SwerveSubsystem extends SubsystemBase {
+  private static final byte kNavXUpdateFrequencyHz = 50;
 
   // Constants for motor locations
   private static final double TRACK_LENGTH = 0.6604;
@@ -72,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
 
-  private final AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
+  private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
   private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> ahrs.getAngle());
 
