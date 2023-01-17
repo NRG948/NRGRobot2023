@@ -102,8 +102,8 @@ public class SwerveModule {
             * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
 
     /** The maximum rotational acceleration of the steering motor. */
-    public static final double kMaxSteeringAcceleration = kScalingFactor
-            * ((2 * 4 * kMotorStallTorque) / (2 * kRobotMass));
+    public static final double kMaxSteeringAcceleration = 4 * Math.PI;
+    // kScalingFactor * ((2 * 4 * kMotorStallTorque) / kRobotMass);
 
     /**
      * The kS feedforward control constant for rotation in Volts. This is the
