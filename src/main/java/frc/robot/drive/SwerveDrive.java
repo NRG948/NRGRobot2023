@@ -48,6 +48,8 @@ public class SwerveDrive extends RobotDriveBase {
      *               order: front left, front right, back left, back right
      */
     public void setModuleStates(SwerveModuleState[] states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModule.kMaxDriveSpeed);
+        
         for (int i = 0; i < modules.length; ++i) {
             modules[i].setModuleState(states[i]);
         }
