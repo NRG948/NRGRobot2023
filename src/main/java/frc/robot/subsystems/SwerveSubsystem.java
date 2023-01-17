@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
-import frc.robot.motors.TalonFXMotorController;
 
 public class SwerveSubsystem extends SubsystemBase {
   private static final byte kNavXUpdateFrequencyHz = 50;
@@ -54,17 +53,17 @@ public class SwerveSubsystem extends SubsystemBase {
       BACK_RIGHT_LOCATION);
 
   // 4 pairs of motors for drive & steering.
-  private final TalonFX frontLeftDriveMotor = new TalonFX(1);
-  private final TalonFX frontLeftSteeringMotor = new TalonFX(2);
+  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(1);
+  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(2);
 
-  private final TalonFX frontRightDriveMotor = new TalonFX(3);
-  private final TalonFX frontRightSteeringMotor = new TalonFX(4);
+  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(3);
+  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(4);
 
-  private final TalonFX backLeftDriveMotor = new TalonFX(7);
-  private final TalonFX backLeftSteeringMotor = new TalonFX(8);
+  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(7);
+  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(8);
 
-  private final TalonFX backRightDriveMotor = new TalonFX(5);
-  private final TalonFX backRightSteeringMotor = new TalonFX(6);
+  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(5);
+  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(6);
 
   // 4 CANcoders for the steering angle.
   private final CANCoder frontLeftAngle = new CANCoder(9);
@@ -99,19 +98,18 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-  private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
+  private static SwerveModule createSwerveModule(WPI_TalonFX driveMotor, WPI_TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
     wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
-    TalonFXMotorController driveController = new TalonFXMotorController(driveMotor);
-    TalonFXMotorController steeringController = new TalonFXMotorController(steeringMotor);
-
-    return new SwerveModule(driveController, 
+    return new SwerveModule(
+        driveMotor, 
         driveMotor::getSelectedSensorPosition,
-        // The TalonFX reports the velocity in pulses per 100ms, so we need to
+        // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
-        () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, steeringController,
+        () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, 
+        steeringMotor,
         wheelAngle::getAbsolutePosition, 
         name);
   }
