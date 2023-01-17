@@ -86,14 +86,14 @@ public class SwerveModule {
     private static final double kDriveS = 1.0;
 
     /**
-     * The kV feedforward control constant for translation in Volt * seconds. This
-     * is used to calculate the voltage needed to maintain a constant velocity.
+     * The kV feedforward control constant for translation in Volt * seconds per meter.
+     * This is used to calculate the voltage needed to maintain a constant velocity.
      */
     private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed;
 
     /**
-     * The kA feedforward control constant for translation in Volt * seconds^2. This
-     * is used to calculate the voltage needed to maintain a constant acceleration.
+     * The kA feedforward control constant for translation in Volt * seconds^2 per meter.
+     * This is used to calculate the voltage needed to maintain a constant acceleration.
      */
     private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration;
 
@@ -109,17 +109,17 @@ public class SwerveModule {
      * The kS feedforward control constant for rotation in Volts. This is the
      * voltage needed to overcome the internal friction of the motor.
      */
-    private static final double kSteeringS = 1.0; // voltage needed to overcome friction
+    private static final double kSteeringS = 1.0;
 
     /**
-     * The kV feedforward control constant for rotation in Volt * seconds. This
-     * is used to calculate the voltage needed to maintain a constant velocity.
+     * The kV feedforward control constant for rotation in Volt * seconds per meter.
+     * This is used to calculate the voltage needed to maintain a constant velocity.
      */
     private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed;
 
     /**
-     * The kA feedforward control constant for translation in Volt * seconds^2. This
-     * is used to calculate the voltage needed to maintain a constant acceleration.
+     * The kA feedforward control constant for rotation in Volt * seconds^2 per meter.
+     * This is used to calculate the voltage needed to maintain a constant acceleration.
      */
     private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration;
 
