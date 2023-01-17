@@ -208,7 +208,7 @@ public class SwerveModule {
      * @return The current wheel orientation.
      */
     public Rotation2d getWheelRotation2d() {
-        return Rotation2d.fromDegrees(position.getAsDouble());
+        return Rotation2d.fromDegrees(wheelAngle.getAsDouble());
     }
 
     /**
