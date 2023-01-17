@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SPI;
@@ -46,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private static final Translation2d BACK_LEFT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, TRACK_WIDTH / 2);
   private static final Translation2d BACK_RIGHT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, -TRACK_WIDTH / 2);
 
-  private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+  public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(
       FRONT_LEFT_LOCATION,
       FRONT_RIGHT_LOCATION,
       BACK_LEFT_LOCATION,
@@ -84,9 +85,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle());
+  private final SwerveDrive drivetrain = new SwerveDrive(modules, kKinematics, () -> -ahrs.getAngle());
 
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), drivetrain.getModulesPositions());
+  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kKinematics, getRotation2d(), drivetrain.getModulesPositions());
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -133,6 +134,16 @@ public class SwerveSubsystem extends SubsystemBase {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
   }
 
+  /**
+     * Sets the swerve module states.
+     * 
+     * @param states An array of four {@link SwerveModuleState} objects in the
+     *               order: front left, front right, back left, back right
+     */
+  public void setModuleStates(SwerveModuleState[] states) {
+    drivetrain.setModuleStates(states);
+  }
+
   // Stops motors from the subsystem - may need to remove this (not sure - Om)
   public void stopMotors() {
     drivetrain.stopMotor();
@@ -145,6 +156,15 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetPosition(Pose2d initialPosition) {
     odometry.resetPosition(getRotation2d(), drivetrain.getModulesPositions(), initialPosition);
+  }
+
+  /**
+   * Return current position & orientation of the robot on the field.
+   * 
+   * @return The current position and orientation of the robot.
+   */
+  public Pose2d getPosition() {
+    return odometry.getPoseMeters();
   }
 
   /**

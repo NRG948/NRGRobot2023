@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -37,8 +38,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
  * <a href=
  * "https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf">
  * FRC Drivetrain Characterization</a> paper by Noah Gleason and Eli Barnett of
- * FRC
- * Team 449 - The Blair Robot Project.
+ * FRC Team 449 - The Blair Robot Project.
  */
 public class SwerveModule {
     /** The free speed RPM of a Falcon 500 brushless DC motor. */
@@ -106,6 +106,11 @@ public class SwerveModule {
     // kScalingFactor * ((2 * 4 * kMotorStallTorque) / kRobotMass);
 
     /**
+     *
+     */
+    public static final Constraints kSteeringConstraints = new TrapezoidProfile.Constraints(kMaxSteeringSpeed, kMaxSteeringAcceleration);
+
+    /**
      * The kS feedforward control constant for rotation in Volts. This is the
      * voltage needed to overcome the internal friction of the motor.
      */
@@ -122,6 +127,11 @@ public class SwerveModule {
      * This is used to calculate the voltage needed to maintain a constant acceleration.
      */
     private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration;
+    
+    // models motors mathematically, calculates voltage needed
+    public static final SimpleMotorFeedforward kDriveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
+    public static final SimpleMotorFeedforward kSteeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV,
+            kSteeringA);
 
     private final MotorController driveMotor;
     private final DoubleSupplier position;
@@ -131,12 +141,8 @@ public class SwerveModule {
 
     private final PIDController drivePID = new PIDController(1.0, 0, 0);
     private final ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
-            new TrapezoidProfile.Constraints(kMaxSteeringSpeed, kMaxSteeringAcceleration));
+            kSteeringConstraints);
 
-    // models motors mathematically, calculates voltage needed
-    private final SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
-    private final SimpleMotorFeedforward steeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV,
-            kSteeringA);
 
     private final String name;
 
@@ -174,11 +180,11 @@ public class SwerveModule {
 
         // Calculate the drive motor voltage using PID and FeedForward
         double driveOutput = drivePID.calculate(velocity.getAsDouble(), state.speedMetersPerSecond);
-        double driveFeedForward = this.driveFeedForward.calculate(state.speedMetersPerSecond);
+        double driveFeedForward = kDriveFeedForward.calculate(state.speedMetersPerSecond);
 
         // Calculate the steering motor voltage using PID and FeedForward
         double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), state.angle.getRadians());
-        double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
+        double steeringFeedForward = kSteeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
 
         // Sets voltages of motors
         this.driveMotor.setVoltage(driveOutput + driveFeedForward);
