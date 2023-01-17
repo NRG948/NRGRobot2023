@@ -86,14 +86,16 @@ public class SwerveModule {
     private static final double kDriveS = 1.0;
 
     /**
-     * The kV feedforward control constant for translation in Volt * seconds per meter.
-     * This is used to calculate the voltage needed to maintain a constant velocity.
+     * The kV feedforward control constant for translation in Volt * seconds per
+     * meter. This is used to calculate the voltage needed to maintain a constant
+     * velocity.
      */
     private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed;
 
     /**
-     * The kA feedforward control constant for translation in Volt * seconds^2 per meter.
-     * This is used to calculate the voltage needed to maintain a constant acceleration.
+     * The kA feedforward control constant for translation in Volt * seconds^2 per
+     * meter. This is used to calculate the voltage needed to maintain a constant
+     * acceleration.
      */
     private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration;
 
@@ -108,7 +110,8 @@ public class SwerveModule {
     /**
      *
      */
-    public static final Constraints kSteeringConstraints = new TrapezoidProfile.Constraints(kMaxSteeringSpeed, kMaxSteeringAcceleration);
+    public static final Constraints kSteeringConstraints = new TrapezoidProfile.Constraints(kMaxSteeringSpeed,
+            kMaxSteeringAcceleration);
 
     /**
      * The kS feedforward control constant for rotation in Volts. This is the
@@ -123,15 +126,17 @@ public class SwerveModule {
     private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed;
 
     /**
-     * The kA feedforward control constant for rotation in Volt * seconds^2 per meter.
-     * This is used to calculate the voltage needed to maintain a constant acceleration.
+     * The kA feedforward control constant for rotation in Volt * seconds^2 per
+     * meter. This is used to calculate the voltage needed to maintain a constant
+     * acceleration.
      */
     private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration;
-    
+
     // models motors mathematically, calculates voltage needed
-    public static final SimpleMotorFeedforward kDriveFeedForward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
-    public static final SimpleMotorFeedforward kSteeringFeedForward = new SimpleMotorFeedforward(kSteeringS, kSteeringV,
-            kSteeringA);
+    public static final SimpleMotorFeedforward kDriveFeedForward = new SimpleMotorFeedforward(
+            kDriveS, kDriveV, kDriveA);
+    public static final SimpleMotorFeedforward kSteeringFeedForward = new SimpleMotorFeedforward(
+            kSteeringS, kSteeringV, kSteeringA);
 
     private final MotorController driveMotor;
     private final DoubleSupplier position;
@@ -143,20 +148,25 @@ public class SwerveModule {
     private final ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
             kSteeringConstraints);
 
-
     private final String name;
 
     /**
      * Constructs the swerve module.
      * 
      * @param driveMotor    The drive motor controller.
+     * @param position      Supplies the position in meters.
      * @param velocity      Supplies velocity in meters per second.
      * @param steeringMotor The steering motor controller.
      * @param wheelAngle    Supplies the wheel angle in degrees.
+     * @param name          The name of the module.
      */
-    public SwerveModule(MotorController driveMotor, DoubleSupplier position, DoubleSupplier velocity,
+    public SwerveModule(
+            MotorController driveMotor,
+            DoubleSupplier position,
+            DoubleSupplier velocity,
             MotorController steeringMotor,
-            DoubleSupplier wheelAngle, String name) {
+            DoubleSupplier wheelAngle,
+            String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
         this.wheelAngle = wheelAngle;
