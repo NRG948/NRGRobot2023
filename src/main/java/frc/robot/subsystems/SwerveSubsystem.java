@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
@@ -15,9 +15,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -26,9 +27,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
-import frc.robot.motors.TalonFXMotorController;
 
 public class SwerveSubsystem extends SubsystemBase {
+  private static final byte kNavXUpdateFrequencyHz = 50;
 
   // Constants for motor locations
   private static final double INCHES_PER_METER = 39.37;
@@ -48,24 +49,24 @@ public class SwerveSubsystem extends SubsystemBase {
   private static final Translation2d BACK_LEFT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, TRACK_WIDTH / 2);
   private static final Translation2d BACK_RIGHT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, -TRACK_WIDTH / 2);
 
-  private static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+  public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(
       FRONT_LEFT_LOCATION,
       FRONT_RIGHT_LOCATION,
       BACK_LEFT_LOCATION,
       BACK_RIGHT_LOCATION);
 
   // 4 pairs of motors for drive & steering.
-  private final TalonFX frontLeftDriveMotor = new TalonFX(1);
-  private final TalonFX frontLeftSteeringMotor = new TalonFX(2);
+  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(1);
+  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(2);
 
-  private final TalonFX frontRightDriveMotor = new TalonFX(3);
-  private final TalonFX frontRightSteeringMotor = new TalonFX(4);
+  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(3);
+  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(4);
 
-  private final TalonFX backLeftDriveMotor = new TalonFX(7);
-  private final TalonFX backLeftSteeringMotor = new TalonFX(8);
+  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(7);
+  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(8);
 
-  private final TalonFX backRightDriveMotor = new TalonFX(5);
-  private final TalonFX backRightSteeringMotor = new TalonFX(6);
+  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(5);
+  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(6);
 
   // 4 CANcoders for the steering angle.
   private final CANCoder frontLeftAngle = new CANCoder(9);
@@ -84,11 +85,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
 
-  private final AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
+  private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle(), MAX_ROTATIONAL_VELOCITY);
+  private final SwerveDrive drivetrain = new SwerveDrive(modules, kKinematics, () -> -ahrs.getAngle(), MAX_ROTATIONAL_VELOCITY);
 
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), drivetrain.getModulesPositions());
+  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kKinematics, getRotation2d(), drivetrain.getModulesPositions());
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -96,23 +97,22 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param driveMotor    The drive motor controller.
    * @param steeringMotor The steering motor controller.
    * @param wheelAngle    An absolute encoder that measures the wheel angle.
+   * @param name          The name of the module.
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-
-  private static SwerveModule createSwerveModule(TalonFX driveMotor, TalonFX steeringMotor, CANCoder wheelAngle, String name) {
+  private static SwerveModule createSwerveModule(WPI_TalonFX driveMotor, WPI_TalonFX steeringMotor, CANCoder wheelAngle, String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
     wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
-    TalonFXMotorController driveController = new TalonFXMotorController(driveMotor);
-    TalonFXMotorController steeringController = new TalonFXMotorController(steeringMotor);
-
-    return new SwerveModule(driveController, 
+    return new SwerveModule(
+        driveMotor, 
         driveMotor::getSelectedSensorPosition,
-        // The TalonFX reports the velocity in pulses per 100ms, so we need to
+        // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
-        () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, steeringController,
+        () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, 
+        steeringMotor,
         wheelAngle::getAbsolutePosition, 
         name);
   }
@@ -136,6 +136,16 @@ public class SwerveSubsystem extends SubsystemBase {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
   }
 
+  /**
+     * Sets the swerve module states.
+     * 
+     * @param states An array of four {@link SwerveModuleState} objects in the
+     *               order: front left, front right, back left, back right
+     */
+  public void setModuleStates(SwerveModuleState[] states) {
+    drivetrain.setModuleStates(states);
+  }
+
   // Stops motors from the subsystem - may need to remove this (not sure - Om)
   public void stopMotors() {
     drivetrain.stopMotor();
@@ -148,6 +158,15 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetPosition(Pose2d initialPosition) {
     odometry.resetPosition(getRotation2d(), drivetrain.getModulesPositions(), initialPosition);
+  }
+
+  /**
+   * Return current position & orientation of the robot on the field.
+   * 
+   * @return The current position and orientation of the robot.
+   */
+  public Pose2d getPosition() {
+    return odometry.getPoseMeters();
   }
 
   /**

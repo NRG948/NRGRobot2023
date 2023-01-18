@@ -10,11 +10,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 
 /** SwerveDrive implements swerve drive control. */
@@ -50,6 +49,8 @@ public class SwerveDrive extends RobotDriveBase {
      *               order: front left, front right, back left, back right
      */
     public void setModuleStates(SwerveModuleState[] states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModule.kMaxDriveSpeed);
+        
         for (int i = 0; i < modules.length; ++i) {
             modules[i].setModuleState(states[i]);
         }
@@ -82,7 +83,6 @@ public class SwerveDrive extends RobotDriveBase {
     public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
         // Applies deadbands to x, y, and rotation joystick values and multiples all
         // values with max speed.
-        // TODO: should the deadbands be applied in DriveWithController? 
         xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * maxRotationalVelocity;
