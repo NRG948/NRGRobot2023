@@ -19,11 +19,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
-
+   
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final DoubleSupplier fieldOrientation;
-
+    private final double maxRotationalVelocity;
 
     /**
      * constructs the swerve drive
@@ -36,10 +36,11 @@ public class SwerveDrive extends RobotDriveBase {
      *                         states.
      * @param fieldOrientation Supplies the robot orientation relative to the field.
      */
-    public SwerveDrive(SwerveModule[] modules, SwerveDriveKinematics kinematics, DoubleSupplier fieldOrientation) {
+    public SwerveDrive(SwerveModule[] modules, SwerveDriveKinematics kinematics, DoubleSupplier fieldOrientation, double maxRotationalVelocity) {
         this.modules = modules;
         this.kinematics = kinematics;
         this.fieldOrientation = fieldOrientation;
+        this.maxRotationalVelocity = maxRotationalVelocity;
     }
 
     /**
@@ -84,7 +85,7 @@ public class SwerveDrive extends RobotDriveBase {
         // TODO: should the deadbands be applied in DriveWithController? 
         xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
         ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
-        rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * SwerveModule.kMaxSteeringSpeed;
+        rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * maxRotationalVelocity;
 
         if (squareInputs) {
             xSpeed *= xSpeed;

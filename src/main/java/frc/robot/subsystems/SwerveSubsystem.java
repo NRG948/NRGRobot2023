@@ -35,6 +35,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private static final double TRACK_LENGTH = 26.3 / INCHES_PER_METER;
   private static final double TRACK_WIDTH = 19.5 / INCHES_PER_METER;
 
+  public static double MAX_ROTATIONAL_VELOCITY = SwerveModule.kMaxDriveSpeed / Math.hypot(TRACK_WIDTH / 2, TRACK_LENGTH / 2);
+
   private static final double WHEEL_RADIUS = 0.047625; // Meters
   private static final int ENCODER_RESOLUTION = 2048; // Steps per Rev
   private static final double DRIVE_GEAR_RATIO = 8.14; // Gear ratio
@@ -84,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle());
+  private final SwerveDrive drivetrain = new SwerveDrive(modules, kinematics, () -> -ahrs.getAngle(), MAX_ROTATIONAL_VELOCITY);
 
   private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getRotation2d(), drivetrain.getModulesPositions());
 
