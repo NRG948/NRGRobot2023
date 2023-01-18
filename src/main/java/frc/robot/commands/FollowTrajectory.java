@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.drive.SwerveModule;
@@ -46,6 +47,7 @@ public class FollowTrajectory extends SwerveControllerCommand {
       Pose2d end,
       TrajectoryConstraint... constraints) {
     TrajectoryConfig config = new TrajectoryConfig(SwerveModule.kMaxDriveSpeed, SwerveModule.kMaxDriveAcceleration)
+        .addConstraint(new SwerveDriveKinematicsConstraint(SwerveSubsystem.kKinematics, SwerveModule.kMaxDriveSpeed))
         .addConstraints(List.of(constraints));
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(start, waypoints, end, config);
 
