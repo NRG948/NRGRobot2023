@@ -12,10 +12,11 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SPI;
@@ -27,34 +28,14 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
+import frc.robot.parameters.SwerveDriveParameters;
 
 public class SwerveSubsystem extends SubsystemBase {
+  public static SwerveDriveParameters PARAMETERS = SwerveDriveParameters.Competition2022;
+
   private static final byte kNavXUpdateFrequencyHz = 50;
 
-  // Constants for motor locations
-  private static final double INCHES_PER_METER = 39.37;
-  private static final double TRACK_LENGTH = 26.3 / INCHES_PER_METER;
-  private static final double TRACK_WIDTH = 19.5 / INCHES_PER_METER;
-
-  public static double MAX_ROTATIONAL_VELOCITY = SwerveModule.kMaxDriveSpeed / Math.hypot(TRACK_WIDTH / 2, TRACK_LENGTH / 2);
-
-  // private static final double WHEEL_RADIUS = 0.047625; // Meters
-  private static final double WHEEL_RADIUS = 0.0508; // Meters
-  private static final int ENCODER_RESOLUTION = 2048; // Steps per Rev
-  private static final double DRIVE_GEAR_RATIO = 8.14; // Gear ratio
-  private static final double DRIVE_PULSES_PER_METER = (ENCODER_RESOLUTION * DRIVE_GEAR_RATIO)
-      / (2 * WHEEL_RADIUS * Math.PI); // pulses per meter
-
-  private static final Translation2d FRONT_LEFT_LOCATION = new Translation2d(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
-  private static final Translation2d FRONT_RIGHT_LOCATION = new Translation2d(TRACK_LENGTH / 2, -TRACK_WIDTH / 2);
-  private static final Translation2d BACK_LEFT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, TRACK_WIDTH / 2);
-  private static final Translation2d BACK_RIGHT_LOCATION = new Translation2d(-TRACK_LENGTH / 2, -TRACK_WIDTH / 2);
-
-  public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(
-      FRONT_LEFT_LOCATION,
-      FRONT_RIGHT_LOCATION,
-      BACK_LEFT_LOCATION,
-      BACK_RIGHT_LOCATION);
+  public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(PARAMETERS.getWheelPositions());
 
   // 4 pairs of motors for drive & steering.
   private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(1);
@@ -88,9 +69,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  private final SwerveDrive drivetrain = new SwerveDrive(modules, kKinematics, () -> -ahrs.getAngle(), MAX_ROTATIONAL_VELOCITY);
+  SwerveDriveKinematics kinematics = PARAMETERS.getKinematics();
 
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kKinematics, getRotation2d(), drivetrain.getModulesPositions());
+  private final SwerveDrive drivetrain = new SwerveDrive(
+      PARAMETERS, modules, () -> -ahrs.getAngle());
+
+  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
+      kinematics, getRotation2d(), drivetrain.getModulesPositions());
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -102,17 +87,23 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-  private static SwerveModule createSwerveModule(WPI_TalonFX driveMotor, WPI_TalonFX steeringMotor, CANCoder wheelAngle, String name) {
+  private static SwerveModule createSwerveModule(WPI_TalonFX driveMotor, WPI_TalonFX steeringMotor, CANCoder wheelAngle,
+      String name) {
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
     wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
+    final double drivePulsesPerMeter = PARAMETERS.getDrivePulsesPerMeter();
+
     return new SwerveModule(
+        PARAMETERS,
         driveMotor, 
-        () -> driveMotor.getSelectedSensorPosition() / DRIVE_PULSES_PER_METER,
+        () -> {
+          return driveMotor.getSelectedSensorPosition() / drivePulsesPerMeter;
+        },
         // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
-        () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, 
+        () -> (driveMotor.getSelectedSensorVelocity() * 10) / drivePulsesPerMeter,
         steeringMotor,
         () -> Rotation2d.fromDegrees(-wheelAngle.getAbsolutePosition()), 
         name);
@@ -122,6 +113,48 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     ahrs.reset();
     drivetrain.setDeadband(0.1);
+  }
+
+  /**
+   * Returns the maximum drive speed in m/s of a swerve module.
+   * 
+   * @return The maximum drive speed.
+   */
+  public double getMaxSpeed() {
+    return PARAMETERS.getMaxDriveSpeed();
+  }
+
+  /**
+   * Returns the maximum drive acceleration in m/s^2 of a swerve module.
+   * 
+   * @return The maximum drive acceleration.
+   */
+  public double getMaxAcceleration() {
+    return PARAMETERS.getMaxDriveAcceleration();
+  }
+
+  /**
+   * Returns a {@link SwerveDriveKinematicsConstraint} object used to enforce
+   * swerve drive kinematics constraints when following a trajectory.
+   * 
+   * @return A {@link SwerveDriveKinematicsConstraint} object used to enforce
+   *         swerve drive kinematics constraints when following a trajectory.
+   */
+  public SwerveDriveKinematicsConstraint getKinematicsConstraint() {
+    return PARAMETERS.getKinematicsConstraint();
+  }
+
+  /**
+   * Returns a {@link TrapezoidProfile.Constraints} object used to enforce
+   * velocity and acceleration constraints on the {@link ProfiledPIDController}
+   * used to reach the goal wheel angle.
+   * 
+   * @return A {@link TrapezoidProfile.Constraints} object used to enforce
+   *         velocity and acceleration constraints on the controller used to reach
+   *         the goal wheel angle.
+   */
+  public TrapezoidProfile.Constraints getSteeringConstraints() {
+    return PARAMETERS.getSteeringConstraints();
   }
 
   /**
@@ -138,11 +171,11 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-     * Sets the swerve module states.
-     * 
-     * @param states An array of four {@link SwerveModuleState} objects in the
-     *               order: front left, front right, back left, back right
-     */
+   * Sets the swerve module states.
+   * 
+   * @param states An array of four {@link SwerveModuleState} objects in the
+   *               order: front left, front right, back left, back right
+   */
   public void setModuleStates(SwerveModuleState[] states) {
     drivetrain.setModuleStates(states);
   }
@@ -199,16 +232,16 @@ public class SwerveSubsystem extends SubsystemBase {
   public void addShuffleboardTab() {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
-    
+
     ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
         .withPosition(6, 0)
-        .withSize(3,4);
+        .withSize(3, 4);
     layout.add("Gyro", new Sendable() {
 
       @Override
       public void initSendable(SendableBuilder builder) {
-          builder.setSmartDashboardType("Gyro");
-          builder.addDoubleProperty("Value", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+        builder.setSmartDashboardType("Gyro");
+        builder.addDoubleProperty("Value", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
       }
     }).withWidget(BuiltInWidgets.kGyro);
     layout.addDouble("x", () -> odometry.getPoseMeters().getX());

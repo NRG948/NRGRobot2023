@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.parameters.SwerveDriveParameters;
 
 /**
  * Manages the drive and steering motors of a single swerve drive module.
@@ -34,126 +35,29 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
  * "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html">
  * Introduction to DC Motor Feedforward</a> articles of the WPILib
  * documentation.
- * <p>
- * The calculations for the theoretical maximum speeds are taken from the
- * <a href=
- * "https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf">
- * FRC Drivetrain Characterization</a> paper by Noah Gleason and Eli Barnett of
- * FRC Team 449 - The Blair Robot Project.
  */
 public class SwerveModule {
-    /** The free speed RPM of a Falcon 500 brushless DC motor. */
-    private static final double kFreeSpeedRPM = 6380;
-
-    /** The stall torque of a Falcon 500 brushless DC motor. */
-    private static final double kMotorStallTorque = 4.69; // Nm
-
-    /**
-     * The gear ratio of the drive motor to the wheel for the Swerve Specialties MK4
-     * swerve module.
-     */
-    private static final double kDriveGearRatio = 8.14;
-
-    /**
-     * The gear ratio of the steering motor to the wheel for the Swerve Specialties
-     * MK4 swerve module.
-     */
-    private static final double kSteeringGearRatio = 12.8;
-
-    /** The wheel radius of a standard 4" wheel in meters. */
-    private static final double kWheelRadius = 0.047625;
-
-    /** The mass of the robot in kilograms. */
-    private static final double kRobotMass = 67.5853; // Kg
-
-    /**
-     * A scaling factor used to adjust from theoretical maximums given that physical
-     * system generally cannot achieve them.
-     */
-    private static final double kScalingFactor = 0.8;
-
-    /** The maximum drive speed in meters per second. */
-    public static final double kMaxDriveSpeed = kScalingFactor
-            * ((kFreeSpeedRPM * 2 * kWheelRadius * Math.PI) / (60 * kDriveGearRatio));
-
-    /** The maximum drive acceleration in meters per second per second. */
-    public static final double kMaxDriveAcceleration = kScalingFactor
-            * ((2 * 4 * kMotorStallTorque) / (2 * kWheelRadius * kRobotMass));
-
-    /**
-     * The kS feedforward control constant for translation in Volts. This is the
-     * voltage needed to overcome the internal friction of the motor.
-     */
-    private static final double kDriveS = 1.0;
-
-    /**
-     * The kV feedforward control constant for translation in Volt * seconds per
-     * meter. This is used to calculate the voltage needed to maintain a constant
-     * velocity.
-     */
-    private static final double kDriveV = (12.0 - kDriveS) / kMaxDriveSpeed;
-
-    /**
-     * The kA feedforward control constant for translation in Volt * seconds^2 per
-     * meter. This is used to calculate the voltage needed to maintain a constant
-     * acceleration.
-     */
-    private static final double kDriveA = (12.0 - kDriveS) / kMaxDriveAcceleration;
-
-    /** The maximum rotational velocity of the steering motor. */
-    public static final double kMaxSteeringSpeed = kScalingFactor
-            * ((kFreeSpeedRPM * 2 * Math.PI) / (60 * kSteeringGearRatio));
-
-    /** The maximum rotational acceleration of the steering motor. */
-    public static final double kMaxSteeringAcceleration = 4 * Math.PI;
-    // kScalingFactor * ((2 * 4 * kMotorStallTorque) / kRobotMass);
-
-    /**
-     *
-     */
-    public static final Constraints kSteeringConstraints = new TrapezoidProfile.Constraints(kMaxSteeringSpeed,
-            kMaxSteeringAcceleration);
-
-    /**
-     * The kS feedforward control constant for rotation in Volts. This is the
-     * voltage needed to overcome the internal friction of the motor.
-     */
-    private static final double kSteeringS = 1.0;
-
-    /**
-     * The kV feedforward control constant for rotation in Volt * seconds per meter.
-     * This is used to calculate the voltage needed to maintain a constant velocity.
-     */
-    private static final double kSteeringV = (12.0 - kSteeringS) / kMaxSteeringSpeed;
-
-    /**
-     * The kA feedforward control constant for rotation in Volt * seconds^2 per
-     * meter. This is used to calculate the voltage needed to maintain a constant
-     * acceleration.
-     */
-    private static final double kSteeringA = (12.0 - kSteeringS) / kMaxSteeringAcceleration;
-
-    // models motors mathematically, calculates voltage needed
-    public static final SimpleMotorFeedforward kDriveFeedForward = new SimpleMotorFeedforward(
-            kDriveS, kDriveV, kDriveA);
-    public static final SimpleMotorFeedforward kSteeringFeedForward = new SimpleMotorFeedforward(
-            kSteeringS, kSteeringV, kSteeringA);
-
     private final MotorController driveMotor;
     private final DoubleSupplier position;
     private final DoubleSupplier velocity;
     private final MotorController steeringMotor;
     private final Supplier<Rotation2d> wheelAngle;
 
-    private final PIDController drivePID = new PIDController(5.0, 0, 0.1);
-    private final ProfiledPIDController steeringPID = new ProfiledPIDController(7.0, 0, 0.05,
-            kSteeringConstraints);
+    // models motors mathematically, calculates voltage needed
+    private final SimpleMotorFeedforward driveFeedForward;
+    private final SimpleMotorFeedforward steeringFeedForward;
+
+    private final PIDController drivePID;
+    private final ProfiledPIDController steeringPID;
 
     private final String name;
 
     /**
      * Constructs the swerve module.
      * 
+     * @param parameters    A {@link SwerveDriveParameters} object providing
+     *                      information on the physical swerve drive
+     *                      characteristics.
      * @param driveMotor    The drive motor controller.
      * @param position      Supplies the position in meters.
      * @param velocity      Supplies velocity in meters per second.
@@ -162,6 +66,7 @@ public class SwerveModule {
      * @param name          The name of the module.
      */
     public SwerveModule(
+            SwerveDriveParameters parameters,
             MotorController driveMotor,
             DoubleSupplier position,
             DoubleSupplier velocity,
@@ -175,7 +80,15 @@ public class SwerveModule {
         this.velocity = velocity;
         this.name = name;
 
-        steeringPID.enableContinuousInput(-Math.PI, Math.PI);
+        this.driveFeedForward = new SimpleMotorFeedforward(
+                parameters.getDriveKs(), parameters.getDriveKv(), parameters.getDriveKa());
+        this.steeringFeedForward = new SimpleMotorFeedforward(
+                parameters.getSteeringKs(), parameters.getSteeringKv(), parameters.getSteeringKa());
+
+        this.drivePID = new PIDController(5.0, 0, 0.1);
+
+        this.steeringPID = new ProfiledPIDController(7.0, 0, 0.05, parameters.getSteeringConstraints());
+        this.steeringPID.enableContinuousInput(-Math.PI, Math.PI);
         steeringPID.reset(wheelAngle.get().getRadians());
     }
 
@@ -191,11 +104,11 @@ public class SwerveModule {
 
         // Calculate the drive motor voltage using PID and FeedForward
         double driveOutput = drivePID.calculate(velocity.getAsDouble(), state.speedMetersPerSecond);
-        double driveFeedForward = kDriveFeedForward.calculate(state.speedMetersPerSecond);
+        double driveFeedForward = this.driveFeedForward.calculate(state.speedMetersPerSecond);
 
         // Calculate the steering motor voltage using PID and FeedForward
         double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), state.angle.getRadians());
-        double steeringFeedForward = kSteeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
+        double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
 
         // Sets voltages of motors
         this.driveMotor.setVoltage(driveOutput + driveFeedForward);
