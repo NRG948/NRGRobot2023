@@ -5,6 +5,7 @@
 package frc.robot.drive;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -142,10 +143,10 @@ public class SwerveModule {
     private final DoubleSupplier position;
     private final DoubleSupplier velocity;
     private final MotorController steeringMotor;
-    private final DoubleSupplier wheelAngle;
+    private final Supplier<Rotation2d> wheelAngle;
 
-    private final PIDController drivePID = new PIDController(1.0, 0, 0);
-    private final ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
+    private final PIDController drivePID = new PIDController(5.0, 0, 0.1);
+    private final ProfiledPIDController steeringPID = new ProfiledPIDController(7.0, 0, 0.05,
             kSteeringConstraints);
 
     private final String name;
@@ -165,7 +166,7 @@ public class SwerveModule {
             DoubleSupplier position,
             DoubleSupplier velocity,
             MotorController steeringMotor,
-            DoubleSupplier wheelAngle,
+            Supplier<Rotation2d> wheelAngle,
             String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
@@ -175,7 +176,7 @@ public class SwerveModule {
         this.name = name;
 
         steeringPID.enableContinuousInput(-Math.PI, Math.PI);
-        steeringPID.reset(position.getAsDouble(), velocity.getAsDouble());
+        steeringPID.reset(wheelAngle.get().getRadians());
     }
 
     /**
@@ -224,7 +225,7 @@ public class SwerveModule {
      * @return The current wheel orientation.
      */
     public Rotation2d getWheelRotation2d() {
-        return Rotation2d.fromDegrees(wheelAngle.getAsDouble());
+        return wheelAngle.get();
     }
 
     /**
@@ -240,7 +241,7 @@ public class SwerveModule {
             @Override
             public void initSendable(SendableBuilder builder) {
                 builder.setSmartDashboardType("Gyro");
-                builder.addDoubleProperty("Value", wheelAngle, null);
+                builder.addDoubleProperty("Value", () -> wheelAngle.get().getDegrees(), null);
             }
         }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
         return layout;

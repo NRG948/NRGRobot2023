@@ -2,26 +2,25 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 
-public class AddressableLEDSubsystem extends SubsystemBase {
+public class AddressableLEDs {
+  //private static final int NUMBER_OF_LEDS = 10; // number of LED's on the Strip
+  private AddressableLED led; // Creates the new object, on port 0
+  private final AddressableLEDBuffer ledBuffer;
+  
   /** Creates a new AddressableLED. */
-  private static final int NUMBER_OF_LEDS = 10; // number of LED's on the Strip
-  private static AddressableLED led; // Creates the new object, on port 0
-  private static final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(NUMBER_OF_LEDS);
-
-  public AddressableLEDSubsystem(int port) {
+  public AddressableLEDs(int port, int numberOfLEDs) {
     led = new AddressableLED(port);
-    led.setLength(NUMBER_OF_LEDS);
-    
+    led.setLength(numberOfLEDs);
+    ledBuffer = new AddressableLEDBuffer(numberOfLEDs);
     led.setData(ledBuffer);
   }
 
@@ -37,17 +36,10 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     led.stop();
   }
 
-  public void setColor(AddressableLED led, Color8Bit color) {
+  public void setColor(Color8Bit color) {
     for(var i = 0; i<ledBuffer.getLength(); i++){
-      ledBuffer.setRGB(i, color.blue, color.green, color.red);
+      ledBuffer.setRGB(i, color.red, color.green, color.blue);
     }
     led.setData(ledBuffer);
-  }
-
-
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 }
