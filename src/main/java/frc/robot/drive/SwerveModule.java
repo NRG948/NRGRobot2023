@@ -144,8 +144,8 @@ public class SwerveModule {
     private final MotorController steeringMotor;
     private final DoubleSupplier wheelAngle;
 
-    private final PIDController drivePID = new PIDController(1.0, 0, 0);
-    private final ProfiledPIDController steeringPID = new ProfiledPIDController(1.0, 0, 0,
+    private final PIDController drivePID = new PIDController(5.0, 0, 0.1);
+    private final ProfiledPIDController steeringPID = new ProfiledPIDController(7.0, 0, 0.05,
             kSteeringConstraints);
 
     private final String name;
