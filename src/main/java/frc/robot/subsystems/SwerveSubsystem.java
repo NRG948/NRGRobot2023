@@ -109,7 +109,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     return new SwerveModule(
         driveMotor, 
-        driveMotor::getSelectedSensorPosition,
+        () -> driveMotor.getSelectedSensorPosition() / DRIVE_PULSES_PER_METER,
         // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / DRIVE_PULSES_PER_METER, 
