@@ -4,12 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-
-import java.util.ArrayList;
-
-import edu.wpi.first.wpilibj.AddressableLED;
 
 public class AddressableLEDs {
   //private static final int NUMBER_OF_LEDS = 10; // number of LED's on the Strip

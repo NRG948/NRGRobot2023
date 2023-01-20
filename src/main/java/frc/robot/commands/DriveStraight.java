@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.drive.SwerveDrive;
 
 public class DriveStraight extends CommandBase {
 
