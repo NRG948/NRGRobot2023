@@ -38,7 +38,7 @@ public class AddressableLEDs {
 
   public void setColor(Color8Bit color) {
     for(var i = 0; i<ledBuffer.getLength(); i++){
-      ledBuffer.setRGB(i, color.blue, color.green, color.red);
+      ledBuffer.setRGB(i, color.red, color.green, color.blue);
     }
     led.setData(ledBuffer);
   }
