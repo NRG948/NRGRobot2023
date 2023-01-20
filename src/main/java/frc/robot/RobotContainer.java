@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -65,7 +66,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
+    int red = (int) (255 * Math.random());
+    int green = (int) (255 * Math.random());
+    int blue = (int) (255 * Math.random());
+    m_driverController.y().onTrue(new InstantCommand(()->leds.setColor(new Color8Bit(red,green,blue))));
   }
 
   /**
