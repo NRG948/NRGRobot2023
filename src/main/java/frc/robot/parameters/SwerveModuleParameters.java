@@ -28,7 +28,7 @@ public enum SwerveModuleParameters {
 
   /** An MK4 Swerve Module in the L3 - Very Fast configuration. */
   MK4VeryFast(Units.inchesToMeters(4.0), 6.12, 12.8),
-  
+
   /** An MK4 Swerve Module in the L4 - Too Fast configuration. */
   MK4TooFast(Units.inchesToMeters(4.0), 5.14, 12.8);
 
@@ -108,7 +108,7 @@ public enum SwerveModuleParameters {
    * @return The theoretical maximum drive acceleration.
    */
   public double calculateMaxDriveAcceleration(MotorParameters motor, double robotMass) {
-    return (2 * 4 * motor.getStallTorque()) / (this.wheelDiameter * robotMass);
+    return (2 * 4 * motor.getStallTorque() * this.driveGearRatio) / (this.wheelDiameter * robotMass);
   }
 
   /**
@@ -131,7 +131,6 @@ public enum SwerveModuleParameters {
    * @return The theoretical maximum drive acceleration.
    */
   public double calculateMaxSteeringAcceleration(MotorParameters motor, double robotMass) {
-    // TODO: Determine correct calculation.
-    return 4 * Math.PI;
+    return (2 * 4 * motor.getStallTorque() * this.steeringGearRatio * 2 * Math.PI) / robotMass;
   }
 }
