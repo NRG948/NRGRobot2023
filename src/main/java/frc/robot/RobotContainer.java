@@ -34,7 +34,7 @@ public class RobotContainer {
 
   private DriveWithController driveWithController = new DriveWithController(swerveSubsystem, driveController);
 
-  public static AddressableLEDs leds = new AddressableLEDs(2, 26);
+  public static AddressableLEDs leds = new AddressableLEDs(2, 51);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
