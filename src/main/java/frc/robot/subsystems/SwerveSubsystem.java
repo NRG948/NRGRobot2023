@@ -179,6 +179,15 @@ public class SwerveSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(-ahrs.getAngle());
   }
 
+  /**
+   * Returns the tilt of the robot as a {@link Rotation2d} object.
+   * 
+   * @return Gets the tilt of the robot (positive is nose up, negative is nose down).
+   */
+  public Rotation2d getTilt() {
+    return Rotation2d.fromDegrees(-ahrs.getRoll());
+  }
+
   @Override
   public void periodic() {
     odometry.update(getRotation2d(), drivetrain.getModulesPositions());
