@@ -205,5 +205,8 @@ public class SwerveSubsystem extends SubsystemBase {
     layout.addDouble("x", () -> odometry.getPoseMeters().getX());
     layout.addDouble("y", () -> odometry.getPoseMeters().getY());
 
+    layout.addDouble("pitch", () -> ahrs.getPitch());
+    layout.addDouble("roll", () -> ahrs.getRoll());
+
   }
 }
