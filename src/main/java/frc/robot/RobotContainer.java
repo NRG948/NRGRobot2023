@@ -7,12 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveWithController;
-import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 /**
@@ -34,6 +34,8 @@ public class RobotContainer {
 
   private DriveWithController driveWithController = new DriveWithController(swerveSubsystem, driveController);
 
+  public static AddressableLEDs leds = new AddressableLEDs(2, 26);
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -46,9 +48,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     swerveSubsystem.addShuffleboardTab();
-
-    AddressableLEDSubsystem led = new AddressableLEDSubsystem(2);
-    led.setColor(led.getLED(), new Color8Bit(255, 0, 0));
+    leds.start();
+    leds.setColor(new Color8Bit(255, 0, 0));
   }
 
   /**
@@ -67,6 +68,12 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
+    m_driverController.y().onTrue(new InstantCommand(() -> {
+      int red = (int) (255 * Math.random());
+      int green = (int) (255 * Math.random());
+      int blue = (int) (255 * Math.random());
+      leds.setColor(new Color8Bit(red, green, blue));
+    }));
   }
 
   /**
