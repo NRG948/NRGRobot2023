@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -54,6 +55,8 @@ public class RobotContainer {
     subsystems.drivetrain.setDefaultCommand(driveWithController);
     autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
     initShuffleboard();
+    DriverStation.silenceJoystickConnectionWarning(true);
+    
     // Configure the trigger bindings
     configureBindings();
     leds.start();
