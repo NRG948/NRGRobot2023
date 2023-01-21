@@ -46,8 +46,8 @@ public class FollowTrajectory extends SwerveControllerCommand {
       List<Translation2d> waypoints,
       Pose2d end,
       TrajectoryConstraint... constraints) {
-    TrajectoryConfig config = new TrajectoryConfig(SwerveModule.kMaxDriveSpeed, SwerveModule.kMaxDriveAcceleration)
-        .addConstraint(new SwerveDriveKinematicsConstraint(SwerveSubsystem.kKinematics, SwerveModule.kMaxDriveSpeed))
+    TrajectoryConfig config = new TrajectoryConfig(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration())
+        .addConstraint(drivetrain.getKinematicsConstraint())
         .addConstraints(List.of(constraints));
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(start, waypoints, end, config);
 
@@ -74,9 +74,11 @@ public class FollowTrajectory extends SwerveControllerCommand {
    * 
    * @return A new ProfiledPIDController for steering control.
    */
-  private static ProfiledPIDController createProfiledPIDController() {
-    ProfiledPIDController ppc = new ProfiledPIDController(1.0, 0.0, 0.0, SwerveModule.kSteeringConstraints);
+  private static ProfiledPIDController createProfiledPIDController(SwerveSubsystem drivetrain) {
+    ProfiledPIDController ppc = new ProfiledPIDController(1.0, 0.0, 0.0, drivetrain.getSteeringConstraints());
+
     ppc.enableContinuousInput(-Math.PI, Math.PI);
+
     return ppc;
   }
 
@@ -94,7 +96,7 @@ public class FollowTrajectory extends SwerveControllerCommand {
         new HolonomicDriveController(
             new PIDController(1.0, 0.0, 0.0),
             new PIDController(1.0, 0.0, 0.0),
-            FollowTrajectory.createProfiledPIDController()),
+            FollowTrajectory.createProfiledPIDController(drivetrain)),
         drivetrain::setModuleStates);
     this.drivetrain = drivetrain;
   }

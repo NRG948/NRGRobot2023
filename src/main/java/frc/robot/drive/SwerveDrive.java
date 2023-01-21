@@ -14,19 +14,22 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-
+import frc.robot.parameters.SwerveDriveParameters;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
-   
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final DoubleSupplier fieldOrientation;
-    private final double maxRotationalVelocity;
+    private final double maxDriveSpeed;
+    private final double maxRotationalSpeed;
 
     /**
      * constructs the swerve drive
      * 
+     * @param parameters       A {@link SwerveDriveParameters} object providing
+     *                         information on the physical swerve drive
+     *                         characteristics.
      * @param modules          An array of four {@link SwerveModule} objects in the
      *                         order: front left, front right, back left, back
      *                         right.
@@ -35,11 +38,15 @@ public class SwerveDrive extends RobotDriveBase {
      *                         states.
      * @param fieldOrientation Supplies the robot orientation relative to the field.
      */
-    public SwerveDrive(SwerveModule[] modules, SwerveDriveKinematics kinematics, DoubleSupplier fieldOrientation, double maxRotationalVelocity) {
+    public SwerveDrive(
+            SwerveDriveParameters parameters,
+            SwerveModule[] modules,
+            DoubleSupplier fieldOrientation) {
         this.modules = modules;
-        this.kinematics = kinematics;
+        this.kinematics = parameters.getKinematics();
         this.fieldOrientation = fieldOrientation;
-        this.maxRotationalVelocity = maxRotationalVelocity;
+        this.maxDriveSpeed = parameters.getMaxDriveSpeed();
+        this.maxRotationalSpeed = parameters.getMaxRobotRotationalSpeed();
     }
 
     /**
@@ -49,8 +56,8 @@ public class SwerveDrive extends RobotDriveBase {
      *               order: front left, front right, back left, back right
      */
     public void setModuleStates(SwerveModuleState[] states) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModule.kMaxDriveSpeed);
-        
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, maxDriveSpeed);
+
         for (int i = 0; i < modules.length; ++i) {
             modules[i].setModuleState(states[i]);
         }
@@ -83,9 +90,9 @@ public class SwerveDrive extends RobotDriveBase {
     public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
         // Applies deadbands to x, y, and rotation joystick values and multiples all
         // values with max speed.
-        xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
-        ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * SwerveModule.kMaxDriveSpeed;
-        rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * maxRotationalVelocity;
+        xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
+        ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
+        rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * m_maxOutput * maxRotationalSpeed;
 
         if (squareInputs) {
             xSpeed *= xSpeed;
@@ -109,8 +116,8 @@ public class SwerveDrive extends RobotDriveBase {
      */
     public SwerveModulePosition[] getModulesPositions() {
         SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
-        for(int i = 0; i < modules.length; i++) {
-            modulePosition[i] = modules[i].getPosition(); 
+        for (int i = 0; i < modules.length; i++) {
+            modulePosition[i] = modules[i].getPosition();
         }
         return modulePosition;
     }
