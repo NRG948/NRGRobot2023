@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -13,6 +18,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveWithController;
 import frc.robot.subsystems.Subsystems;
+import com.nrg948.autonomous.Autonomous;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -39,14 +45,17 @@ public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
 
+  public final SendableChooser<Command> autonomousCommandChooser;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     subsystems.drivetrain.setDefaultCommand(driveWithController);
+    autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
+    initShuffleboard();
     // Configure the trigger bindings
     configureBindings();
-    subsystems.drivetrain.addShuffleboardTab();
     leds.start();
     leds.setColor(new Color8Bit(255, 0, 0));
   }
@@ -76,12 +85,23 @@ public class RobotContainer {
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+   * Returns the autonomous command selected in the chooser.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(subsystems.drivetrain);
+    return autonomousCommandChooser.getSelected();
+  }
+
+  /** Adds the Shuffleboard tabs for the robot. */
+  private void initShuffleboard() {
+    ShuffleboardTab operatorTab = Shuffleboard.getTab("Operator");
+    ShuffleboardLayout autonomousLayout = operatorTab.getLayout("Autonomous", BuiltInLayouts.kList)
+        .withPosition(0, 0)
+        .withSize(2, 2);
+
+    autonomousLayout.add("Routine", autonomousCommandChooser);
+
+    subsystems.drivetrain.addShuffleboardTab();
   }
 }
