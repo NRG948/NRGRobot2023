@@ -10,6 +10,9 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -155,6 +158,22 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public TrapezoidProfile.Constraints getSteeringConstraints() {
     return PARAMETERS.getSteeringConstraints();
+  }
+
+  /**
+   * Creates a HolonomicDriveController for the subsystem.
+   * 
+   * @return A HolonomicDriveController.
+   */
+  public HolonomicDriveController createDriveController(){
+    ProfiledPIDController thetaController = new ProfiledPIDController(1.0, 0.0, 0.0, getSteeringConstraints());
+
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return new HolonomicDriveController(
+      new PIDController(1.0, 0.0, 0.0), 
+      new PIDController(1.0, 0.0, 0.0), 
+      thetaController);
   }
 
   /**
