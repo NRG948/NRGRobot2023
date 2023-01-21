@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveWithController;
-import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Subsystems;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -29,9 +29,9 @@ public class RobotContainer {
   private final CommandXboxController driveController = new CommandXboxController(0);
 
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private final Subsystems subsystems = new Subsystems();
 
-  private DriveWithController driveWithController = new DriveWithController(swerveSubsystem, driveController);
+  private DriveWithController driveWithController = new DriveWithController(subsystems.drivetrain, driveController);
 
   public static AddressableLEDs leds = new AddressableLEDs(2, 51);
 
@@ -43,10 +43,10 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    swerveSubsystem.setDefaultCommand(driveWithController);
+    subsystems.drivetrain.setDefaultCommand(driveWithController);
     // Configure the trigger bindings
     configureBindings();
-    swerveSubsystem.addShuffleboardTab();
+    subsystems.drivetrain.addShuffleboardTab();
     leds.start();
     leds.setColor(new Color8Bit(255, 0, 0));
   }
@@ -82,6 +82,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(swerveSubsystem);
+    return Autos.exampleAuto(subsystems.drivetrain);
   }
 }
