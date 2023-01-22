@@ -13,8 +13,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -85,11 +83,12 @@ public class SwerveModule {
         this.steeringFeedForward = new SimpleMotorFeedforward(
                 parameters.getSteeringKs(), parameters.getSteeringKv(), parameters.getSteeringKa());
 
-        this.drivePID = new PIDController(5.0, 0, 0.1);
+        this.drivePID = new PIDController(5.0, 0, 0.0);
 
-        this.steeringPID = new ProfiledPIDController(7.0, 0, 0.05, parameters.getSteeringConstraints());
+        this.steeringPID = new ProfiledPIDController(7.0, 0, 0.0, parameters.getSteeringConstraints());
         this.steeringPID.enableContinuousInput(-Math.PI, Math.PI);
-        steeringPID.reset(wheelAngle.get().getRadians());
+        this.steeringPID.setTolerance(Math.toRadians(1.0));
+        this.steeringPID.reset(wheelAngle.get().getRadians());
     }
 
     /**

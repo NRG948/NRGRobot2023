@@ -108,7 +108,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / drivePulsesPerMeter,
         steeringMotor,
-        () -> Rotation2d.fromDegrees(-wheelAngle.getAbsolutePosition()), 
+        () -> Rotation2d.fromDegrees(wheelAngle.getAbsolutePosition()), 
         name);
   }
 

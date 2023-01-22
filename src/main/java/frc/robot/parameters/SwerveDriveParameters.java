@@ -120,7 +120,7 @@ public enum SwerveDriveParameters {
 
     this.steeringKs = steeringKs;
     this.steeringKv = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringSpeed;
-    this.steeringKa = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / maxSteeringAcceleration;
+    this.steeringKa = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringAcceleration;
 
     this.maxRobotRotationalSpeed = this.maxDriveSpeed / Math.hypot(this.wheelDistanceX, this.wheelDistanceY);
 
