@@ -44,7 +44,7 @@ public class ProfiledDriveStraight extends CommandBase {
       double heading) {
     this.drivetrain = drivetrain;
     this.heading = Rotation2d.fromDegrees(heading);
-    this.kinematics = SwerveSubsystem.kKinematics;
+    this.kinematics = drivetrain.getKinematics();
     this.controller = drivetrain.createDriveController();
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()),

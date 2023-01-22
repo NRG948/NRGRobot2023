@@ -38,8 +38,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private static final byte kNavXUpdateFrequencyHz = 50;
 
-  public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(PARAMETERS.getWheelPositions());
-
   // 4 pairs of motors for drive & steering.
   private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(1);
   private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(2);
@@ -134,6 +132,15 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public double getMaxAcceleration() {
     return PARAMETERS.getMaxDriveAcceleration();
+  }
+
+  /**
+   * Returns the swerve drive kinematics for this subsystem.
+   * 
+   * @return The swerve drive kinematics.
+   */
+  public SwerveDriveKinematics getKinematics() {
+    return kinematics;
   }
 
   /**

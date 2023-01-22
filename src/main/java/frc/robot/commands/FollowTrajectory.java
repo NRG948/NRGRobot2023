@@ -92,7 +92,7 @@ public class FollowTrajectory extends SwerveControllerCommand {
     super(
         trajectory,
         drivetrain::getPosition,
-        SwerveSubsystem.kKinematics,
+        drivetrain.getKinematics(),
         new HolonomicDriveController(
             new PIDController(1.0, 0.0, 0.0),
             new PIDController(1.0, 0.0, 0.0),
