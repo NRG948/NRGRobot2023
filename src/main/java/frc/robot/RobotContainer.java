@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.nrg948.autonomous.Autonomous;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -16,10 +18,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.DriveWithController;
 import frc.robot.subsystems.Subsystems;
-import com.nrg948.autonomous.Autonomous;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
