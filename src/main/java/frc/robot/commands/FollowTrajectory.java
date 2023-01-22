@@ -68,19 +68,6 @@ public class FollowTrajectory extends SwerveControllerCommand {
   }
 
   /**
-   * Creates a new ProfiledPIDController for steering control.
-   * 
-   * @return A new ProfiledPIDController for steering control.
-   */
-  private static ProfiledPIDController createProfiledPIDController(SwerveSubsystem drivetrain) {
-    ProfiledPIDController ppc = new ProfiledPIDController(1.0, 0.0, 0.0, drivetrain.getSteeringConstraints());
-
-    ppc.enableContinuousInput(-Math.PI, Math.PI);
-
-    return ppc;
-  }
-
-  /**
    * Constructs an instance of this class.
    * 
    * @param drivetrain A SwerveSubsystem object.
@@ -91,10 +78,7 @@ public class FollowTrajectory extends SwerveControllerCommand {
         trajectory,
         drivetrain::getPosition,
         drivetrain.getKinematics(),
-        new HolonomicDriveController(
-            new PIDController(1.0, 0.0, 0.0),
-            new PIDController(1.0, 0.0, 0.0),
-            FollowTrajectory.createProfiledPIDController(drivetrain)),
+        drivetrain.createDriveController(),
         drivetrain::setModuleStates,
         drivetrain);
     this.drivetrain = drivetrain;
