@@ -70,13 +70,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  SwerveDriveKinematics kinematics = PARAMETERS.getKinematics();
+  private final SwerveDriveKinematics kinematics = PARAMETERS.getKinematics();
 
-  private final SwerveDrive drivetrain = new SwerveDrive(
-      PARAMETERS, modules, () -> -ahrs.getAngle());
+  private final SwerveDrive drivetrain;
+  private final SwerveDriveOdometry odometry;
 
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
-      kinematics, getRotation2d(), drivetrain.getModulesPositions());
+  // The current sensor state updated by the periodic method.
+  private Rotation2d orientation;
+  private Rotation2d tilt;
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -99,9 +100,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return new SwerveModule(
         PARAMETERS,
         driveMotor,
-        () -> {
-          return driveMotor.getSelectedSensorPosition() / drivePulsesPerMeter;
-        },
+        () -> driveMotor.getSelectedSensorPosition() / drivePulsesPerMeter,
         // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / drivePulsesPerMeter,
@@ -112,8 +111,31 @@ public class SwerveSubsystem extends SubsystemBase {
 
   /** Creates a new SwerveSubsystem. */
   public SwerveSubsystem() {
-    ahrs.reset();
+    initializeSensorState();
+
+    drivetrain = new SwerveDrive(PARAMETERS, modules, this::getOrientation);
     drivetrain.setDeadband(0.1);
+
+    odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
+  }
+
+  /**
+   * Initializes the sensor state.
+   */
+  private void initializeSensorState() {
+    ahrs.reset();
+
+    updateSensorState();
+  }
+
+  /**
+   * Updates the sensor state.
+   * <p>
+   * This method **MUST* be called by the {@link #periodic()} method to ensure the sensor state is up to date.
+   */
+  private void updateSensorState() {
+    orientation = Rotation2d.fromDegrees(-ahrs.getAngle());
+    tilt = Rotation2d.fromDegrees(-ahrs.getRoll());
   }
 
   /**
@@ -218,7 +240,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialPosition Sets the initial position.
    */
   public void resetPosition(Pose2d initialPosition) {
-    odometry.resetPosition(getRotation2d(), drivetrain.getModulesPositions(), initialPosition);
+    odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
   }
 
   /**
@@ -235,8 +257,8 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return Gets the field orientation of the robot.
    */
-  public Rotation2d getRotation2d() {
-    return Rotation2d.fromDegrees(-ahrs.getAngle());
+  public Rotation2d getOrientation() {
+    return orientation;
   }
 
   /**
@@ -246,12 +268,20 @@ public class SwerveSubsystem extends SubsystemBase {
    *         down).
    */
   public Rotation2d getTilt() {
-    return Rotation2d.fromDegrees(-ahrs.getRoll());
+    return tilt;
   }
 
   @Override
   public void periodic() {
-    odometry.update(getRotation2d(), drivetrain.getModulesPositions());
+    // Read sensors to update subsystem state.
+    updateSensorState();
+
+    // Update the current module state.
+    drivetrain.periodic();
+
+    // Update odometry last since this relies on the subsystem sensor and module
+    // states.
+    odometry.update(getOrientation(), drivetrain.getModulesPositions());
   }
 
   /**
@@ -275,8 +305,6 @@ public class SwerveSubsystem extends SubsystemBase {
     layout.addDouble("x", () -> odometry.getPoseMeters().getX());
     layout.addDouble("y", () -> odometry.getPoseMeters().getY());
 
-    layout.addDouble("pitch", () -> ahrs.getPitch());
-    layout.addDouble("roll", () -> ahrs.getRoll());
-
+    layout.addDouble("tilt", () -> getTilt().getDegrees());
   }
 }

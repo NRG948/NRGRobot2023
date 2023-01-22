@@ -5,6 +5,7 @@
 package frc.robot.drive;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,33 +21,56 @@ import frc.robot.parameters.SwerveDriveParameters;
 public class SwerveDrive extends RobotDriveBase {
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
-    private final DoubleSupplier fieldOrientation;
+    private final Supplier<Rotation2d> orientationSupplier;
     private final double maxDriveSpeed;
     private final double maxRotationalSpeed;
+
+    // The current supplied state updated by the periodic method.
+    private Rotation2d orientation;
 
     /**
      * constructs the swerve drive
      * 
-     * @param parameters       A {@link SwerveDriveParameters} object providing
-     *                         information on the physical swerve drive
-     *                         characteristics.
-     * @param modules          An array of four {@link SwerveModule} objects in the
-     *                         order: front left, front right, back left, back
-     *                         right.
-     * @param kinematics       A {@link SwerveDriveKinematics} object used to
-     *                         convert chassis velocity into individual module
-     *                         states.
-     * @param fieldOrientation Supplies the robot orientation relative to the field.
+     * @param parameters          A {@link SwerveDriveParameters} object providing
+     *                            information on the physical swerve drive
+     *                            characteristics.
+     * @param modules             An array of four {@link SwerveModule} objects in
+     *                            the order: front left, front right, back left,
+     *                            back right.
+     * @param kinematics          A {@link SwerveDriveKinematics} object used to
+     *                            convert chassis velocity into individual module
+     *                            states.
+     * @param orientationSupplier Supplies the robot orientation relative to the
+     *                            field.
      */
     public SwerveDrive(
             SwerveDriveParameters parameters,
             SwerveModule[] modules,
-            DoubleSupplier fieldOrientation) {
+            Supplier<Rotation2d> orientationSupplier) {
         this.modules = modules;
         this.kinematics = parameters.getKinematics();
-        this.fieldOrientation = fieldOrientation;
+        this.orientationSupplier = orientationSupplier;
         this.maxDriveSpeed = parameters.getMaxDriveSpeed();
         this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
+
+        initializeSuppliedState();
+    }
+
+    /**
+     * Initializes the supplied state.
+     */
+    private void initializeSuppliedState() {
+        updateSuppliedState();
+    }
+
+    /**
+     * Updates the supplied state.
+     * <p>
+     * This method **MUST* be called by the {@link #periodic()} method to ensure the
+     * supplied state is up to date for subsequent use.
+     */
+    private void updateSuppliedState() {
+        orientation = orientationSupplier.get();
     }
 
     /**
@@ -79,6 +103,15 @@ public class SwerveDrive extends RobotDriveBase {
     }
 
     /**
+     * Returns the orientation of the robot frame relative to the field.
+     * 
+     * @return The orientation of the robot frame.
+     */
+    public Rotation2d getOrientation() {
+        return orientation;
+    }
+
+    /**
      * Drives the robot based on joystick inputs.
      * 
      * @param xSpeed        Speed of the robot in the x direction.
@@ -102,8 +135,7 @@ public class SwerveDrive extends RobotDriveBase {
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(
                 fieldRelative
-                        ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                                xSpeed, ySpeed, rSpeed, Rotation2d.fromDegrees(fieldOrientation.getAsDouble()))
+                        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
                         : new ChassisSpeeds(xSpeed, ySpeed, rSpeed));
 
         setModuleStates(states);
@@ -120,6 +152,18 @@ public class SwerveDrive extends RobotDriveBase {
             modulePosition[i] = modules[i].getPosition();
         }
         return modulePosition;
+    }
+
+    /**
+     * This method is called periodically by the {@link SwerveSubsystem}. It is used
+     * to update drive-specific state.
+     */
+    public void periodic() {
+        updateSuppliedState();
+
+        for (SwerveModule module : modules) {
+            module.periodic();
+        }
     }
 
     /**

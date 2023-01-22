@@ -36,10 +36,11 @@ import frc.robot.parameters.SwerveDriveParameters;
  */
 public class SwerveModule {
     private final MotorController driveMotor;
-    private final DoubleSupplier position;
-    private final DoubleSupplier velocity;
+    private final DoubleSupplier positionSupplier;
+    private final DoubleSupplier velocitySupplier;
     private final MotorController steeringMotor;
-    private final Supplier<Rotation2d> wheelAngle;
+    private final Supplier<Rotation2d> wheelAngleSupplier;
+    private final String name;
 
     // models motors mathematically, calculates voltage needed
     private final SimpleMotorFeedforward driveFeedForward;
@@ -48,7 +49,9 @@ public class SwerveModule {
     private final PIDController drivePID;
     private final ProfiledPIDController steeringPID;
 
-    private final String name;
+    // The current supplied state updated by the periodic method.
+    private SwerveModulePosition position;
+    private double velocity;
 
     /**
      * Constructs the swerve module.
@@ -73,10 +76,12 @@ public class SwerveModule {
             String name) {
         this.driveMotor = driveMotor;
         this.steeringMotor = steeringMotor;
-        this.wheelAngle = wheelAngle;
-        this.position = position;
-        this.velocity = velocity;
+        this.wheelAngleSupplier = wheelAngle;
+        this.positionSupplier = position;
+        this.velocitySupplier = velocity;
         this.name = name;
+
+        initializeSuppliedState();
 
         this.driveFeedForward = new SimpleMotorFeedforward(
                 parameters.getDriveKs(), parameters.getDriveKv(), parameters.getDriveKa());
@@ -88,7 +93,25 @@ public class SwerveModule {
         this.steeringPID = new ProfiledPIDController(7.0, 0, 0.0, parameters.getSteeringConstraints());
         this.steeringPID.enableContinuousInput(-Math.PI, Math.PI);
         this.steeringPID.setTolerance(Math.toRadians(1.0));
-        this.steeringPID.reset(wheelAngle.get().getRadians());
+        this.steeringPID.reset(getPosition().angle.getRadians());
+    }
+
+    /**
+     * Initializes the supplied state.
+     */
+    private void initializeSuppliedState() {
+        updateSuppliedState();
+    }
+
+    /**
+     * Updates the supplied state.
+     * <p>
+     * This method **MUST* be called by the {@link #periodic()} method to ensure the
+     * supplied state is up to date for subsequent use.
+     */
+    private void updateSuppliedState() {
+        position = new SwerveModulePosition(positionSupplier.getAsDouble(), wheelAngleSupplier.get());
+        velocity = velocitySupplier.getAsDouble();
     }
 
     /**
@@ -102,7 +125,7 @@ public class SwerveModule {
         state = SwerveModuleState.optimize(state, currentAngle);
 
         // Calculate the drive motor voltage using PID and FeedForward
-        double driveOutput = drivePID.calculate(velocity.getAsDouble(), state.speedMetersPerSecond);
+        double driveOutput = drivePID.calculate(velocity, state.speedMetersPerSecond);
         double driveFeedForward = this.driveFeedForward.calculate(state.speedMetersPerSecond);
 
         // Calculate the steering motor voltage using PID and FeedForward
@@ -128,7 +151,7 @@ public class SwerveModule {
      * @return The position of the swerve module.
      */
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(position.getAsDouble(), getWheelRotation2d());
+        return position;
     }
 
     /**
@@ -137,7 +160,15 @@ public class SwerveModule {
      * @return The current wheel orientation.
      */
     public Rotation2d getWheelRotation2d() {
-        return wheelAngle.get();
+        return position.angle;
+    }
+
+    /**
+     * This method is called periodically by the {@link SwerveSubsystem}. It is used
+     * to update module-specific state.
+     */
+    public void periodic() {
+        updateSuppliedState();
     }
 
     /**
@@ -153,9 +184,9 @@ public class SwerveModule {
             @Override
             public void initSendable(SendableBuilder builder) {
                 builder.setSmartDashboardType("Gyro");
-                builder.addDoubleProperty("Value", () -> wheelAngle.get().getDegrees(), null);
+                builder.addDoubleProperty("Value", () -> position.angle.getRadians(), null);
             }
-        }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
+        }).withWidget(BuiltInWidgets.kGyro);
         return layout;
     }
 }
