@@ -46,7 +46,7 @@ public class SwerveDrive extends RobotDriveBase {
         this.kinematics = parameters.getKinematics();
         this.fieldOrientation = fieldOrientation;
         this.maxDriveSpeed = parameters.getMaxDriveSpeed();
-        this.maxRotationalSpeed = parameters.getMaxRobotRotationalSpeed();
+        this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
     }
 
     /**

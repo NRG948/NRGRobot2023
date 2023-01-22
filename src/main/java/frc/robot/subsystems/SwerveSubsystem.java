@@ -98,7 +98,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     return new SwerveModule(
         PARAMETERS,
-        driveMotor, 
+        driveMotor,
         () -> {
           return driveMotor.getSelectedSensorPosition() / drivePulsesPerMeter;
         },
@@ -106,7 +106,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // multiply by 10 to convert to pulses per second.
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / drivePulsesPerMeter,
         steeringMotor,
-        () -> Rotation2d.fromDegrees(wheelAngle.getAbsolutePosition()), 
+        () -> Rotation2d.fromDegrees(wheelAngle.getAbsolutePosition()),
         name);
   }
 
@@ -157,14 +157,14 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Returns a {@link TrapezoidProfile.Constraints} object used to enforce
    * velocity and acceleration constraints on the {@link ProfiledPIDController}
-   * used to reach the goal wheel angle.
+   * used to reach the goal robot orientation.
    * 
    * @return A {@link TrapezoidProfile.Constraints} object used to enforce
    *         velocity and acceleration constraints on the controller used to reach
-   *         the goal wheel angle.
+   *         the goal robot orientation.
    */
-  public TrapezoidProfile.Constraints getSteeringConstraints() {
-    return PARAMETERS.getSteeringConstraints();
+  public TrapezoidProfile.Constraints getRotationalConstraints() {
+    return PARAMETERS.getRotationalConstraints();
   }
 
   /**
@@ -172,15 +172,16 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return A HolonomicDriveController.
    */
-  public HolonomicDriveController createDriveController(){
-    ProfiledPIDController thetaController = new ProfiledPIDController(1.0, 0.0, 0.0, getSteeringConstraints());
+  public HolonomicDriveController createDriveController() {
+    ProfiledPIDController thetaController = new ProfiledPIDController(
+        1.0, 0.0, 0.0, getRotationalConstraints());
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     return new HolonomicDriveController(
-      new PIDController(1.0, 0.0, 0.0), 
-      new PIDController(1.0, 0.0, 0.0), 
-      thetaController);
+        new PIDController(1.0, 0.0, 0.0),
+        new PIDController(1.0, 0.0, 0.0),
+        thetaController);
   }
 
   /**
@@ -241,7 +242,8 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Returns the tilt of the robot as a {@link Rotation2d} object.
    * 
-   * @return Gets the tilt of the robot (positive is nose up, negative is nose down).
+   * @return Gets the tilt of the robot (positive is nose up, negative is nose
+   *         down).
    */
   public Rotation2d getTilt() {
     return Rotation2d.fromDegrees(-ahrs.getRoll());

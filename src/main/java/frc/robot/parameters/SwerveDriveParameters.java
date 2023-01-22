@@ -41,26 +41,28 @@ public enum SwerveDriveParameters {
   private final SwerveModuleParameters swerveModule;
   private final MotorParameters motor;
 
-  private double maxDriveSpeed;
-  private double maxDriveAcceleration;
+  private final double maxDriveSpeed;
+  private final double maxDriveAcceleration;
 
   private final double driveKs;
   private final double driveKv;
   private final double driveKa;
 
-  private double maxSteeringSpeed;
-  private double maxSteeringAcceleration;
+  private final double maxSteeringSpeed;
+  private final double maxSteeringAcceleration;
 
   private final double steeringKs;
   private final double steeringKv;
   private final double steeringKa;
 
-  private double maxRobotRotationalSpeed;
+  private final double maxRotationalSpeed;
+  private final double maxRotationalAcceleration;
 
   private final Translation2d[] wheelPositions;
   private final SwerveDriveKinematics kinematics;
   private final SwerveDriveKinematicsConstraint kinematicsConstraint;
   private final TrapezoidProfile.Constraints steeringConstraints;
+  private final TrapezoidProfile.Constraints robotRotationalConstraints;
 
   /**
    * Constructs an instance of this enum.
@@ -122,7 +124,10 @@ public enum SwerveDriveParameters {
     this.steeringKv = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringSpeed;
     this.steeringKa = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringAcceleration;
 
-    this.maxRobotRotationalSpeed = this.maxDriveSpeed / Math.hypot(this.wheelDistanceX, this.wheelDistanceY);
+    final double wheelTrackRadius = Math.hypot(this.wheelDistanceX, this.wheelDistanceY);
+
+    this.maxRotationalSpeed = this.maxDriveSpeed / wheelTrackRadius;
+    this.maxRotationalAcceleration = this.maxDriveAcceleration / wheelTrackRadius;
 
     this.wheelPositions = new Translation2d[] {
         new Translation2d(this.wheelDistanceX / 2.0, this.wheelDistanceY / 2),
@@ -133,7 +138,10 @@ public enum SwerveDriveParameters {
 
     this.kinematics = new SwerveDriveKinematics(wheelPositions);
     this.kinematicsConstraint = new SwerveDriveKinematicsConstraint(kinematics, this.maxDriveSpeed);
-    this.steeringConstraints = new TrapezoidProfile.Constraints(this.maxSteeringSpeed, this.maxSteeringAcceleration);
+    this.steeringConstraints = new TrapezoidProfile.Constraints(
+        this.maxSteeringSpeed, this.maxSteeringAcceleration);
+    this.robotRotationalConstraints = new TrapezoidProfile.Constraints(
+        this.maxRotationalSpeed, this.maxRotationalAcceleration);
   }
 
   /**
@@ -150,8 +158,30 @@ public enum SwerveDriveParameters {
    * 
    * @return The maximum rotation speed of the robot in rad/s.
    */
-  public double getMaxRobotRotationalSpeed() {
-    return this.maxRobotRotationalSpeed;
+  public double getMaxRotationalSpeed() {
+    return this.maxRotationalSpeed;
+  }
+
+  /**
+   * Returns the maximum rotational acceleration of the robot in rad/s^2.
+   * 
+   * @return The maximum rotation acceleration of the robot in rad/s^s.
+   */
+  public double getMaxRotationalAcceleration() {
+    return this.maxRotationalAcceleration;
+  }
+
+  /**
+   * Returns a {@link TrapezoidProfile.Constraints} object used to enforce
+   * velocity and acceleration constraints on the {@link ProfilePIDController}
+   * used to reach the goal robot orientation.
+   * 
+   * @return A {@link TrapezoidProfile.Constraints} object used to enforce
+   *         velocity and acceleration constraints on the controller used to reach
+   *         the goal robot orientation.
+   */
+  public TrapezoidProfile.Constraints getRotationalConstraints() {
+    return this.robotRotationalConstraints;
   }
 
   /**
