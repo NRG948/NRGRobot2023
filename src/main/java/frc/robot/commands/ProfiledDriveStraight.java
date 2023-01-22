@@ -38,10 +38,7 @@ public class ProfiledDriveStraight extends CommandBase {
    * @param distance   The distance to travel in meters.
    * @param heading    The direction in which to travel in degrees.
    */
-  public ProfiledDriveStraight(
-      SwerveSubsystem drivetrain,
-      double distance,
-      double heading) {
+  public ProfiledDriveStraight(SwerveSubsystem drivetrain, double distance, double heading) {
     this.drivetrain = drivetrain;
     this.heading = Rotation2d.fromDegrees(heading);
     this.kinematics = drivetrain.getKinematics();
@@ -49,6 +46,8 @@ public class ProfiledDriveStraight extends CommandBase {
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()),
         new TrapezoidProfile.State(distance, 0));
+
+    addRequirements(drivetrain);
   }
 
   @Override

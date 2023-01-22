@@ -95,7 +95,8 @@ public class FollowTrajectory extends SwerveControllerCommand {
             new PIDController(1.0, 0.0, 0.0),
             new PIDController(1.0, 0.0, 0.0),
             FollowTrajectory.createProfiledPIDController(drivetrain)),
-        drivetrain::setModuleStates);
+        drivetrain::setModuleStates,
+        drivetrain);
     this.drivetrain = drivetrain;
   }
 
