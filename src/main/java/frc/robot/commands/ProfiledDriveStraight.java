@@ -4,11 +4,7 @@
 
 package frc.robot.commands;
 
-import java.util.Set;
-
 import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -17,35 +13,37 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/**
+ * A command to drive the robot on a straight in using trapezoidal motion
+ * profiling.
+ */
 public class ProfiledDriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
-  private final double distance;
-  private final double heading;
+  private final Rotation2d heading;
   private final SwerveDriveKinematics kinematics;
   private final HolonomicDriveController controller;
   private final TrapezoidProfile profile;
   private final Timer timer = new Timer();
   private Pose2d initialPose;
 
-  /** Creates a new ProfiledDriveStraight. */
+  /**
+   * Constructs an instance of this class.
+   * 
+   * @param drivetrain The {@link SwerveSubsystem} represeting the robot
+   *                   drivetrain.
+   * @param distance   The distance to travel in meters.
+   * @param heading    The direction in which to travel in degrees.
+   */
   public ProfiledDriveStraight(
       SwerveSubsystem drivetrain,
-      HolonomicDriveController controller,
       double distance,
       double heading) {
     this.drivetrain = drivetrain;
-    this.distance = distance;
-    this.heading = heading;
+    this.heading = Rotation2d.fromDegrees(heading);
     this.kinematics = SwerveSubsystem.kKinematics;
     this.controller = drivetrain.createDriveController();
     this.profile = new TrapezoidProfile(
@@ -62,12 +60,20 @@ public class ProfiledDriveStraight extends CommandBase {
 
   @Override
   public void execute() {
+    // Calculate the next state (position and velocity) of motion using the
+    // trapezoidal profile.
     TrapezoidProfile.State state = profile.calculate(timer.get());
-    Translation2d offset = new Translation2d(state.position, Rotation2d.fromDegrees(heading));
+
+    // Determine the next position on the field by offsetting the initial position
+    // by the distance moved along the line of travel.
+    Translation2d offset = new Translation2d(state.position, heading);
     Pose2d nextPose = initialPose.plus(new Transform2d(offset, initialPose.getRotation()));
+
+    // Calculate the swerve drive modules states needed to reach the next state.
     ChassisSpeeds speeds = controller.calculate(drivetrain.getPosition(), nextPose, state.velocity,
         initialPose.getRotation());
     SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
+
     drivetrain.setModuleStates(moduleStates);
   }
 
