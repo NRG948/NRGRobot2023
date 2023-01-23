@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -131,7 +133,8 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Updates the sensor state.
    * <p>
-   * This method **MUST* be called by the {@link #periodic()} method to ensure the sensor state is up to date.
+   * This method **MUST* be called by the {@link #periodic()} method to ensure the
+   * sensor state is up to date.
    */
   private void updateSensorState() {
     orientation = Rotation2d.fromDegrees(-ahrs.getAngle());
@@ -291,20 +294,27 @@ public class SwerveSubsystem extends SubsystemBase {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
 
-    ShuffleboardLayout layout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
+    ShuffleboardLayout odometryLayout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
         .withPosition(6, 0)
         .withSize(3, 4);
-    layout.add("Gyro", new Sendable() {
+
+    odometryLayout.add("Orientation", new Sendable() {
 
       @Override
       public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Gyro");
-        builder.addDoubleProperty("Value", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+        builder.addDoubleProperty("Value", () -> getOrientation().getDegrees(), null);
       }
-    }).withWidget(BuiltInWidgets.kGyro);
-    layout.addDouble("x", () -> odometry.getPoseMeters().getX());
-    layout.addDouble("y", () -> odometry.getPoseMeters().getY());
+    }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
 
-    layout.addDouble("tilt", () -> getTilt().getDegrees());
+    ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
+      .withProperties(Map.of("Number of columns", 3, "Number of rows", 1));
+
+    positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
+        .withPosition(0, 0);
+    positionLayout.addDouble("Y", () -> odometry.getPoseMeters().getY())
+        .withPosition(1, 0);
+    positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
+        .withPosition(2, 0);
   }
 }

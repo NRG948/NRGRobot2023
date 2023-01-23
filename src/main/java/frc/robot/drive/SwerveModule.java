@@ -4,6 +4,7 @@
 
 package frc.robot.drive;
 
+import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -155,6 +156,15 @@ public class SwerveModule {
     }
 
     /**
+     * The velocity of the wheel.
+     * 
+     * @return The velocity of the wheel.
+     */
+    public double getVelocity() {
+        return velocity;
+    }
+
+    /**
      * Returns the current wheel orientation.
      * 
      * @return The current wheel orientation.
@@ -178,15 +188,25 @@ public class SwerveModule {
      * @return The SwerveModule layout.
      */
     public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
-        ShuffleboardLayout layout = tab.getLayout(name, BuiltInLayouts.kList);
-        layout.add("Rotation", new Sendable() {
+        ShuffleboardLayout moduleLayout = tab.getLayout(name, BuiltInLayouts.kGrid)
+                .withProperties(Map.of("Number of columns", 2, "Number of rows", 1));
+
+        moduleLayout.add("Rotation", new Sendable() {
 
             @Override
             public void initSendable(SendableBuilder builder) {
                 builder.setSmartDashboardType("Gyro");
-                builder.addDoubleProperty("Value", () -> position.angle.getRadians(), null);
+                builder.addDoubleProperty("Value", () -> getPosition().angle.getRadians(), null);
             }
-        }).withWidget(BuiltInWidgets.kGyro);
-        return layout;
+        }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
+
+        ShuffleboardLayout translationLayout = moduleLayout.getLayout("Translation", BuiltInLayouts.kList)
+                .withPosition(1, 0);
+        translationLayout.addDouble("Position", () -> getPosition().distanceMeters)
+                .withPosition(0, 0);
+        translationLayout.addDouble("Velocity", this::getVelocity)
+                .withPosition(0, 1);
+
+        return moduleLayout;
     }
 }
