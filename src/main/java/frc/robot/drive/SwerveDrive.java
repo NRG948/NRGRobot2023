@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -27,6 +28,9 @@ public class SwerveDrive extends RobotDriveBase {
 
     // The current supplied state updated by the periodic method.
     private Rotation2d orientation;
+
+    // Simulation support.
+    private Rotation2d simOrientation = new Rotation2d();
 
     /**
      * constructs the swerve drive
@@ -49,7 +53,7 @@ public class SwerveDrive extends RobotDriveBase {
             Supplier<Rotation2d> orientationSupplier) {
         this.modules = modules;
         this.kinematics = parameters.getKinematics();
-        this.orientationSupplier = orientationSupplier;
+        this.orientationSupplier = Robot.isReal() ? orientationSupplier : () -> this.simOrientation;
         this.maxDriveSpeed = parameters.getMaxDriveSpeed();
         this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
 
@@ -142,6 +146,19 @@ public class SwerveDrive extends RobotDriveBase {
     }
 
     /**
+     * Returns the current module state describing the wheel velocity and angle.
+     * 
+     * @return The current module state.
+     */
+    public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+        for (int i = 0; i < modules.length; i++) {
+            moduleStates[i] = modules[i].getModuleState();
+        }
+        return moduleStates;
+    }
+
+    /**
      * Returns the swerve module positions.
      * 
      * @return Swerve module positions.
@@ -164,6 +181,20 @@ public class SwerveDrive extends RobotDriveBase {
         for (SwerveModule module : modules) {
             module.periodic();
         }
+    }
+    /**
+     * This method is called periodically by the {@link SwerveSubsystem}. It is used
+     * to update module-specific simulation state.
+     */
+    public void simulationPeriodic() {
+        for (SwerveModule module : modules) {
+            module.simulationPeriodic();
+        }
+
+        ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
+        
+        simOrientation = new Rotation2d(
+            simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
     }
 
     /**

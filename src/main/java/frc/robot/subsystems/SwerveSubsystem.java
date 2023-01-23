@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -30,6 +32,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
@@ -76,9 +79,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveDrive drivetrain;
   private final SwerveDriveOdometry odometry;
+  private final Field2d field = new Field2d();
 
   // The current sensor state updated by the periodic method.
-  private Rotation2d orientation;
   private Rotation2d tilt;
 
   /**
@@ -115,7 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     initializeSensorState();
 
-    drivetrain = new SwerveDrive(PARAMETERS, modules, this::getOrientation);
+    drivetrain = new SwerveDrive(PARAMETERS, modules, () -> Rotation2d.fromDegrees(-ahrs.getAngle()));
     drivetrain.setDeadband(0.1);
 
     odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
@@ -137,7 +140,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * sensor state is up to date.
    */
   private void updateSensorState() {
-    orientation = Rotation2d.fromDegrees(-ahrs.getAngle());
     tilt = Rotation2d.fromDegrees(-ahrs.getRoll());
   }
 
@@ -261,7 +263,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Gets the field orientation of the robot.
    */
   public Rotation2d getOrientation() {
-    return orientation;
+    return drivetrain.getOrientation();
   }
 
   /**
@@ -285,6 +287,28 @@ public class SwerveSubsystem extends SubsystemBase {
     // Update odometry last since this relies on the subsystem sensor and module
     // states.
     odometry.update(getOrientation(), drivetrain.getModulesPositions());
+
+    // Send the robot and module location to the field
+    Pose2d robotPose = getPosition();
+
+    field.setRobotPose(robotPose);
+
+    ArrayList<Pose2d> modulePoses = new ArrayList<Pose2d>(4);
+
+    for (Translation2d wheelPosition : PARAMETERS.getWheelPositions()) {
+      modulePoses.add(
+          new Pose2d(
+              wheelPosition.rotateBy(robotPose.getRotation())
+                  .plus(robotPose.getTranslation()),
+              robotPose.getRotation()));
+    }
+
+    field.getObject("Swerve Modules").setPoses(modulePoses);
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    drivetrain.simulationPeriodic();
   }
 
   /**
@@ -292,6 +316,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addShuffleboardTab() {
     ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
+
     drivetrain.addShuffleboardLayouts(swerveDriveTab);
 
     ShuffleboardLayout odometryLayout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
@@ -299,16 +324,15 @@ public class SwerveSubsystem extends SubsystemBase {
         .withSize(3, 4);
 
     odometryLayout.add("Orientation", new Sendable() {
-
       @Override
       public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Gyro");
-        builder.addDoubleProperty("Value", () -> getOrientation().getDegrees(), null);
+        builder.addDoubleProperty("Value", () -> -getOrientation().getDegrees(), null);
       }
     }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
 
     ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
-      .withProperties(Map.of("Number of columns", 3, "Number of rows", 1));
+        .withProperties(Map.of("Number of columns", 3, "Number of rows", 1));
 
     positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
         .withPosition(0, 0);
@@ -316,5 +340,13 @@ public class SwerveSubsystem extends SubsystemBase {
         .withPosition(1, 0);
     positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
         .withPosition(2, 0);
+
+    ShuffleboardTab fieldTab = Shuffleboard.getTab("Field");
+    ShuffleboardLayout fieldLayout = fieldTab.getLayout("Field", BuiltInLayouts.kGrid)
+      .withPosition(0, 0)
+      .withSize(6, 4)
+      .withProperties(Map.of("Number of columns", 1, "Number of rows", 1));
+
+    fieldLayout.add(field);
   }
 }
