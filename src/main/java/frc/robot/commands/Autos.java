@@ -30,6 +30,13 @@ public final class Autos {
                 new Rotation2d(0))));
   }
 
+  @AutonomousCommandMethod(name = "Drive Straight For 3 Meters")
+  public static CommandBase driveStraight3Meters(Subsystems subsystems) {
+    return Commands.sequence(
+        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        new ProfiledDriveStraight(subsystems.drivetrain, 3.0, 0));
+  }
+
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
