@@ -159,6 +159,25 @@ public class SwerveDrive extends RobotDriveBase {
     }
 
     /**
+     * Sets the current module's states based on the chassis speed.
+     * 
+     * @param speeds The chassis speeds.
+     */
+    public void setChassisSpeeds(ChassisSpeeds speeds) {
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+        setModuleStates(states);
+    }
+
+    /**
+     * Returns the current chassis speed.
+     * 
+     * @return The chassis speed.
+     */
+    public ChassisSpeeds getChassisSpeeds() {
+        return kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    /**
      * Returns the swerve module positions.
      * 
      * @return Swerve module positions.
@@ -182,6 +201,7 @@ public class SwerveDrive extends RobotDriveBase {
             module.periodic();
         }
     }
+
     /**
      * This method is called periodically by the {@link SwerveSubsystem}. It is used
      * to update module-specific simulation state.
@@ -192,9 +212,9 @@ public class SwerveDrive extends RobotDriveBase {
         }
 
         ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
-        
+
         simOrientation = new Rotation2d(
-            simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
+                simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
     }
 
     /**

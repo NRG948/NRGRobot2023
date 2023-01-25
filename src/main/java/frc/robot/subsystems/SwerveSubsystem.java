@@ -19,6 +19,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -222,6 +223,24 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
     drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
+  }
+
+  /**
+   * Sets the current module's states based on the chassis speed.
+   * 
+   * @param speeds The chassis speeds.
+   */
+  public void setChassisSpeeds(ChassisSpeeds speeds) {
+    drivetrain.setChassisSpeeds(speeds);
+  }
+
+  /**
+     * Returns the current chassis speed.
+     * 
+     * @return The chassis speed.
+     */
+    public ChassisSpeeds getChassisSpeeds() {
+      return drivetrain.getChassisSpeeds();
   }
 
   /**
