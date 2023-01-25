@@ -84,6 +84,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // The current sensor state updated by the periodic method.
   private Rotation2d tilt;
+  private Rotation2d tiltOffset;
+  private double tiltVelocity;
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -130,8 +132,9 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private void initializeSensorState() {
     ahrs.reset();
-
+    
     updateSensorState();
+    tiltOffset = tilt;
   }
 
   /**
@@ -142,6 +145,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private void updateSensorState() {
     tilt = Rotation2d.fromDegrees(-ahrs.getRoll());
+    tiltVelocity = ahrs.getRawGyroY();
   }
 
   /**
@@ -292,7 +296,16 @@ public class SwerveSubsystem extends SubsystemBase {
    *         down).
    */
   public Rotation2d getTilt() {
-    return tilt;
+    return tilt.minus(tiltOffset);
+  }
+
+  /**
+   * Returns the tilt velocity of the robot in degrees per second per second.
+   * 
+   * @return Gets the tilt velocity of the robot.
+   */
+  public double getTiltVelocity() {
+    return tiltVelocity;
   }
 
   @Override
@@ -351,7 +364,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
 
     ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
-        .withProperties(Map.of("Number of columns", 3, "Number of rows", 1));
+        .withProperties(Map.of("Number of columns", 4, "Number of rows", 1));
 
     positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
         .withPosition(0, 0);
@@ -359,7 +372,8 @@ public class SwerveSubsystem extends SubsystemBase {
         .withPosition(1, 0);
     positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
         .withPosition(2, 0);
-
+    positionLayout.addDouble("Tilt Velocity", () -> getTiltVelocity())
+        .withPosition(3, 0);
     ShuffleboardTab fieldTab = Shuffleboard.getTab("Field");
     ShuffleboardLayout fieldLayout = fieldTab.getLayout("Field", BuiltInLayouts.kGrid)
       .withPosition(0, 0)
