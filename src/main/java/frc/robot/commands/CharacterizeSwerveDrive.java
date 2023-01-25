@@ -32,7 +32,7 @@ public class CharacterizeSwerveDrive extends CommandBase {
   @Override
   public void initialize() {
     drivetrain.resetPosition(new Pose2d());
-    logger.reset();
+    logger.init();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

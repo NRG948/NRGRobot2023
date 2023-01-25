@@ -20,7 +20,7 @@ public class SysIdGeneralMechanismLogger extends SysIdLogger{
     protected boolean isWrongMechanism(){
         String mechanism = getMechanism();
 
-        return !mechanism.equals("General Mechanism");
+        return !mechanism.equals("Simple");
     }
 
     public void logData(){
