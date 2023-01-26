@@ -32,7 +32,16 @@ The robot code of [FRC Team 948 - Newport Robotics Group](www.nrg948.com) for FI
 
             ```sh
             $ git clone git@github.com:NRG948/NRGRobot2023.git
-            ```
+        ```
+
+4. [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with only  `packages:read` scope.
+
+5. Add the following entries to `$HOME/.gradle/gradle.properties` replacing `USERNAME` with your GitHub user name and `TOKEN` with the token value itself.
+
+    ```properties
+    gpr.user=USERNAME
+    gpr.key=TOKEN
+    ```
 
 ## Build
 
