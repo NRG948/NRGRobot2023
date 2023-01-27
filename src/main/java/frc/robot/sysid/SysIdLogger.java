@@ -14,32 +14,52 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** An abstract base class enabling SysId integration. */
 public abstract class SysIdLogger {
+    private static final String SYS_ID_TEST = "SysIdTest";
+    private static final String SYS_ID_TEST_TYPE = "SysIdTestType";
+    private static final String SYS_ID_ROTATE = "SysIdRotate";
+    private static final String SYS_ID_VOLTAGE_COMMAND = "SysIdVoltageCommand";
+    private static final String SYS_ID_ACK_NUMBER = "SysIdAckNumber";
+    private static final String SYS_ID_WRONG_MECH = "SysIdWrongMech";
+    private static final String SYS_ID_OVERFLOW = "SysIdOverflow";
+    private static final String SYS_ID_TELEMETRY = "SysIdTelemetry";
+    
+    private static final String QUASISTATIC_TEST = "Quasistatic";
+    private static final String DYNAMIC_TEST = "Dynamic";
+
     private static final int DATA_ARRAY_CAPACITY = 36000;
 
     private double m_voltageCommand;
     private double m_motorVoltage;
     private double m_timestamp;
     private double m_startTime;
-    boolean m_rotate;
-    String m_testType;
-    String m_mechanism;
-    ArrayList<Double> m_data = new ArrayList<Double>();
+    private boolean m_rotate;
+    private String m_testType;
+    private String m_mechanism;
+    private double m_ackNumber;
+    private ArrayList<Double> m_data = new ArrayList<Double>();
 
     /** Construct an instance of this class. */
     public SysIdLogger() {
-
+        SmartDashboard.putNumber(SYS_ID_VOLTAGE_COMMAND, 0.0);
+        SmartDashboard.putString(SYS_ID_TEST_TYPE, "");
+        SmartDashboard.putString(SYS_ID_TEST, "");
+        SmartDashboard.putBoolean(SYS_ID_ROTATE, false);
+        SmartDashboard.putBoolean(SYS_ID_OVERFLOW, false);
+        SmartDashboard.putBoolean(SYS_ID_WRONG_MECH, false);
+        SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, m_ackNumber);
     }
 
     /** Initializes the logger. */
     public void init() {
-        m_mechanism = SmartDashboard.getString("SysIdTest", "");
+        m_mechanism = SmartDashboard.getString(SYS_ID_TEST, "");
+        m_testType = SmartDashboard.getString(SYS_ID_TEST_TYPE, "");
+        m_rotate = SmartDashboard.getBoolean(SYS_ID_ROTATE, false);
+        m_voltageCommand = SmartDashboard.getNumber(SYS_ID_VOLTAGE_COMMAND, 0.0);
+        m_ackNumber = SmartDashboard.getNumber(SYS_ID_ACK_NUMBER, 0.0);
 
-        SmartDashboard.putBoolean("SysIdWrongMech", isWrongMechanism());
-
-        m_testType = SmartDashboard.getString("SysIdTestType", "");
-        m_rotate = SmartDashboard.getBoolean("SysIdRotate", false);
-        m_voltageCommand = SmartDashboard.getNumber("SysIdVoltageCommand", 0.0);
         m_data.ensureCapacity(DATA_ARRAY_CAPACITY);
+
+        SmartDashboard.putBoolean(SYS_ID_WRONG_MECH, isWrongMechanism());
 
         reset();
 
@@ -90,9 +110,9 @@ public abstract class SysIdLogger {
 
         if (isWrongMechanism()) {
             m_motorVoltage = 0.0;
-        } else if (m_testType.equals("Quasistatic")) {
+        } else if (m_testType.equals(QUASISTATIC_TEST)) {
             m_motorVoltage = m_voltageCommand * (m_timestamp - m_startTime);
-        } else if (m_testType.equals("Dynamic")) {
+        } else if (m_testType.equals(DYNAMIC_TEST)) {
             m_motorVoltage = m_voltageCommand;
         } else {
             m_motorVoltage = 0.0;
@@ -103,16 +123,23 @@ public abstract class SysIdLogger {
     public void sendData() {
         System.out.println(String.format("Collected %d data points.", m_data.size()));
 
-        SmartDashboard.putBoolean("SysIdOverflow", m_data.size() >= DATA_ARRAY_CAPACITY);
+        SmartDashboard.putBoolean(SYS_ID_OVERFLOW, m_data.size() >= DATA_ARRAY_CAPACITY);
 
         StringBuilder b = new StringBuilder();
+
+        final String type = m_testType.equals(DYNAMIC_TEST) ? "fast" : "slow";
+        final String direction = m_voltageCommand > 0 ? "forward" : "backward";
+
+        b.append(String.format("%s-%s;", type, direction));
+
         for (int i = 0; i < m_data.size(); ++i) {
             if (i != 0)
                 b.append(",");
             b.append(m_data.get(i));
         }
-
-        SmartDashboard.putString("SysIdTelemetry", b.toString());
+      
+        SmartDashboard.putString(SYS_ID_TELEMETRY, b.toString());
+        SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, ++m_ackNumber);
 
         reset();
     }
