@@ -37,7 +37,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
+import frc.robot.parameters.SwerveAngleEncoder;
 import frc.robot.parameters.SwerveDriveParameters;
+import frc.robot.parameters.SwerveMotors;
 
 public class SwerveSubsystem extends SubsystemBase {
   public static SwerveDriveParameters PARAMETERS = SwerveDriveParameters.Competition2022;
@@ -45,23 +47,23 @@ public class SwerveSubsystem extends SubsystemBase {
   private static final byte kNavXUpdateFrequencyHz = 50;
 
   // 4 pairs of motors for drive & steering.
-  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(1);
-  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(2);
+  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontLeftDrive));
+  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontLeftSteering));
 
-  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(3);
-  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(4);
+  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontRightDrive));
+  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontRightSteering));
 
-  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(7);
-  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(8);
+  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackLeftDrive));
+  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackLeftSteering));
 
-  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(5);
-  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(6);
+  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackRightDrive));
+  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackRightSteering));
 
   // 4 CANcoders for the steering angle.
-  private final CANCoder frontLeftAngle = new CANCoder(9);
-  private final CANCoder frontRightAngle = new CANCoder(10);
-  private final CANCoder backLeftAngle = new CANCoder(12);
-  private final CANCoder backRightAngle = new CANCoder(11);
+  private final CANCoder frontLeftAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.FrontLeft));
+  private final CANCoder frontRightAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.FrontRight));
+  private final CANCoder backLeftAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.BackLeft));
+  private final CANCoder backRightAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.BackRight));
 
   private final SwerveModule frontLeftModule = createSwerveModule(
       frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle, "Front Left");

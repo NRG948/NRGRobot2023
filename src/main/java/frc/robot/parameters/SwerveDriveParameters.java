@@ -26,6 +26,8 @@ public enum SwerveDriveParameters {
       Units.inchesToMeters(19.5),
       MK4Standard,
       Falcon500,
+      new int[] {1,2,3,4,7,8,5,6},
+      new int[] {9,10,12,11},
       1.0,
       1.0);
 
@@ -40,6 +42,8 @@ public enum SwerveDriveParameters {
   private final double wheelDistanceY;
   private final SwerveModuleParameters swerveModule;
   private final MotorParameters motor;
+  private final int[] motorIds;
+  private final int[] angleEncoderIds;
 
   private final double maxDriveSpeed;
   private final double maxDriveAcceleration;
@@ -100,6 +104,8 @@ public enum SwerveDriveParameters {
       double wheelDistanceY,
       SwerveModuleParameters swerveModule,
       MotorParameters motor,
+      int[] motorIds,
+      int[] angleEncoderIds,
       double driveKs,
       double steeringKs) {
     this.robotMass = robotMass;
@@ -107,6 +113,8 @@ public enum SwerveDriveParameters {
     this.wheelDistanceY = wheelDistanceY;
     this.swerveModule = swerveModule;
     this.motor = motor;
+    this.motorIds = motorIds;
+    this.angleEncoderIds = angleEncoderIds;
 
     this.maxDriveSpeed = SCALE_FACTOR * this.swerveModule.calculateMaxDriveSpeed(this.motor);
     this.maxDriveAcceleration = SCALE_FACTOR
@@ -227,6 +235,26 @@ public enum SwerveDriveParameters {
    */
   public MotorParameters getMotorParameters() {
     return this.motor;
+  }
+
+  /**
+   * Returns the CAN ids of the specified motor.
+   * 
+   * @param motor The motor.
+   * @return The CAN id.
+   */
+  public int getMotorId(SwerveMotors motor) {
+    return this.motorIds[motor.getIndex()];
+  }
+
+  /**
+   * Returns the CANcoder ids of the specified module.
+   * 
+   * @param angleEncoder The angle encoder.
+   * @return The CANcoder id.
+   */
+  public int getAngleEncoderId(SwerveAngleEncoder angleEncoder) {
+    return this.angleEncoderIds[angleEncoder.getIndex()];
   }
 
   /**
