@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
 import frc.robot.subsystems.Subsystems;
 
@@ -58,7 +59,7 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
     
     // Configure the trigger bindings
-    configureBindings();
+    configureCommandBindings();
     leds.start();
     leds.setColor(new Color8Bit(255, 0, 0));
   }
@@ -77,7 +78,9 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
+  private void configureCommandBindings() {
+    
+    m_driverController.b().onTrue(new BalanceOnChargeStation(subsystems.drivetrain, false));
 
     m_driverController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
