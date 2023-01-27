@@ -85,7 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final Field2d field = new Field2d();
 
   // The current sensor state updated by the periodic method.
-  private Rotation2d tilt;
+  private Rotation2d rawTilt;
   private Rotation2d tiltOffset;
   private double tiltVelocity;
 
@@ -136,7 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
     ahrs.reset();
     
     updateSensorState();
-    tiltOffset = tilt;
+    tiltOffset = rawTilt; //Save the initial tilt to correct the raw tilt.
   }
 
   /**
@@ -146,7 +146,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * sensor state is up to date.
    */
   private void updateSensorState() {
-    tilt = Rotation2d.fromDegrees(-ahrs.getRoll());
+    rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
     tiltVelocity = ahrs.getRawGyroY();
   }
 
@@ -292,13 +292,13 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Returns the tilt of the robot as a {@link Rotation2d} object.
+   * Returns the corrected tilt of the robot as a {@link Rotation2d} object.
    * 
    * @return Gets the tilt of the robot (positive is nose up, negative is nose
    *         down).
    */
   public Rotation2d getTilt() {
-    return tilt.minus(tiltOffset);
+    return rawTilt.minus(tiltOffset);
   }
 
   /**
