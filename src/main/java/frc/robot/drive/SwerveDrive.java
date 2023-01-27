@@ -6,8 +6,6 @@ package frc.robot.drive;
 
 import java.util.function.Supplier;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -22,6 +20,8 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
+    private static final ChassisSpeeds ZERO_SPEEDS = new ChassisSpeeds();
+
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final Supplier<Rotation2d> orientationSupplier;
@@ -98,6 +98,8 @@ public class SwerveDrive extends RobotDriveBase {
 
     @Override
     public void stopMotor() {
+        setChassisSpeeds(ZERO_SPEEDS);
+
         for (SwerveModule module : modules) {
             module.stopMotors();
         }
