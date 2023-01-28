@@ -88,6 +88,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Rotation2d rawTilt;
   private Rotation2d tiltOffset;
   private double tiltVelocity;
+  private boolean wasNavXCalibrating;
 
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
@@ -134,9 +135,10 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private void initializeSensorState() {
     ahrs.reset();
+    wasNavXCalibrating = true;
     
     updateSensorState();
-    tiltOffset = Rotation2d.fromDegrees(-3.5); // rawTilt; //Save the initial tilt to correct the raw tilt.
+    tiltOffset = Rotation2d.fromDegrees(-3.5); // For 2022 robot
   }
 
   /**
@@ -147,6 +149,10 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private void updateSensorState() {
     rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
+    if (wasNavXCalibrating && !ahrs.isCalibrating()) {
+      tiltOffset = rawTilt;
+      wasNavXCalibrating = false;
+    }
     tiltVelocity = ahrs.getRawGyroY();
   }
 
