@@ -14,12 +14,22 @@ import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.sysid.SysIdGeneralMechanismLogger;
 
+/**
+ * An autonomous command to integrate with SysId to characterize the swerve
+ * drive.
+ * <p>
+ * Use the SysId tool to characterize the swerve drive as a "Simple" mechanism.
+ */
 @AutonomousCommand(name = "Characterize Swerve Drive")
 public class CharacterizeSwerveDrive extends CommandBase {
   private final SwerveSubsystem drivetrain;
   private final SysIdGeneralMechanismLogger logger;
 
-  /** Creates a new CharacterizeSwerveDrive. */
+  /**
+   * Creates a new CharacterizeSwerveDrive.
+   * 
+   * @param subsystems The subsystems container instance.
+   */
   public CharacterizeSwerveDrive(Subsystems subsystems) {
     this.drivetrain = subsystems.drivetrain;
     this.logger = new SysIdGeneralMechanismLogger(
