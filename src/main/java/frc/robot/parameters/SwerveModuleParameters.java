@@ -133,4 +133,5 @@ public enum SwerveModuleParameters {
   public double calculateMaxSteeringAcceleration(MotorParameters motor, double robotMass) {
     return (2 * 4 * motor.getStallTorque() * this.steeringGearRatio * 2 * Math.PI) / robotMass;
   }
+  
 }

@@ -4,14 +4,15 @@
 
 package frc.robot.parameters;
 
+import static frc.robot.parameters.MotorParameters.Falcon500;
+import static frc.robot.parameters.SwerveModuleParameters.MK4Standard;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
-import static frc.robot.Constants.*;
-import static frc.robot.parameters.MotorParameters.Falcon500;
-import static frc.robot.parameters.SwerveModuleParameters.MK4Standard;
 
 /**
  * An enum representing the properties for the swerve drive base of a specific
@@ -26,10 +27,20 @@ public enum SwerveDriveParameters {
       Units.inchesToMeters(19.5),
       MK4Standard,
       Falcon500,
-      new int[] {1,2,3,4,7,8,5,6},
-      new int[] {9,10,12,11},
+      new int[] { 1, 2, 3, 4, 7, 8, 5, 6 },
+      new int[] { 9, 10, 12, 11 },
       1.0,
-      1.0);
+      1.0),
+  Competition2022Characterized(
+      67.5853,
+      Units.inchesToMeters(26.3),
+      Units.inchesToMeters(19.5),
+      MK4Standard,
+      Falcon500,
+      new int[] { 1, 2, 3, 4, 7, 8, 5, 6 },
+      new int[] { 9, 10, 12, 11 },
+      new FeedforwardConstants(0.15928, 4.1384, 0.74797),
+      new FeedforwardConstants(0.15928, 4.1384, 0.74797));
 
   /**
    * A scaling factor used to adjust from theoretical maximums given that any
@@ -48,16 +59,12 @@ public enum SwerveDriveParameters {
   private final double maxDriveSpeed;
   private final double maxDriveAcceleration;
 
-  private final double driveKs;
-  private final double driveKv;
-  private final double driveKa;
+  private final FeedforwardConstants driveFeedforward;
 
   private final double maxSteeringSpeed;
   private final double maxSteeringAcceleration;
 
-  private final double steeringKs;
-  private final double steeringKv;
-  private final double steeringKa;
+  private final FeedforwardConstants steeringFeedforward;
 
   private final double maxRotationalSpeed;
   private final double maxRotationalAcceleration;
@@ -90,13 +97,15 @@ public enum SwerveDriveParameters {
    * </code>
    * </pre>
    * 
-   * @param robotMass      The mass of the robot in Kg.
-   * @param wheelDistanceX The distance between the wheels along the X axis in
-   *                       meters.
-   * @param wheelDistanceY The distance between the wheels along the Y axis in
-   *                       meters
-   * @param swerveModule   The swerve module used by the robot.
-   * @param motor          The motor used by swerve module on the robot.
+   * @param robotMass           The mass of the robot in Kg.
+   * @param wheelDistanceX      The distance between the wheels along the X axis
+   *                            in meters.
+   * @param wheelDistanceY      The distance between the wheels along the Y axis
+   *                            in meters.
+   * @param swerveModule        The swerve module used by the robot.
+   * @param motor               The motor used by swerve module on the robot.
+   * @param driveFeedforward    The drive feedforward constants.
+   * @param steeringFeedforward The steering feedforward constants.
    */
   private SwerveDriveParameters(
       double robotMass,
@@ -106,8 +115,8 @@ public enum SwerveDriveParameters {
       MotorParameters motor,
       int[] motorIds,
       int[] angleEncoderIds,
-      double driveKs,
-      double steeringKs) {
+      FeedforwardConstants driveFeedForward,
+      FeedforwardConstants steeringFeedForward) {
     this.robotMass = robotMass;
     this.wheelDistanceX = wheelDistanceX;
     this.wheelDistanceY = wheelDistanceY;
@@ -115,22 +124,16 @@ public enum SwerveDriveParameters {
     this.motor = motor;
     this.motorIds = motorIds;
     this.angleEncoderIds = angleEncoderIds;
+    this.driveFeedforward = driveFeedForward;
+    this.steeringFeedforward = steeringFeedForward;
 
     this.maxDriveSpeed = SCALE_FACTOR * this.swerveModule.calculateMaxDriveSpeed(this.motor);
     this.maxDriveAcceleration = SCALE_FACTOR
         * this.swerveModule.calculateMaxDriveAcceleration(this.motor, this.robotMass);
 
-    this.driveKs = driveKs;
-    this.driveKv = (RobotConstants.kMaxBatteryVoltage - this.driveKs) / this.maxDriveSpeed;
-    this.driveKa = (RobotConstants.kMaxBatteryVoltage - this.driveKs) / this.maxDriveAcceleration;
-
     this.maxSteeringSpeed = SCALE_FACTOR * this.swerveModule.calculateMaxSteeringSpeed(this.motor);
     this.maxSteeringAcceleration = SCALE_FACTOR
         * this.swerveModule.calculateMaxSteeringAcceleration(this.motor, this.robotMass);
-
-    this.steeringKs = steeringKs;
-    this.steeringKv = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringSpeed;
-    this.steeringKa = (RobotConstants.kMaxBatteryVoltage - this.steeringKs) / this.maxSteeringAcceleration;
 
     final double wheelTrackRadius = Math.hypot(this.wheelDistanceX, this.wheelDistanceY);
 
@@ -150,6 +153,62 @@ public enum SwerveDriveParameters {
         this.maxSteeringSpeed, this.maxSteeringAcceleration);
     this.robotRotationalConstraints = new TrapezoidProfile.Constraints(
         this.maxRotationalSpeed, this.maxRotationalAcceleration);
+  }
+
+  /**
+   * Constructs an instance of this enum.
+   * <p>
+   * <b>NOTE:</b> The distance between wheels are expressed in the NWU coordinate
+   * system relative to the robot frame as shown below.
+   * <p>
+   * 
+   * <pre>
+   * <code>
+   *            ^
+   * +--------+ | x
+   * |O      O| |
+   * |        | |
+   * |        | |
+   * |O      O| |
+   * +--------+ |
+   *            |
+   * <----------+
+   *  y       (0,0)
+   * </code>
+   * </pre>
+   * 
+   * @param robotMass      The mass of the robot in Kg.
+   * @param wheelDistanceX The distance between the wheels along the X axis in
+   *                       meters.
+   * @param wheelDistanceY The distance between the wheels along the Y axis in
+   *                       meters
+   * @param swerveModule   The swerve module used by the robot.
+   * @param motor          The motor used by swerve module on the robot.
+   * @param driveKs        The drive kS constant.
+   * @param steeringKs     The steering kS constant.
+   */
+  private SwerveDriveParameters(
+      double robotMass,
+      double wheelDistanceX,
+      double wheelDistanceY,
+      SwerveModuleParameters swerveModule,
+      MotorParameters motor,
+      int[] motorIds,
+      int[] angleEncoderIds,
+      double drivekS,
+      double steeringkS) {
+    this(
+        robotMass,
+        wheelDistanceX,
+        wheelDistanceY,
+        swerveModule,
+        motor,
+        motorIds,
+        angleEncoderIds,
+        new CalculatedFeedforwardConstants(drivekS, () -> swerveModule.calculateMaxDriveSpeed(motor),
+            () -> swerveModule.calculateMaxDriveAcceleration(motor, robotMass)),
+        new CalculatedFeedforwardConstants(steeringkS, () -> swerveModule.calculateMaxSteeringSpeed(motor),
+            () -> swerveModule.calculateMaxSteeringAcceleration(motor, robotMass)));
   }
 
   /**
@@ -283,7 +342,7 @@ public enum SwerveDriveParameters {
    * @return The kS feedforward control constant for translation in Volts.
    */
   public double getDriveKs() {
-    return this.driveKs;
+    return this.driveFeedforward.kS;
   }
 
   /**
@@ -296,7 +355,7 @@ public enum SwerveDriveParameters {
    *         per meter.
    */
   public double getDriveKv() {
-    return this.driveKv;
+    return this.driveFeedforward.kV;
   }
 
   /**
@@ -310,7 +369,7 @@ public enum SwerveDriveParameters {
    *         seconds^2 per meter.
    */
   public double getDriveKa() {
-    return this.driveKa;
+    return this.driveFeedforward.kA;
   }
 
   /**
@@ -370,7 +429,7 @@ public enum SwerveDriveParameters {
    * @return The kS feedforward control constant for rotation in Volts.
    */
   public double getSteeringKs() {
-    return this.steeringKs;
+    return this.steeringFeedforward.kS;
   }
 
   /**
@@ -384,7 +443,7 @@ public enum SwerveDriveParameters {
    *         per radian.
    */
   public double getSteeringKv() {
-    return this.steeringKv;
+    return this.steeringFeedforward.kV;
   }
 
   /**
@@ -398,7 +457,7 @@ public enum SwerveDriveParameters {
    *         seconds^2 per radian.
    */
   public double getSteeringKa() {
-    return this.steeringKa;
+    return this.steeringFeedforward.kA;
   }
 
   /**
