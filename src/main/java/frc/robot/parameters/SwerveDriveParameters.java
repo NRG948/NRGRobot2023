@@ -35,7 +35,7 @@ public enum SwerveDriveParameters {
    * A scaling factor used to adjust from theoretical maximums given that any
    * physical system generally cannot achieve them.
    */
-  private static final double SCALE_FACTOR = 0.80;
+  private static final double SCALE_FACTOR = 0.65;
 
   private final double robotMass;
   private final double wheelDistanceX;
