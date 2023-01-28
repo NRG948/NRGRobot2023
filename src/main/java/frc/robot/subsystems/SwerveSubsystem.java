@@ -136,7 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
     ahrs.reset();
     
     updateSensorState();
-    tiltOffset = rawTilt; //Save the initial tilt to correct the raw tilt.
+    tiltOffset = Rotation2d.fromDegrees(-3.5); // rawTilt; //Save the initial tilt to correct the raw tilt.
   }
 
   /**
