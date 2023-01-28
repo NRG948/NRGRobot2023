@@ -18,6 +18,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   private static final double BALANCE_THRESHOLD = 2.0; // degrees, "balanced" if within +/- TILT_EPSILON.
   private static final double MAX_TILT = 15; // maxmimum incline of the charge station
 
+  private boolean isDrivingForward;
   private boolean wasTiltedUp;
   private double previousSpeed;
   private int pauseCounter;
@@ -25,9 +26,10 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   Rotation2d tiltAngle;
 
   /** Creates a new BalanceOnChargeStation command. */
-  public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain, boolean alreadyOnChargeStation) {
+  public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain,boolean isDrivingForward, boolean alreadyOnChargeStation) {
     this.drivetrain = drivetrain;
-    wasTiltedUp = alreadyOnChargeStation;
+    this.isDrivingForward = isDrivingForward;
+    this.wasTiltedUp = alreadyOnChargeStation;
     addRequirements(drivetrain);
   }
 
@@ -61,6 +63,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
       pauseCounter--;
   }
 
+    currentSpeed = isDrivingForward ? currentSpeed : -currentSpeed;
     drivetrain.drive(currentSpeed, 0, 0, false, false);
     previousSpeed = currentSpeed;
   }
