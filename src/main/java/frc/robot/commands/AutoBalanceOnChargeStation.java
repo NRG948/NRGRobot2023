@@ -47,7 +47,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     double currentSpeed;
     
     if (!wasTiltedUp) {
-      //If the robot has never gotten onto the charge station, the robot drives foward
+      //If the robot has never gotten onto the charge station, the robot drives foward at approach speed
       currentSpeed = APPROACH_SPEED;
       wasTiltedUp = tiltAngle.getDegrees() > 9;
     } else {
@@ -55,7 +55,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     }
 
     if (previousSpeed != 0 && currentSpeed == 0) {
-      pauseCounter = 50;
+      pauseCounter = 50; // Pause for 1s (50*20ms)
     } 
     if (pauseCounter > 0) {
       currentSpeed = 0;
@@ -67,7 +67,8 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     previousSpeed = currentSpeed;
   }
 
-  private double calculateSpeed(double tiltAngle) {
+  // proportionally map the tilt angle to speed
+  private double calculateSpeed(double tiltAngle) { 
     if (Math.abs(tiltAngle) <= BALANCE_THRESHOLD) {
       return 0;
     }
@@ -83,6 +84,6 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return pauseCounter == 1 && Math.abs(tiltAngle.getDegrees()) <= BALANCE_THRESHOLD;
+    return pauseCounter == 1 && Math.abs(tiltAngle.getDegrees()) <= BALANCE_THRESHOLD; // ends command if balanced for 1s
   }
 }
