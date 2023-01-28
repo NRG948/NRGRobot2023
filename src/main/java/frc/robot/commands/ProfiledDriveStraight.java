@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveSubsystem;
 
 /**
- * A command to drive the robot on a straight in using trapezoidal motion
+ * A command to drive the robot on a straight line in using trapezoidal motion
  * profiling.
  */
 public class ProfiledDriveStraight extends CommandBase {
@@ -33,19 +33,19 @@ public class ProfiledDriveStraight extends CommandBase {
   /**
    * Constructs an instance of this class.
    * 
-   * @param drivetrain The {@link SwerveSubsystem} represeting the robot
-   *                   drivetrain.
-   * @param distance   The distance to travel in meters.
-   * @param heading    The direction in which to travel in degrees.
+   * @param drivetrain  The {@link SwerveSubsystem} representing the robot
+   *                    drivetrain.
+   * @param translation A {@link Translation2d} instance describing the line on
+   *                    which to travel.
    */
-  public ProfiledDriveStraight(SwerveSubsystem drivetrain, double distance, double heading) {
+  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
     this.drivetrain = drivetrain;
-    this.heading = Rotation2d.fromDegrees(heading);
+    this.heading = translation.getAngle();
     this.kinematics = drivetrain.getKinematics();
     this.controller = drivetrain.createDriveController();
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()),
-        new TrapezoidProfile.State(distance, 0));
+        new TrapezoidProfile.State(translation.getNorm(), 0));
 
     addRequirements(drivetrain);
   }

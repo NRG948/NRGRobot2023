@@ -34,7 +34,7 @@ public final class Autos {
   public static CommandBase driveStraight3Meters(Subsystems subsystems) {
     return Commands.sequence(
         new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
-        new ProfiledDriveStraight(subsystems.drivetrain, 3.0, 0));
+        new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0))));
   }
 
   private Autos() {
