@@ -21,16 +21,16 @@ import edu.wpi.first.math.util.Units;
  */
 public enum SwerveModuleParameters {
   /** An MK4 Swerve Module in the L1 - Standard configuration. */
-  MK4Standard(Units.inchesToMeters(4.0), 8.14, 12.8),
+  MK4Standard(Units.inchesToMeters(3.5), 8.14, 12.8),
 
   /** An MK4 Swerve Module in the L2 - Fast configuration. */
-  MK4Fast(Units.inchesToMeters(4.0), 6.75, 12.8),
+  MK4Fast(Units.inchesToMeters(3.5), 6.75, 12.8),
 
   /** An MK4 Swerve Module in the L3 - Very Fast configuration. */
-  MK4VeryFast(Units.inchesToMeters(4.0), 6.12, 12.8),
+  MK4VeryFast(Units.inchesToMeters(3.5), 6.12, 12.8),
 
   /** An MK4 Swerve Module in the L4 - Too Fast configuration. */
-  MK4TooFast(Units.inchesToMeters(4.0), 5.14, 12.8);
+  MK4TooFast(Units.inchesToMeters(3.5), 5.14, 12.8);
 
   private final double wheelDiameter;
   private final double driveGearRatio;
