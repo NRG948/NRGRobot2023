@@ -81,8 +81,8 @@ public class RobotContainer {
    */
   private void configureCommandBindings() {
     
-    m_driverController.b().onTrue(new BalanceOnChargeStation(subsystems.drivetrain, false));
-    m_driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
+    m_driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true, false));
+    m_driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false, false));
     
     m_driverController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
