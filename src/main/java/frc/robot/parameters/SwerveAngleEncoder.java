@@ -6,15 +6,15 @@ package frc.robot.parameters;
 
 /** Add your docs here. */
 public enum SwerveAngleEncoder {
-    FrontLeft,
-    FrontRight,
-    BackLeft,
-    BackRight;
+  FrontLeft,
+  FrontRight,
+  BackLeft,
+  BackRight;
 
-    /**
-     * Returns the index of the CANcoder ids.
-     */
-    public int getIndex() {
-        return this.ordinal();
-    }
+  /**
+   * Returns the index of the CANcoder ids.
+   */
+  public int getIndex() {
+    return this.ordinal();
+  }
 }

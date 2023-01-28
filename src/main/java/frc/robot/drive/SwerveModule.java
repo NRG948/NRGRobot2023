@@ -40,224 +40,224 @@ import frc.robot.parameters.SwerveDriveParameters;
  * documentation.
  */
 public class SwerveModule {
-    private final MotorController driveMotor;
-    private final DoubleSupplier positionSupplier;
-    private final DoubleSupplier velocitySupplier;
-    private final MotorController steeringMotor;
-    private final Supplier<Rotation2d> wheelAngleSupplier;
-    private final String name;
-    private final double wheelDiameter;
+  private final MotorController driveMotor;
+  private final DoubleSupplier positionSupplier;
+  private final DoubleSupplier velocitySupplier;
+  private final MotorController steeringMotor;
+  private final Supplier<Rotation2d> wheelAngleSupplier;
+  private final String name;
+  private final double wheelDiameter;
 
-    // models motors mathematically, calculates voltage needed
-    private final SimpleMotorFeedforward driveFeedForward;
-    private final SimpleMotorFeedforward steeringFeedForward;
+  // models motors mathematically, calculates voltage needed
+  private final SimpleMotorFeedforward driveFeedForward;
+  private final SimpleMotorFeedforward steeringFeedForward;
 
-    private final PIDController drivePID;
-    private final ProfiledPIDController steeringPID;
+  private final PIDController drivePID;
+  private final ProfiledPIDController steeringPID;
 
-    // The last motor voltages applied.
-    private double driveVoltage;
-    private double steeringVoltage;
+  // The last motor voltages applied.
+  private double driveVoltage;
+  private double steeringVoltage;
 
-    // The current supplied state updated by the periodic method.
-    private SwerveModuleState state;
-    private SwerveModulePosition position;
+  // The current supplied state updated by the periodic method.
+  private SwerveModuleState state;
+  private SwerveModulePosition position;
 
-    // Simulation support.
-    private double simVelocity;
-    private double simPosition;
-    private Rotation2d simWheelAngle = new Rotation2d();
-    private FlywheelSim simDriveMotor;
-    private FlywheelSim simSteeringMotor;
+  // Simulation support.
+  private double simVelocity;
+  private double simPosition;
+  private Rotation2d simWheelAngle = new Rotation2d();
+  private FlywheelSim simDriveMotor;
+  private FlywheelSim simSteeringMotor;
 
-    /**
-     * Constructs the swerve module.
-     * 
-     * @param parameters    A {@link SwerveDriveParameters} object providing
-     *                      information on the physical swerve drive
-     *                      characteristics.
-     * @param driveMotor    The drive motor controller.
-     * @param position      Supplies the position in meters.
-     * @param velocity      Supplies velocity in meters per second.
-     * @param steeringMotor The steering motor controller.
-     * @param wheelAngle    Supplies the wheel angle in degrees.
-     * @param name          The name of the module.
-     */
-    public SwerveModule(
-            SwerveDriveParameters parameters,
-            MotorController driveMotor,
-            DoubleSupplier position,
-            DoubleSupplier velocity,
-            MotorController steeringMotor,
-            Supplier<Rotation2d> wheelAngle,
-            String name) {
-        boolean realRobot = Robot.isReal();
+  /**
+   * Constructs the swerve module.
+   * 
+   * @param parameters    A {@link SwerveDriveParameters} object providing
+   *                      information on the physical swerve drive
+   *                      characteristics.
+   * @param driveMotor    The drive motor controller.
+   * @param position      Supplies the position in meters.
+   * @param velocity      Supplies velocity in meters per second.
+   * @param steeringMotor The steering motor controller.
+   * @param wheelAngle    Supplies the wheel angle in degrees.
+   * @param name          The name of the module.
+   */
+  public SwerveModule(
+      SwerveDriveParameters parameters,
+      MotorController driveMotor,
+      DoubleSupplier position,
+      DoubleSupplier velocity,
+      MotorController steeringMotor,
+      Supplier<Rotation2d> wheelAngle,
+      String name) {
+    boolean realRobot = Robot.isReal();
 
-        this.driveMotor = driveMotor;
-        this.steeringMotor = steeringMotor;
-        this.wheelAngleSupplier = realRobot ? wheelAngle : () -> this.simWheelAngle;
-        this.positionSupplier = realRobot ? position : () -> this.simPosition;
-        this.velocitySupplier = realRobot ? velocity : () -> this.simVelocity;
-        this.name = name;
-        this.wheelDiameter = parameters.getSwerveModule().getWheelDiameter();
+    this.driveMotor = driveMotor;
+    this.steeringMotor = steeringMotor;
+    this.wheelAngleSupplier = realRobot ? wheelAngle : () -> this.simWheelAngle;
+    this.positionSupplier = realRobot ? position : () -> this.simPosition;
+    this.velocitySupplier = realRobot ? velocity : () -> this.simVelocity;
+    this.name = name;
+    this.wheelDiameter = parameters.getSwerveModule().getWheelDiameter();
 
-        initializeSuppliedState();
+    initializeSuppliedState();
 
-        this.driveFeedForward = new SimpleMotorFeedforward(
-                parameters.getDriveKs(), parameters.getDriveKv(), parameters.getDriveKa());
-        this.steeringFeedForward = new SimpleMotorFeedforward(
-                parameters.getSteeringKs(), parameters.getSteeringKv(), parameters.getSteeringKa());
+    this.driveFeedForward = new SimpleMotorFeedforward(
+        parameters.getDriveKs(), parameters.getDriveKv(), parameters.getDriveKa());
+    this.steeringFeedForward = new SimpleMotorFeedforward(
+        parameters.getSteeringKs(), parameters.getSteeringKv(), parameters.getSteeringKa());
 
-        this.drivePID = new PIDController(5.0, 0, 0.0);
+    this.drivePID = new PIDController(5.0, 0, 0.0);
 
-        this.steeringPID = new ProfiledPIDController(7.0, 0, 0.0, parameters.getSteeringConstraints());
-        this.steeringPID.enableContinuousInput(-Math.PI, Math.PI);
-        this.steeringPID.setTolerance(Math.toRadians(1.0));
-        this.steeringPID.reset(getPosition().angle.getRadians());
+    this.steeringPID = new ProfiledPIDController(7.0, 0, 0.0, parameters.getSteeringConstraints());
+    this.steeringPID.enableContinuousInput(-Math.PI, Math.PI);
+    this.steeringPID.setTolerance(Math.toRadians(1.0));
+    this.steeringPID.reset(getPosition().angle.getRadians());
 
-        this.simDriveMotor = new FlywheelSim(
-                LinearSystemId.identifyVelocitySystem(parameters.getDriveKv(), parameters.getDriveKa()),
-                DCMotor.getFalcon500(1),
-                parameters.getSwerveModule().getDriveGearRation());
-        this.simSteeringMotor = new FlywheelSim(
-                LinearSystemId.identifyVelocitySystem(parameters.getSteeringKv(), parameters.getSteeringKa()),
-                DCMotor.getFalcon500(1),
-                parameters.getSwerveModule().getSteeringGearRatio());
-    }
+    this.simDriveMotor = new FlywheelSim(
+        LinearSystemId.identifyVelocitySystem(parameters.getDriveKv(), parameters.getDriveKa()),
+        DCMotor.getFalcon500(1),
+        parameters.getSwerveModule().getDriveGearRation());
+    this.simSteeringMotor = new FlywheelSim(
+        LinearSystemId.identifyVelocitySystem(parameters.getSteeringKv(), parameters.getSteeringKa()),
+        DCMotor.getFalcon500(1),
+        parameters.getSwerveModule().getSteeringGearRatio());
+  }
 
-    /**
-     * Initializes the supplied state.
-     */
-    private void initializeSuppliedState() {
-        updateSuppliedState();
-    }
+  /**
+   * Initializes the supplied state.
+   */
+  private void initializeSuppliedState() {
+    updateSuppliedState();
+  }
 
-    /**
-     * Updates the supplied state.
-     * <p>
-     * This method **MUST* be called by the {@link #periodic()} method to ensure the
-     * supplied state is up to date for subsequent use.
-     */
-    private void updateSuppliedState() {
-        Rotation2d wheelAngle = wheelAngleSupplier.get();
+  /**
+   * Updates the supplied state.
+   * <p>
+   * This method **MUST* be called by the {@link #periodic()} method to ensure the
+   * supplied state is up to date for subsequent use.
+   */
+  private void updateSuppliedState() {
+    Rotation2d wheelAngle = wheelAngleSupplier.get();
 
-        position = new SwerveModulePosition(positionSupplier.getAsDouble(), wheelAngle);
-        state = new SwerveModuleState(velocitySupplier.getAsDouble(), wheelAngle);
-    }
+    position = new SwerveModulePosition(positionSupplier.getAsDouble(), wheelAngle);
+    state = new SwerveModuleState(velocitySupplier.getAsDouble(), wheelAngle);
+  }
 
-    /**
-     * Sets the desired state for the module.
-     * 
-     * @param newState The desired state w/ speed and angle
-     */
-    public void setModuleState(SwerveModuleState newState) {
-        // Optimize the state to avoid spinning further than 90 degrees
-        Rotation2d currentAngle = getWheelRotation2d();
-        newState = SwerveModuleState.optimize(newState, currentAngle);
+  /**
+   * Sets the desired state for the module.
+   * 
+   * @param newState The desired state w/ speed and angle
+   */
+  public void setModuleState(SwerveModuleState newState) {
+    // Optimize the state to avoid spinning further than 90 degrees
+    Rotation2d currentAngle = getWheelRotation2d();
+    newState = SwerveModuleState.optimize(newState, currentAngle);
 
-        // Calculate the drive motor voltage using PID and FeedForward
-        double driveOutput = drivePID.calculate(state.speedMetersPerSecond, newState.speedMetersPerSecond);
-        double driveFeedForward = this.driveFeedForward.calculate(newState.speedMetersPerSecond);
+    // Calculate the drive motor voltage using PID and FeedForward
+    double driveOutput = drivePID.calculate(state.speedMetersPerSecond, newState.speedMetersPerSecond);
+    double driveFeedForward = this.driveFeedForward.calculate(newState.speedMetersPerSecond);
 
-        // Calculate the steering motor voltage using PID and FeedForward
-        double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), newState.angle.getRadians());
-        double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
+    // Calculate the steering motor voltage using PID and FeedForward
+    double steeringOutput = steeringPID.calculate(currentAngle.getRadians(), newState.angle.getRadians());
+    double steeringFeedForward = this.steeringFeedForward.calculate(steeringPID.getSetpoint().velocity);
 
-        // Sets voltages of motors
-        driveVoltage = driveOutput + driveFeedForward;
-        steeringVoltage = steeringOutput + steeringFeedForward;
+    // Sets voltages of motors
+    driveVoltage = driveOutput + driveFeedForward;
+    steeringVoltage = steeringOutput + steeringFeedForward;
 
-        this.driveMotor.setVoltage(driveVoltage);
-        this.steeringMotor.setVoltage(steeringVoltage);
-    }
+    this.driveMotor.setVoltage(driveVoltage);
+    this.steeringMotor.setVoltage(steeringVoltage);
+  }
 
-    /**
-     * Returns the current module state describing the wheel velocity and angle.
-     * 
-     * @return The current module state.
-     */
-    public SwerveModuleState getModuleState() {
-        return state;
-    }
+  /**
+   * Returns the current module state describing the wheel velocity and angle.
+   * 
+   * @return The current module state.
+   */
+  public SwerveModuleState getModuleState() {
+    return state;
+  }
 
-    /**
-     * Stops the drive and steering motors.
-     */
-    public void stopMotors() {
-        driveMotor.stopMotor();
-        steeringMotor.stopMotor();
-    }
+  /**
+   * Stops the drive and steering motors.
+   */
+  public void stopMotors() {
+    driveMotor.stopMotor();
+    steeringMotor.stopMotor();
+  }
 
-    /**
-     * The position of the wheel on its axis of travel.
-     * 
-     * @return The position of the swerve module.
-     */
-    public SwerveModulePosition getPosition() {
-        return position;
-    }
+  /**
+   * The position of the wheel on its axis of travel.
+   * 
+   * @return The position of the swerve module.
+   */
+  public SwerveModulePosition getPosition() {
+    return position;
+  }
 
-    /**
-     * Returns the current wheel orientation.
-     * 
-     * @return The current wheel orientation.
-     */
-    public Rotation2d getWheelRotation2d() {
-        return position.angle;
-    }
+  /**
+   * Returns the current wheel orientation.
+   * 
+   * @return The current wheel orientation.
+   */
+  public Rotation2d getWheelRotation2d() {
+    return position.angle;
+  }
 
-    /**
-     * This method is called periodically by the {@link SwerveSubsystem}. It is used
-     * to update module-specific state.
-     */
-    public void periodic() {
-        updateSuppliedState();
-    }
+  /**
+   * This method is called periodically by the {@link SwerveSubsystem}. It is used
+   * to update module-specific state.
+   */
+  public void periodic() {
+    updateSuppliedState();
+  }
 
-    /**
-     * This method is called periodically by the {@link SwerveSubsystem}. It is used
-     * to update module-specific simulation state.
-     */
-    public void simulationPeriodic() {
-        simDriveMotor.setInputVoltage(driveVoltage);
-        simSteeringMotor.setInputVoltage(steeringVoltage);
+  /**
+   * This method is called periodically by the {@link SwerveSubsystem}. It is used
+   * to update module-specific simulation state.
+   */
+  public void simulationPeriodic() {
+    simDriveMotor.setInputVoltage(driveVoltage);
+    simSteeringMotor.setInputVoltage(steeringVoltage);
 
-        simDriveMotor.update(Robot.kDefaultPeriod);
-        simSteeringMotor.update(Robot.kDefaultPeriod);
+    simDriveMotor.update(Robot.kDefaultPeriod);
+    simSteeringMotor.update(Robot.kDefaultPeriod);
 
-        simVelocity = (simDriveMotor.getAngularVelocityRadPerSec() * wheelDiameter) / 2;
-        simPosition += simVelocity * Robot.kDefaultPeriod;
+    simVelocity = (simDriveMotor.getAngularVelocityRadPerSec() * wheelDiameter) / 2;
+    simPosition += simVelocity * Robot.kDefaultPeriod;
 
-        simWheelAngle = new Rotation2d(
-                simWheelAngle.getRadians() + (simSteeringMotor.getAngularVelocityRadPerSec() * Robot.kDefaultPeriod));
-    }
+    simWheelAngle = new Rotation2d(
+        simWheelAngle.getRadians() + (simSteeringMotor.getAngularVelocityRadPerSec() * Robot.kDefaultPeriod));
+  }
 
-    /**
-     * Adds the SwerveModule layout to the Shuffleboard tab.
-     * 
-     * @param tab The Shuffleboard tab to add the layout.
-     * @return The SwerveModule layout.
-     */
-    public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
-        ShuffleboardLayout moduleLayout = tab.getLayout(name, BuiltInLayouts.kGrid)
-                .withProperties(Map.of("Number of columns", 2, "Number of rows", 1));
+  /**
+   * Adds the SwerveModule layout to the Shuffleboard tab.
+   * 
+   * @param tab The Shuffleboard tab to add the layout.
+   * @return The SwerveModule layout.
+   */
+  public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
+    ShuffleboardLayout moduleLayout = tab.getLayout(name, BuiltInLayouts.kGrid)
+        .withProperties(Map.of("Number of columns", 2, "Number of rows", 1));
 
-        moduleLayout.add("Rotation", new Sendable() {
+    moduleLayout.add("Rotation", new Sendable() {
 
-            @Override
-            public void initSendable(SendableBuilder builder) {
-                builder.setSmartDashboardType("Gyro");
-                builder.addDoubleProperty("Value", () -> -getPosition().angle.getDegrees(), null);
-            }
-        }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Gyro");
+        builder.addDoubleProperty("Value", () -> -getPosition().angle.getDegrees(), null);
+      }
+    }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
 
-        ShuffleboardLayout translationLayout = moduleLayout.getLayout("Translation", BuiltInLayouts.kList)
-                .withPosition(1, 0);
-        translationLayout.addDouble("Position", () -> getPosition().distanceMeters)
-                .withPosition(0, 0);
-        translationLayout.addDouble("Velocity", () -> getModuleState().speedMetersPerSecond)
-                .withPosition(0, 1);
+    ShuffleboardLayout translationLayout = moduleLayout.getLayout("Translation", BuiltInLayouts.kList)
+        .withPosition(1, 0);
+    translationLayout.addDouble("Position", () -> getPosition().distanceMeters)
+        .withPosition(0, 0);
+    translationLayout.addDouble("Velocity", () -> getModuleState().speedMetersPerSecond)
+        .withPosition(0, 1);
 
-        return moduleLayout;
-    }
+    return moduleLayout;
+  }
 }

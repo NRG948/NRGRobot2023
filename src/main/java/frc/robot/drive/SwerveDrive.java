@@ -20,217 +20,217 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
-    private static final ChassisSpeeds ZERO_SPEEDS = new ChassisSpeeds();
+  private static final ChassisSpeeds ZERO_SPEEDS = new ChassisSpeeds();
 
-    private final SwerveModule[] modules;
-    private final SwerveDriveKinematics kinematics;
-    private final Supplier<Rotation2d> orientationSupplier;
-    private final double maxDriveSpeed;
-    private final double maxRotationalSpeed;
+  private final SwerveModule[] modules;
+  private final SwerveDriveKinematics kinematics;
+  private final Supplier<Rotation2d> orientationSupplier;
+  private final double maxDriveSpeed;
+  private final double maxRotationalSpeed;
 
-    // The current supplied state updated by the periodic method.
-    private Rotation2d orientation;
+  // The current supplied state updated by the periodic method.
+  private Rotation2d orientation;
 
-    // Simulation support.
-    private Rotation2d simOrientation = new Rotation2d();
+  // Simulation support.
+  private Rotation2d simOrientation = new Rotation2d();
 
-    /**
-     * constructs the swerve drive
-     * 
-     * @param parameters          A {@link SwerveDriveParameters} object providing
-     *                            information on the physical swerve drive
-     *                            characteristics.
-     * @param modules             An array of four {@link SwerveModule} objects in
-     *                            the order: front left, front right, back left,
-     *                            back right.
-     * @param kinematics          A {@link SwerveDriveKinematics} object used to
-     *                            convert chassis velocity into individual module
-     *                            states.
-     * @param orientationSupplier Supplies the robot orientation relative to the
-     *                            field.
-     */
-    public SwerveDrive(
-            SwerveDriveParameters parameters,
-            SwerveModule[] modules,
-            Supplier<Rotation2d> orientationSupplier) {
-        this.modules = modules;
-        this.kinematics = parameters.getKinematics();
-        this.orientationSupplier = Robot.isReal() ? orientationSupplier : () -> this.simOrientation;
-        this.maxDriveSpeed = parameters.getMaxDriveSpeed();
-        this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
+  /**
+   * constructs the swerve drive
+   * 
+   * @param parameters          A {@link SwerveDriveParameters} object providing
+   *                            information on the physical swerve drive
+   *                            characteristics.
+   * @param modules             An array of four {@link SwerveModule} objects in
+   *                            the order: front left, front right, back left,
+   *                            back right.
+   * @param kinematics          A {@link SwerveDriveKinematics} object used to
+   *                            convert chassis velocity into individual module
+   *                            states.
+   * @param orientationSupplier Supplies the robot orientation relative to the
+   *                            field.
+   */
+  public SwerveDrive(
+      SwerveDriveParameters parameters,
+      SwerveModule[] modules,
+      Supplier<Rotation2d> orientationSupplier) {
+    this.modules = modules;
+    this.kinematics = parameters.getKinematics();
+    this.orientationSupplier = Robot.isReal() ? orientationSupplier : () -> this.simOrientation;
+    this.maxDriveSpeed = parameters.getMaxDriveSpeed();
+    this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
 
-        initializeSuppliedState();
+    initializeSuppliedState();
+  }
+
+  /**
+   * Initializes the supplied state.
+   */
+  private void initializeSuppliedState() {
+    updateSuppliedState();
+  }
+
+  /**
+   * Updates the supplied state.
+   * <p>
+   * This method **MUST* be called by the {@link #periodic()} method to ensure the
+   * supplied state is up to date for subsequent use.
+   */
+  private void updateSuppliedState() {
+    orientation = orientationSupplier.get();
+  }
+
+  /**
+   * Sets the swerve module states.
+   * 
+   * @param states An array of four {@link SwerveModuleState} objects in the
+   *               order: front left, front right, back left, back right
+   */
+  public void setModuleStates(SwerveModuleState[] states) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, maxDriveSpeed);
+
+    for (int i = 0; i < modules.length; ++i) {
+      modules[i].setModuleState(states[i]);
     }
 
-    /**
-     * Initializes the supplied state.
-     */
-    private void initializeSuppliedState() {
-        updateSuppliedState();
+    // Reset the motor watchdog timer.
+    feedWatchdog();
+  }
+
+  @Override
+  public void stopMotor() {
+    setChassisSpeeds(ZERO_SPEEDS);
+
+    for (SwerveModule module : modules) {
+      module.stopMotors();
+    }
+  }
+
+  @Override
+  public String getDescription() {
+    return "SwerveDrive";
+  }
+
+  /**
+   * Returns the orientation of the robot frame relative to the field.
+   * 
+   * @return The orientation of the robot frame.
+   */
+  public Rotation2d getOrientation() {
+    return orientation;
+  }
+
+  /**
+   * Drives the robot based on joystick inputs.
+   * 
+   * @param xSpeed        Speed of the robot in the x direction.
+   * @param ySpeed        Speed of the robot in the y direction.
+   * @param rSpeed        Rotation speed of the robot.
+   * @param fieldRelative Whether the x and y values are relative to field.
+   * @param squareInputs  Decreases sensitivity at low speeds.
+   */
+  public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
+    // Applies deadbands to x, y, and rotation joystick values and multiples all
+    // values with max speed.
+    xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
+    ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
+    rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * m_maxOutput * maxRotationalSpeed;
+
+    if (squareInputs) {
+      xSpeed *= xSpeed;
+      ySpeed *= ySpeed;
+      rSpeed *= rSpeed;
     }
 
-    /**
-     * Updates the supplied state.
-     * <p>
-     * This method **MUST* be called by the {@link #periodic()} method to ensure the
-     * supplied state is up to date for subsequent use.
-     */
-    private void updateSuppliedState() {
-        orientation = orientationSupplier.get();
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(
+        fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
+            : new ChassisSpeeds(xSpeed, ySpeed, rSpeed));
+
+    setModuleStates(states);
+  }
+
+  /**
+   * Returns the current module state describing the wheel velocity and angle.
+   * 
+   * @return The current module state.
+   */
+  public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+    for (int i = 0; i < modules.length; i++) {
+      moduleStates[i] = modules[i].getModuleState();
+    }
+    return moduleStates;
+  }
+
+  /**
+   * Sets the current module's states based on the chassis speed.
+   * 
+   * @param speeds The chassis speeds.
+   */
+  public void setChassisSpeeds(ChassisSpeeds speeds) {
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    setModuleStates(states);
+  }
+
+  /**
+   * Returns the current chassis speed.
+   * 
+   * @return The chassis speed.
+   */
+  public ChassisSpeeds getChassisSpeeds() {
+    return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /**
+   * Returns the swerve module positions.
+   * 
+   * @return Swerve module positions.
+   */
+  public SwerveModulePosition[] getModulesPositions() {
+    SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
+    for (int i = 0; i < modules.length; i++) {
+      modulePosition[i] = modules[i].getPosition();
+    }
+    return modulePosition;
+  }
+
+  /**
+   * This method is called periodically by the {@link SwerveSubsystem}. It is used
+   * to update drive-specific state.
+   */
+  public void periodic() {
+    updateSuppliedState();
+
+    for (SwerveModule module : modules) {
+      module.periodic();
+    }
+  }
+
+  /**
+   * This method is called periodically by the {@link SwerveSubsystem}. It is used
+   * to update module-specific simulation state.
+   */
+  public void simulationPeriodic() {
+    for (SwerveModule module : modules) {
+      module.simulationPeriodic();
     }
 
-    /**
-     * Sets the swerve module states.
-     * 
-     * @param states An array of four {@link SwerveModuleState} objects in the
-     *               order: front left, front right, back left, back right
-     */
-    public void setModuleStates(SwerveModuleState[] states) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, maxDriveSpeed);
+    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
 
-        for (int i = 0; i < modules.length; ++i) {
-            modules[i].setModuleState(states[i]);
-        }
+    simOrientation = new Rotation2d(
+        simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
+  }
 
-        // Reset the motor watchdog timer.
-        feedWatchdog();
+  /**
+   * Adds the SwerveModule layouts to the shuffleboard tab.
+   * 
+   * @param tab The suffleboard tab to add layouts
+   */
+  public void addShuffleboardLayouts(ShuffleboardTab tab) {
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].addShuffleboardLayout(tab)
+          .withSize(3, 2)
+          .withPosition((i * 3) % 6, ((i / 2) * 2) % 4);
     }
-
-    @Override
-    public void stopMotor() {
-        setChassisSpeeds(ZERO_SPEEDS);
-
-        for (SwerveModule module : modules) {
-            module.stopMotors();
-        }
-    }
-
-    @Override
-    public String getDescription() {
-        return "SwerveDrive";
-    }
-
-    /**
-     * Returns the orientation of the robot frame relative to the field.
-     * 
-     * @return The orientation of the robot frame.
-     */
-    public Rotation2d getOrientation() {
-        return orientation;
-    }
-
-    /**
-     * Drives the robot based on joystick inputs.
-     * 
-     * @param xSpeed        Speed of the robot in the x direction.
-     * @param ySpeed        Speed of the robot in the y direction.
-     * @param rSpeed        Rotation speed of the robot.
-     * @param fieldRelative Whether the x and y values are relative to field.
-     * @param squareInputs  Decreases sensitivity at low speeds.
-     */
-    public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
-        // Applies deadbands to x, y, and rotation joystick values and multiples all
-        // values with max speed.
-        xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
-        ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
-        rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * m_maxOutput * maxRotationalSpeed;
-
-        if (squareInputs) {
-            xSpeed *= xSpeed;
-            ySpeed *= ySpeed;
-            rSpeed *= rSpeed;
-        }
-
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(
-                fieldRelative
-                        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
-                        : new ChassisSpeeds(xSpeed, ySpeed, rSpeed));
-
-        setModuleStates(states);
-    }
-
-    /**
-     * Returns the current module state describing the wheel velocity and angle.
-     * 
-     * @return The current module state.
-     */
-    public SwerveModuleState[] getModuleStates() {
-        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-        for (int i = 0; i < modules.length; i++) {
-            moduleStates[i] = modules[i].getModuleState();
-        }
-        return moduleStates;
-    }
-
-    /**
-     * Sets the current module's states based on the chassis speed.
-     * 
-     * @param speeds The chassis speeds.
-     */
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-        setModuleStates(states);
-    }
-
-    /**
-     * Returns the current chassis speed.
-     * 
-     * @return The chassis speed.
-     */
-    public ChassisSpeeds getChassisSpeeds() {
-        return kinematics.toChassisSpeeds(getModuleStates());
-    }
-
-    /**
-     * Returns the swerve module positions.
-     * 
-     * @return Swerve module positions.
-     */
-    public SwerveModulePosition[] getModulesPositions() {
-        SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
-        for (int i = 0; i < modules.length; i++) {
-            modulePosition[i] = modules[i].getPosition();
-        }
-        return modulePosition;
-    }
-
-    /**
-     * This method is called periodically by the {@link SwerveSubsystem}. It is used
-     * to update drive-specific state.
-     */
-    public void periodic() {
-        updateSuppliedState();
-
-        for (SwerveModule module : modules) {
-            module.periodic();
-        }
-    }
-
-    /**
-     * This method is called periodically by the {@link SwerveSubsystem}. It is used
-     * to update module-specific simulation state.
-     */
-    public void simulationPeriodic() {
-        for (SwerveModule module : modules) {
-            module.simulationPeriodic();
-        }
-
-        ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
-
-        simOrientation = new Rotation2d(
-                simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
-    }
-
-    /**
-     * Adds the SwerveModule layouts to the shuffleboard tab.
-     * 
-     * @param tab The suffleboard tab to add layouts
-     */
-    public void addShuffleboardLayouts(ShuffleboardTab tab) {
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].addShuffleboardLayout(tab)
-                    .withSize(3, 2)
-                    .withPosition((i * 3) % 6, ((i / 2) * 2) % 4);
-        }
-    }
+  }
 }
