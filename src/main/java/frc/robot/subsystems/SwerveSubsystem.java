@@ -151,6 +151,7 @@ public class SwerveSubsystem extends SubsystemBase {
     rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
     if (wasNavXCalibrating && !ahrs.isCalibrating()) {
       tiltOffset = rawTilt;
+      System.out.println("Tilt offset: " + tiltOffset.getDegrees());
       wasNavXCalibrating = false;
     }
     tiltVelocity = ahrs.getRawGyroY();
@@ -277,6 +278,12 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetPosition(Pose2d initialPosition) {
     odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
+  }
+
+  public void resetHeading() {
+    Pose2d currentPos = odometry.getPoseMeters();
+    Pose2d newPos2d = new Pose2d(currentPos.getTranslation(), new Rotation2d());
+    resetPosition(newPos2d);
   }
 
   /**
