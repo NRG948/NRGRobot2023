@@ -104,6 +104,14 @@ public enum SwerveDriveParameters {
    *                            in meters.
    * @param swerveModule        The swerve module used by the robot.
    * @param motor               The motor used by swerve module on the robot.
+   * @param motorIds            An array containing the CAN IDs of the swerve
+   *                            module drive motors in the order front left drive
+   *                            and steering, front right drive and steering, back
+   *                            left drive and steering, back right drive and
+   *                            steering.
+   * @param angleEncoderIds     An array containing the CAN IDs of the swerve
+   *                            module angle encoders in the order front left,
+   *                            front right, back left, back right.
    * @param driveFeedforward    The drive feedforward constants.
    * @param steeringFeedforward The steering feedforward constants.
    */
@@ -177,15 +185,22 @@ public enum SwerveDriveParameters {
    * </code>
    * </pre>
    * 
-   * @param robotMass      The mass of the robot in Kg.
-   * @param wheelDistanceX The distance between the wheels along the X axis in
-   *                       meters.
-   * @param wheelDistanceY The distance between the wheels along the Y axis in
-   *                       meters
-   * @param swerveModule   The swerve module used by the robot.
-   * @param motor          The motor used by swerve module on the robot.
-   * @param driveKs        The drive kS constant.
-   * @param steeringKs     The steering kS constant.
+   * @param robotMass       The mass of the robot in Kg.
+   * @param wheelDistanceX  The distance between the wheels along the X axis in
+   *                        meters.
+   * @param wheelDistanceY  The distance between the wheels along the Y axis in
+   *                        meters
+   * @param swerveModule    The swerve module used by the robot.
+   * @param motor           The motor used by swerve module on the robot.
+   * @param motorIds        An array containing the CAN IDs of the swerve module
+   *                        drive motors in the order front left drive and
+   *                        steering, front right drive and steering, back left
+   *                        drive and steering, back right drive and steering.
+   * @param angleEncoderIds An array containing the CAN IDs of the swerve module
+   *                        angle encoders in the order front left, front right,
+   *                        back left, back right.
+   * @param driveKs         The drive kS constant.
+   * @param steeringKs      The steering kS constant.
    */
   private SwerveDriveParameters(
       double robotMass,
@@ -205,9 +220,13 @@ public enum SwerveDriveParameters {
         motor,
         motorIds,
         angleEncoderIds,
-        new CalculatedFeedforwardConstants(drivekS, () -> swerveModule.calculateMaxDriveSpeed(motor),
+        new CalculatedFeedforwardConstants(
+            drivekS,
+            () -> swerveModule.calculateMaxDriveSpeed(motor),
             () -> swerveModule.calculateMaxDriveAcceleration(motor, robotMass)),
-        new CalculatedFeedforwardConstants(steeringkS, () -> swerveModule.calculateMaxSteeringSpeed(motor),
+        new CalculatedFeedforwardConstants(
+            steeringkS,
+            () -> swerveModule.calculateMaxSteeringSpeed(motor),
             () -> swerveModule.calculateMaxSteeringAcceleration(motor, robotMass)));
   }
 
