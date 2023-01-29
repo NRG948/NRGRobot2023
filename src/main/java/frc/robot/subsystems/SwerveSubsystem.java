@@ -50,7 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @RobotPreferencesValue
   public static RobotPreferences.EnumValue<SwerveDriveParameters> PARAMETERS = new RobotPreferences.EnumValue<SwerveDriveParameters>(
-      PREFERENCES_GROUP, "Robot Base", SwerveDriveParameters.Competition2022);
+      PREFERENCES_GROUP, "Robot Base", SwerveDriveParameters.Practice2023);
 
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_DRIVE_TAB = new RobotPreferences.BooleanValue(
