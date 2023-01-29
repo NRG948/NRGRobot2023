@@ -133,8 +133,9 @@ public abstract class SysIdLogger {
     b.append(String.format("%s-%s;", type, direction));
 
     for (int i = 0; i < data.size(); ++i) {
-      if (i != 0)
+      if (i != 0) {
         b.append(",");
+      }
       b.append(data.get(i));
     }
 
