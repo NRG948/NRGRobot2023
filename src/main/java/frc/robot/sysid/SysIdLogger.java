@@ -28,15 +28,15 @@ public abstract class SysIdLogger {
 
   private static final int DATA_ARRAY_CAPACITY = 36000;
 
-  private double m_voltageCommand;
-  private double m_motorVoltage;
-  private double m_timestamp;
-  private double m_startTime;
-  private boolean m_rotate;
-  private String m_testType;
-  private String m_mechanism;
-  private double m_ackNumber;
-  private ArrayList<Double> m_data = new ArrayList<Double>();
+  private double voltageCommand;
+  private double motorVoltage;
+  private double timestamp;
+  private double startTime;
+  private boolean rotate;
+  private String testType;
+  private String mechanism;
+  private double ackNumber;
+  private ArrayList<Double> data = new ArrayList<Double>();
 
   /** Construct an instance of this class. */
   public SysIdLogger() {
@@ -46,24 +46,24 @@ public abstract class SysIdLogger {
     SmartDashboard.putBoolean(SYS_ID_ROTATE, false);
     SmartDashboard.putBoolean(SYS_ID_OVERFLOW, false);
     SmartDashboard.putBoolean(SYS_ID_WRONG_MECH, false);
-    SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, m_ackNumber);
+    SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, ackNumber);
   }
 
   /** Initializes the logger. */
   public void init() {
-    m_mechanism = SmartDashboard.getString(SYS_ID_TEST, "");
-    m_testType = SmartDashboard.getString(SYS_ID_TEST_TYPE, "");
-    m_rotate = SmartDashboard.getBoolean(SYS_ID_ROTATE, false);
-    m_voltageCommand = SmartDashboard.getNumber(SYS_ID_VOLTAGE_COMMAND, 0.0);
-    m_ackNumber = SmartDashboard.getNumber(SYS_ID_ACK_NUMBER, 0.0);
+    mechanism = SmartDashboard.getString(SYS_ID_TEST, "");
+    testType = SmartDashboard.getString(SYS_ID_TEST_TYPE, "");
+    rotate = SmartDashboard.getBoolean(SYS_ID_ROTATE, false);
+    voltageCommand = SmartDashboard.getNumber(SYS_ID_VOLTAGE_COMMAND, 0.0);
+    ackNumber = SmartDashboard.getNumber(SYS_ID_ACK_NUMBER, 0.0);
 
-    m_data.ensureCapacity(DATA_ARRAY_CAPACITY);
+    data.ensureCapacity(DATA_ARRAY_CAPACITY);
 
     SmartDashboard.putBoolean(SYS_ID_WRONG_MECH, isWrongMechanism());
 
     reset();
 
-    m_startTime = Timer.getFPGATimestamp();
+    startTime = Timer.getFPGATimestamp();
   }
 
   /**
@@ -72,7 +72,7 @@ public abstract class SysIdLogger {
    * @return The mechanism to be characterized.
    */
   public String getMechanism() {
-    return m_mechanism;
+    return mechanism;
   }
 
   /**
@@ -81,7 +81,7 @@ public abstract class SysIdLogger {
    * @return The current logging timestamp.
    */
   protected double getTimestamp() {
-    return m_timestamp;
+    return timestamp;
   }
 
   /**
@@ -92,7 +92,7 @@ public abstract class SysIdLogger {
   public double getMotorVoltage() {
     final double batteryVoltage = RobotController.getBatteryVoltage();
 
-    return MathUtil.clamp(m_motorVoltage, -batteryVoltage, batteryVoltage);
+    return MathUtil.clamp(motorVoltage, -batteryVoltage, batteryVoltage);
   }
 
   /**
@@ -101,45 +101,45 @@ public abstract class SysIdLogger {
    * @return
    */
   public boolean isRotating() {
-    return m_rotate;
+    return rotate;
   }
 
   /** Updates the logger data from the current SysId values. */
   public void updateData() {
-    m_timestamp = Timer.getFPGATimestamp();
+    timestamp = Timer.getFPGATimestamp();
 
     if (isWrongMechanism()) {
-      m_motorVoltage = 0.0;
-    } else if (m_testType.equals(QUASISTATIC_TEST)) {
-      m_motorVoltage = m_voltageCommand * (m_timestamp - m_startTime);
-    } else if (m_testType.equals(DYNAMIC_TEST)) {
-      m_motorVoltage = m_voltageCommand;
+      motorVoltage = 0.0;
+    } else if (testType.equals(QUASISTATIC_TEST)) {
+      motorVoltage = voltageCommand * (timestamp - startTime);
+    } else if (testType.equals(DYNAMIC_TEST)) {
+      motorVoltage = voltageCommand;
     } else {
-      m_motorVoltage = 0.0;
+      motorVoltage = 0.0;
     }
   }
 
   /** Sends the data to the SysId tool. */
   public void sendData() {
-    System.out.println(String.format("Collected %d data points.", m_data.size()));
+    System.out.println(String.format("Collected %d data points.", data.size()));
 
-    SmartDashboard.putBoolean(SYS_ID_OVERFLOW, m_data.size() >= DATA_ARRAY_CAPACITY);
+    SmartDashboard.putBoolean(SYS_ID_OVERFLOW, data.size() >= DATA_ARRAY_CAPACITY);
 
     StringBuilder b = new StringBuilder();
 
-    final String type = m_testType.equals(DYNAMIC_TEST) ? "fast" : "slow";
-    final String direction = m_voltageCommand > 0 ? "forward" : "backward";
+    final String type = testType.equals(DYNAMIC_TEST) ? "fast" : "slow";
+    final String direction = voltageCommand > 0 ? "forward" : "backward";
 
     b.append(String.format("%s-%s;", type, direction));
 
-    for (int i = 0; i < m_data.size(); ++i) {
+    for (int i = 0; i < data.size(); ++i) {
       if (i != 0)
         b.append(",");
-      b.append(m_data.get(i));
+      b.append(data.get(i));
     }
 
     SmartDashboard.putString(SYS_ID_TELEMETRY, b.toString());
-    SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, ++m_ackNumber);
+    SmartDashboard.putNumber(SYS_ID_ACK_NUMBER, ++ackNumber);
 
     reset();
   }
@@ -150,15 +150,15 @@ public abstract class SysIdLogger {
    * @param dataValue The data to log.
    */
   protected void addData(Double... dataValue) {
-    m_data.addAll(Arrays.asList(dataValue));
+    data.addAll(Arrays.asList(dataValue));
   }
 
   /** Resets the logger. */
   public void reset() {
-    m_motorVoltage = 0.0;
-    m_timestamp = 0.0;
-    m_startTime = 0.0;
-    m_data.clear();
+    motorVoltage = 0.0;
+    timestamp = 0.0;
+    startTime = 0.0;
+    data.clear();
   }
 
   /** Returns true if the wrong mechanism is being profiled. */

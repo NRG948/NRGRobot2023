@@ -60,7 +60,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static RobotPreferences.BooleanValue ENABLE_FIELD_TAB = new RobotPreferences.BooleanValue(
       PREFERENCES_GROUP, "Enable Field Tab", false);
 
-  private static final byte kNavXUpdateFrequencyHz = 50;
+  private static final byte NAVX_UPDATE_FREQUENCY_HZ = 50;
 
   // 4 pairs of motors for drive & steering.
   private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(
@@ -104,7 +104,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveModule[] modules = { frontLeftModule, frontRightModule, backLeftModule, backRightModule };
 
-  private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
+  private final AHRS ahrs = new AHRS(SPI.Port.kMXP, NAVX_UPDATE_FREQUENCY_HZ);
 
   private final SwerveDriveKinematics kinematics = PARAMETERS.getValue().getKinematics();
 

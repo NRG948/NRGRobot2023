@@ -23,7 +23,7 @@ public class CalculatedFeedforwardConstants extends FeedforwardConstants {
    * @param maxAcceleration Supplies the maximum acceleration.
    */
   public CalculatedFeedforwardConstants(double kS, DoubleSupplier maxSpeed, DoubleSupplier maxAcceleration) {
-    super(kS, (RobotConstants.kMaxBatteryVoltage - kS) / maxSpeed.getAsDouble(),
-        (RobotConstants.kMaxBatteryVoltage - kS) / maxAcceleration.getAsDouble());
+    super(kS, (RobotConstants.MAX_BATTERY_VOLTAGE - kS) / maxSpeed.getAsDouble(),
+        (RobotConstants.MAX_BATTERY_VOLTAGE - kS) / maxAcceleration.getAsDouble());
   }
 }

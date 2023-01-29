@@ -48,8 +48,8 @@ public class RobotContainer {
   public static AddressableLEDs leds = new AddressableLEDs(2, 51);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController driverController = new CommandXboxController(
+      OperatorConstants.DRIVER_CONTROLLER_PORT);
 
   public final SendableChooser<Command> autonomousCommandChooser;
 
@@ -84,11 +84,11 @@ public class RobotContainer {
    */
   private void configureCommandBindings() {
     
-    m_driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
-    m_driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
-    m_driverController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
+    driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
+    driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
+    driverController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
     
-    m_driverController.y().onTrue(new InstantCommand(() -> {
+    driverController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
       int green = (int) (255 * Math.random());
       int blue = (int) (255 * Math.random());

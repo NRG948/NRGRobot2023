@@ -51,7 +51,7 @@ public class CharacterizeSwerveDrive extends CommandBase {
     logger.logData();
     double voltage = logger.getMotorVoltage();
     ChassisSpeeds speeds = new ChassisSpeeds(
-        (voltage / RobotConstants.kMaxBatteryVoltage) * drivetrain.getMaxSpeed(),
+        (voltage / RobotConstants.MAX_BATTERY_VOLTAGE) * drivetrain.getMaxSpeed(),
         0.0,
         0.0);
     drivetrain.setChassisSpeeds(speeds);
