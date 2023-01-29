@@ -113,6 +113,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private final Field2d field = new Field2d();
 
   // The current sensor state updated by the periodic method.
+  private Rotation2d rawOrientation;
+  private Rotation2d rawOrientationOffset = new Rotation2d();
   private Rotation2d rawTilt;
   private Rotation2d tiltOffset;
   private double tiltVelocity;
@@ -152,7 +154,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     initializeSensorState();
 
-    drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> Rotation2d.fromDegrees(-ahrs.getAngle()));
+    drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
     drivetrain.setDeadband(0.1);
 
     odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
@@ -176,6 +178,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * sensor state is up to date.
    */
   private void updateSensorState() {
+    rawOrientation = Rotation2d.fromDegrees(-ahrs.getAngle());
     rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
     if (wasNavXCalibrating && !ahrs.isCalibrating()) {
       tiltOffset = rawTilt;
@@ -305,6 +308,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialPosition Sets the initial position.
    */
   public void resetPosition(Pose2d initialPosition) {
+    rawOrientationOffset = rawOrientation.minus(initialPosition.getRotation());
     odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
   }
 
@@ -329,7 +333,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Gets the field orientation of the robot.
    */
   public Rotation2d getOrientation() {
-    return drivetrain.getOrientation();
+    return rawOrientation.minus(rawOrientationOffset);
   }
 
   /**
@@ -361,7 +365,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Update odometry last since this relies on the subsystem sensor and module
     // states.
-    odometry.update(getOrientation(), drivetrain.getModulesPositions());
+    odometry.update(rawOrientation, drivetrain.getModulesPositions());
 
     // Send the robot and module location to the field
     Pose2d robotPose = getPosition();

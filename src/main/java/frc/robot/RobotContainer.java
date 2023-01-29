@@ -8,6 +8,7 @@ import com.nrg948.autonomous.Autonomous;
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -61,7 +62,7 @@ public class RobotContainer {
     autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
     initShuffleboard();
     DriverStation.silenceJoystickConnectionWarning(true);
-    
+
     // Configure the trigger bindings
     configureCommandBindings();
     leds.start();
@@ -83,17 +84,19 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureCommandBindings() {
-    
+
     driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
     driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
     driverController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
-    
+
     driverController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
       int green = (int) (255 * Math.random());
       int blue = (int) (255 * Math.random());
       leds.setColor(new Color8Bit(red, green, blue));
     }));
+
+    driverController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
   }
 
   /**
