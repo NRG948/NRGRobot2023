@@ -40,7 +40,18 @@ public enum SwerveDriveParameters {
       new int[] { 1, 2, 3, 4, 7, 8, 5, 6 },
       new int[] { 9, 10, 12, 11 },
       new FeedforwardConstants(0.15928, 4.1384, 0.74797),
-      new FeedforwardConstants(0.15928, 4.1384, 0.74797));
+      new FeedforwardConstants(0.15928, 4.1384, 0.74797)),
+    SwerveBase2023(
+        13.0,
+        Units.inchesToMeters(24.5),
+        Units.inchesToMeters(22.5),
+        MK4Standard,
+        Falcon500,
+        new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
+        new int[] { 1, 2, 4, 3},
+        new FeedforwardConstants(0.15, 1.5, 0.4),
+        new FeedforwardConstants(0.15, 1.5, 0.4))
+      ;
 
   /**
    * A scaling factor used to adjust from theoretical maximums given that any
