@@ -17,7 +17,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   private static final double APPROACH_SPEED = 0.5; // speed for approaching charge station, higher for momentum
   private static final double BALANCE_THRESHOLD = 2.0; // degrees, "balanced" if within +/- BALANCE_THRESHOLD.
   private static final double MAX_TILT = 15; // maxmimum incline of the charge station
-  
+
   private SwerveSubsystem drivetrain;
   private boolean isDrivingForward;
   private boolean wasTiltedUp;
@@ -45,30 +45,30 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   public void execute() {
     tiltAngle = drivetrain.getTilt();
     double currentSpeed;
-    
+
     if (!wasTiltedUp) {
-      //If the robot has never gotten onto the charge station, the robot drives foward at approach speed
-      currentSpeed = APPROACH_SPEED;
-      wasTiltedUp = tiltAngle.getDegrees() > 9;
+      // If the robot has never gotten onto the charge station, the robot drives
+      // foward at approach speed
+      currentSpeed = isDrivingForward ? APPROACH_SPEED : -APPROACH_SPEED;
+      wasTiltedUp = Math.abs(tiltAngle.getDegrees()) > 9;
     } else {
       currentSpeed = calculateSpeed(tiltAngle.getDegrees());
     }
 
     if (previousSpeed != 0 && currentSpeed == 0) {
       pauseCounter = 50; // Pause for 1s (50*20ms)
-    } 
+    }
     if (pauseCounter > 0) {
       currentSpeed = 0;
       pauseCounter--;
-  }
+    }
 
-    currentSpeed = isDrivingForward ? currentSpeed : -currentSpeed;
     drivetrain.drive(currentSpeed, 0, 0, false, false);
     previousSpeed = currentSpeed;
   }
 
   // proportionally map the tilt angle to speed
-  private double calculateSpeed(double tiltAngle) { 
+  private double calculateSpeed(double tiltAngle) {
     if (Math.abs(tiltAngle) <= BALANCE_THRESHOLD) {
       return 0;
     }
@@ -84,6 +84,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return pauseCounter == 1 && Math.abs(tiltAngle.getDegrees()) <= BALANCE_THRESHOLD; // ends command if balanced for 1s
+    return pauseCounter == 1 && Math.abs(tiltAngle.getDegrees()) <= BALANCE_THRESHOLD; // ends command if balanced for
+                                                                                       // 1s
   }
 }
