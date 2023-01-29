@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
+import frc.robot.util.SwerveModuleVoltages;
 
 /**
  * Manages the drive and steering motors of a single swerve drive module.
@@ -167,8 +168,27 @@ public class SwerveModule {
     driveVoltage = driveOutput + driveFeedForward;
     steeringVoltage = steeringOutput + steeringFeedForward;
 
+    setMotorVoltages(driveVoltage, steeringVoltage);
+  }
+
+  /**
+   * Sets the drive and steering motor voltages.
+   * 
+   * @param driveVoltage    The drive motor voltage.
+   * @param steeringVoltage The steering motor voltage.
+   */
+  public void setMotorVoltages(double driveVoltage, double steeringVoltage) {
     this.driveMotor.setVoltage(driveVoltage);
     this.steeringMotor.setVoltage(steeringVoltage);
+  }
+
+  /**
+   * Sets the drive and steering motor voltages.
+   * 
+   * @param moduleVoltages The motor voltages.
+   */
+  public void setMotorVoltages(SwerveModuleVoltages moduleVoltages) {
+    setMotorVoltages(moduleVoltages.driveVoltage, moduleVoltages.steeringVoltage);
   }
 
   /**

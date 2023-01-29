@@ -43,6 +43,7 @@ import frc.robot.drive.SwerveModule;
 import frc.robot.parameters.SwerveAngleEncoder;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.parameters.SwerveMotors;
+import frc.robot.util.SwerveModuleVoltages;
 
 @RobotPreferencesLayout(groupName = "Drive", column = 0, row = 1, width = 2, height = 2)
 public class SwerveSubsystem extends SubsystemBase {
@@ -295,6 +296,15 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void setModuleStates(SwerveModuleState[] states) {
     drivetrain.setModuleStates(states);
+  }
+
+  /**
+   * Sets the module motor voltages.
+   * 
+   * @param moduleVoltages The module motor voltages.
+   */
+  public void setModuleVoltages(SwerveModuleVoltages[] moduleVoltages) {
+    drivetrain.setModuleVoltages(moduleVoltages);
   }
 
   // Stops motors from the subsystem - may need to remove this (not sure - Om)

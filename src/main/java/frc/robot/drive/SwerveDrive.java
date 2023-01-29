@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.util.SwerveModuleVoltages;
 
 /** SwerveDrive implements swerve drive control. */
 public class SwerveDrive extends RobotDriveBase {
@@ -192,6 +193,17 @@ public class SwerveDrive extends RobotDriveBase {
       modulePosition[i] = modules[i].getPosition();
     }
     return modulePosition;
+  }
+
+  /**
+   * Sets the module motor voltages.
+   * 
+   * @param moduleVoltages The module motor voltages.
+   */
+  public void setModuleVoltages(SwerveModuleVoltages[] moduleVoltages) {
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].setMotorVoltages(moduleVoltages[i]);
+    }
   }
 
   /**
