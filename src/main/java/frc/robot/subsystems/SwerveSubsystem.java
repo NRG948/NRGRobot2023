@@ -13,6 +13,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesLayout;
+import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -42,30 +44,54 @@ import frc.robot.parameters.SwerveAngleEncoder;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.parameters.SwerveMotors;
 
+@RobotPreferencesLayout(groupName = "Drive", column = 0, row = 1, width = 2, height = 2)
 public class SwerveSubsystem extends SubsystemBase {
-  public static RobotPreferences.EnumValue<SwerveDriveParameters> PARAMETERS = new RobotPreferences.EnumValue<SwerveDriveParameters>("Drive", "Robot Base", SwerveDriveParameters.Competition2022);
+  private static final String PREFERENCES_GROUP = "Drive";
 
+  @RobotPreferencesValue
+  public static RobotPreferences.EnumValue<SwerveDriveParameters> PARAMETERS = new RobotPreferences.EnumValue<SwerveDriveParameters>(
+      PREFERENCES_GROUP, "Robot Base", SwerveDriveParameters.Competition2022);
+
+  @RobotPreferencesValue
+  public static RobotPreferences.BooleanValue ENABLE_DRIVE_TAB = new RobotPreferences.BooleanValue(
+      PREFERENCES_GROUP, "Enable Drive Tab", false);
+
+  @RobotPreferencesValue
+  public static RobotPreferences.BooleanValue ENABLE_FIELD_TAB = new RobotPreferences.BooleanValue(
+      PREFERENCES_GROUP, "Enable Field Tab", false);
 
   private static final byte kNavXUpdateFrequencyHz = 50;
 
   // 4 pairs of motors for drive & steering.
-  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftDrive));
-  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftSteering));
+  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftDrive));
+  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftSteering));
 
-  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightDrive));
-  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightSteering));
+  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightDrive));
+  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightSteering));
 
-  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftDrive));
-  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftSteering));
+  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftDrive));
+  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftSteering));
 
-  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightDrive));
-  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightSteering));
+  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightDrive));
+  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(
+      PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightSteering));
 
   // 4 CANcoders for the steering angle.
-  private final CANCoder frontLeftAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontLeft));
-  private final CANCoder frontRightAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontRight));
-  private final CANCoder backLeftAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackLeft));
-  private final CANCoder backRightAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackRight));
+  private final CANCoder frontLeftAngle = new CANCoder(
+      PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontLeft));
+  private final CANCoder frontRightAngle = new CANCoder(
+      PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontRight));
+  private final CANCoder backLeftAngle = new CANCoder(
+      PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackLeft));
+  private final CANCoder backRightAngle = new CANCoder(
+      PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackRight));
 
   private final SwerveModule frontLeftModule = createSwerveModule(
       frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle, "Front Left");
@@ -138,7 +164,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private void initializeSensorState() {
     ahrs.reset();
     wasNavXCalibrating = true;
-    
+
     updateSensorState();
     tiltOffset = Rotation2d.fromDegrees(-3.5); // For 2022 robot
   }
@@ -250,12 +276,12 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-     * Returns the current chassis speed.
-     * 
-     * @return The chassis speed.
-     */
-    public ChassisSpeeds getChassisSpeeds() {
-      return drivetrain.getChassisSpeeds();
+   * Returns the current chassis speed.
+   * 
+   * @return The chassis speed.
+   */
+  public ChassisSpeeds getChassisSpeeds() {
+    return drivetrain.getChassisSpeeds();
   }
 
   /**
@@ -364,39 +390,44 @@ public class SwerveSubsystem extends SubsystemBase {
    * Adds a tab for swerve drive in Shuffleboard.
    */
   public void addShuffleboardTab() {
-    ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
+    if (ENABLE_DRIVE_TAB.getValue()) {
+      ShuffleboardTab swerveDriveTab = Shuffleboard.getTab("Drive");
 
-    drivetrain.addShuffleboardLayouts(swerveDriveTab);
+      drivetrain.addShuffleboardLayouts(swerveDriveTab);
 
-    ShuffleboardLayout odometryLayout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
-        .withPosition(6, 0)
-        .withSize(3, 4);
+      ShuffleboardLayout odometryLayout = swerveDriveTab.getLayout("Odometry", BuiltInLayouts.kList)
+          .withPosition(6, 0)
+          .withSize(3, 4);
 
-    odometryLayout.add("Orientation", new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Gyro");
-        builder.addDoubleProperty("Value", () -> -getOrientation().getDegrees(), null);
-      }
-    }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
+      odometryLayout.add("Orientation", new Sendable() {
+        @Override
+        public void initSendable(SendableBuilder builder) {
+          builder.setSmartDashboardType("Gyro");
+          builder.addDoubleProperty("Value", () -> -getOrientation().getDegrees(), null);
+        }
+      }).withWidget(BuiltInWidgets.kGyro).withPosition(0, 0);
 
-    ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
-        .withProperties(Map.of("Number of columns", 4, "Number of rows", 1));
+      ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
+          .withProperties(Map.of("Number of columns", 4, "Number of rows", 1));
 
-    positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
-        .withPosition(0, 0);
-    positionLayout.addDouble("Y", () -> odometry.getPoseMeters().getY())
-        .withPosition(1, 0);
-    positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
-        .withPosition(2, 0);
-    positionLayout.addDouble("Tilt Velocity", () -> getTiltVelocity())
-        .withPosition(3, 0);
-    ShuffleboardTab fieldTab = Shuffleboard.getTab("Field");
-    ShuffleboardLayout fieldLayout = fieldTab.getLayout("Field", BuiltInLayouts.kGrid)
-      .withPosition(0, 0)
-      .withSize(6, 4)
-      .withProperties(Map.of("Number of columns", 1, "Number of rows", 1));
+      positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
+          .withPosition(0, 0);
+      positionLayout.addDouble("Y", () -> odometry.getPoseMeters().getY())
+          .withPosition(1, 0);
+      positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
+          .withPosition(2, 0);
+      positionLayout.addDouble("Tilt Velocity", () -> getTiltVelocity())
+          .withPosition(3, 0);
+    }
 
-    fieldLayout.add(field);
+    if (ENABLE_FIELD_TAB.getValue()) {
+      ShuffleboardTab fieldTab = Shuffleboard.getTab("Field");
+      ShuffleboardLayout fieldLayout = fieldTab.getLayout("Field", BuiltInLayouts.kGrid)
+          .withPosition(0, 0)
+          .withSize(6, 4)
+          .withProperties(Map.of("Number of columns", 1, "Number of rows", 1));
+
+      fieldLayout.add(field);
+    }
   }
 }

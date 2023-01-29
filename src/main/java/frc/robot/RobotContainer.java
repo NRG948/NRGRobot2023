@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.nrg948.autonomous.Autonomous;
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -32,6 +34,7 @@ import frc.robot.subsystems.Subsystems;
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
+@RobotPreferencesLayout(groupName = "Preferences", column = 0, row = 0, width = 2, height = 1)
 public class RobotContainer {
 
   // new drive controller
@@ -111,6 +114,7 @@ public class RobotContainer {
 
     autonomousLayout.add("Routine", autonomousCommandChooser);
 
+    RobotPreferences.addShuffleBoardTab();
     subsystems.drivetrain.addShuffleboardTab();
   }
 }
