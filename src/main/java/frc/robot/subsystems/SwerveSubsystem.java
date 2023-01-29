@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
+import com.nrg948.preferences.RobotPreferences;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -42,28 +43,29 @@ import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.parameters.SwerveMotors;
 
 public class SwerveSubsystem extends SubsystemBase {
-  public static SwerveDriveParameters PARAMETERS = SwerveDriveParameters.Competition2022;
+  public static RobotPreferences.EnumValue<SwerveDriveParameters> PARAMETERS = new RobotPreferences.EnumValue<SwerveDriveParameters>("Drive", "Robot Base", SwerveDriveParameters.Competition2022);
+
 
   private static final byte kNavXUpdateFrequencyHz = 50;
 
   // 4 pairs of motors for drive & steering.
-  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontLeftDrive));
-  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontLeftSteering));
+  private final WPI_TalonFX frontLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftDrive));
+  private final WPI_TalonFX frontLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontLeftSteering));
 
-  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontRightDrive));
-  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.FrontRightSteering));
+  private final WPI_TalonFX frontRightDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightDrive));
+  private final WPI_TalonFX frontRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.FrontRightSteering));
 
-  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackLeftDrive));
-  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackLeftSteering));
+  private final WPI_TalonFX backLeftDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftDrive));
+  private final WPI_TalonFX backLeftSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackLeftSteering));
 
-  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackRightDrive));
-  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getMotorId(SwerveMotors.BackRightSteering));
+  private final WPI_TalonFX backRightDriveMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightDrive));
+  private final WPI_TalonFX backRightSteeringMotor = new WPI_TalonFX(PARAMETERS.getValue().getMotorId(SwerveMotors.BackRightSteering));
 
   // 4 CANcoders for the steering angle.
-  private final CANCoder frontLeftAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.FrontLeft));
-  private final CANCoder frontRightAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.FrontRight));
-  private final CANCoder backLeftAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.BackLeft));
-  private final CANCoder backRightAngle = new CANCoder(PARAMETERS.getAngleEncoderId(SwerveAngleEncoder.BackRight));
+  private final CANCoder frontLeftAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontLeft));
+  private final CANCoder frontRightAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.FrontRight));
+  private final CANCoder backLeftAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackLeft));
+  private final CANCoder backRightAngle = new CANCoder(PARAMETERS.getValue().getAngleEncoderId(SwerveAngleEncoder.BackRight));
 
   private final SwerveModule frontLeftModule = createSwerveModule(
       frontLeftDriveMotor, frontLeftSteeringMotor, frontLeftAngle, "Front Left");
@@ -78,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS ahrs = new AHRS(SPI.Port.kMXP, kNavXUpdateFrequencyHz);
 
-  private final SwerveDriveKinematics kinematics = PARAMETERS.getKinematics();
+  private final SwerveDriveKinematics kinematics = PARAMETERS.getValue().getKinematics();
 
   private final SwerveDrive drivetrain;
   private final SwerveDriveOdometry odometry;
@@ -106,10 +108,10 @@ public class SwerveSubsystem extends SubsystemBase {
     steeringMotor.setNeutralMode(NeutralMode.Brake);
     wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
-    final double drivePulsesPerMeter = PARAMETERS.getDrivePulsesPerMeter();
+    final double drivePulsesPerMeter = PARAMETERS.getValue().getDrivePulsesPerMeter();
 
     return new SwerveModule(
-        PARAMETERS,
+        PARAMETERS.getValue(),
         driveMotor,
         () -> driveMotor.getSelectedSensorPosition() / drivePulsesPerMeter,
         // The WPI_TalonFX reports the velocity in pulses per 100ms, so we need to
@@ -124,7 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     initializeSensorState();
 
-    drivetrain = new SwerveDrive(PARAMETERS, modules, () -> Rotation2d.fromDegrees(-ahrs.getAngle()));
+    drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> Rotation2d.fromDegrees(-ahrs.getAngle()));
     drivetrain.setDeadband(0.1);
 
     odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
@@ -163,7 +165,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The maximum drive speed.
    */
   public double getMaxSpeed() {
-    return PARAMETERS.getMaxDriveSpeed();
+    return PARAMETERS.getValue().getMaxDriveSpeed();
   }
 
   /**
@@ -172,7 +174,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The maximum drive acceleration.
    */
   public double getMaxAcceleration() {
-    return PARAMETERS.getMaxDriveAcceleration();
+    return PARAMETERS.getValue().getMaxDriveAcceleration();
   }
 
   /**
@@ -192,7 +194,7 @@ public class SwerveSubsystem extends SubsystemBase {
    *         swerve drive kinematics constraints when following a trajectory.
    */
   public SwerveDriveKinematicsConstraint getKinematicsConstraint() {
-    return PARAMETERS.getKinematicsConstraint();
+    return PARAMETERS.getValue().getKinematicsConstraint();
   }
 
   /**
@@ -205,7 +207,7 @@ public class SwerveSubsystem extends SubsystemBase {
    *         the goal robot orientation.
    */
   public TrapezoidProfile.Constraints getRotationalConstraints() {
-    return PARAMETERS.getRotationalConstraints();
+    return PARAMETERS.getValue().getRotationalConstraints();
   }
 
   /**
@@ -342,7 +344,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     ArrayList<Pose2d> modulePoses = new ArrayList<Pose2d>(4);
 
-    for (Translation2d wheelPosition : PARAMETERS.getWheelPositions()) {
+    for (Translation2d wheelPosition : PARAMETERS.getValue().getWheelPositions()) {
       modulePoses.add(
           new Pose2d(
               wheelPosition.rotateBy(robotPose.getRotation())
