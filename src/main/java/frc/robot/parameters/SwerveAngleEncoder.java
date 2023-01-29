@@ -4,7 +4,7 @@
 
 package frc.robot.parameters;
 
-/** Add your docs here. */
+/** An enum representing a swerve module angle encoder. */
 public enum SwerveAngleEncoder {
   FrontLeft,
   FrontRight,

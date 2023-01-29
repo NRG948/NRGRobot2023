@@ -4,7 +4,7 @@
 
 package frc.robot.parameters;
 
-/** Add your docs here. */
+/** An enum representing a swerve module motor. */
 public enum SwerveMotors {
   FrontLeftDrive, FrontLeftSteering,
   FrontRightDrive, FrontRightSteering,
