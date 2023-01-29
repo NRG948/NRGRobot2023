@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
 import frc.robot.subsystems.Subsystems;
@@ -82,6 +83,7 @@ public class RobotContainer {
     
     m_driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
     m_driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
+    m_driverController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
     
     m_driverController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
