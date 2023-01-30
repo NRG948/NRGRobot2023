@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
@@ -286,6 +287,14 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public ChassisSpeeds getChassisSpeeds() {
     return drivetrain.getChassisSpeeds();
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    return drivetrain.getModuleStates();
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    return drivetrain.getModulesPositions();
   }
 
   /**
