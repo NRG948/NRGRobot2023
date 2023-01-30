@@ -47,7 +47,7 @@ import frc.robot.parameters.SwerveMotors;
 import frc.robot.util.SwerveModuleVelocities;
 import frc.robot.util.SwerveModuleVoltages;
 
-@RobotPreferencesLayout(groupName = "Drive", column = 0, row = 1, width = 2, height = 2)
+@RobotPreferencesLayout(groupName = "Drive", column = 0, row = 1, width = 2, height = 3)
 public class SwerveSubsystem extends SubsystemBase {
   private static final String PREFERENCES_GROUP = "Drive";
 

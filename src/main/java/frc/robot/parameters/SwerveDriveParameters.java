@@ -7,6 +7,9 @@ package frc.robot.parameters;
 import static frc.robot.parameters.MotorParameters.Falcon500;
 import static frc.robot.parameters.SwerveModuleParameters.MK4Standard;
 
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesValue;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -65,11 +68,15 @@ public enum SwerveDriveParameters {
       1.0,
       1.0);
 
-  /**
-   * A scaling factor used to adjust from theoretical maximums given that any
-   * physical system generally cannot achieve them.
-   */
-  private static final double SCALE_FACTOR = 0.65;
+  public static class Constants {
+    /**
+     * A scaling factor used to adjust from theoretical maximums given that any
+     * physical system generally cannot achieve them.
+     */
+    @RobotPreferencesValue
+    public static final RobotPreferences.DoubleValue SCALE_FACTOR = new RobotPreferences.DoubleValue(
+        "Drive", "Scale Factor", 0.65);
+  }
 
   private final double robotMass;
   private final double wheelDistanceX;
@@ -158,12 +165,14 @@ public enum SwerveDriveParameters {
     this.driveFeedforward = driveFeedForward;
     this.steeringFeedforward = steeringFeedForward;
 
-    this.maxDriveSpeed = SCALE_FACTOR * this.swerveModule.calculateMaxDriveSpeed(this.motor);
-    this.maxDriveAcceleration = SCALE_FACTOR
+    double scaleFactor = Constants.SCALE_FACTOR.getValue();
+
+    this.maxDriveSpeed = scaleFactor * this.swerveModule.calculateMaxDriveSpeed(this.motor);
+    this.maxDriveAcceleration = scaleFactor
         * this.swerveModule.calculateMaxDriveAcceleration(this.motor, this.robotMass);
 
-    this.maxSteeringSpeed = SCALE_FACTOR * this.swerveModule.calculateMaxSteeringSpeed(this.motor);
-    this.maxSteeringAcceleration = SCALE_FACTOR
+    this.maxSteeringSpeed = scaleFactor * this.swerveModule.calculateMaxSteeringSpeed(this.motor);
+    this.maxSteeringAcceleration = scaleFactor
         * this.swerveModule.calculateMaxSteeringAcceleration(this.motor, this.robotMass);
 
     final double wheelTrackRadius = Math.hypot(this.wheelDistanceX, this.wheelDistanceY);
