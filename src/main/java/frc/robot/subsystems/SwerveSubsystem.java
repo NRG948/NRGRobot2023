@@ -133,8 +133,12 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return An initialized {@link SwerveModule} object.
    */
-  private static SwerveModule createSwerveModule(WPI_TalonFX driveMotor, WPI_TalonFX steeringMotor, CANCoder wheelAngle,
+  private static SwerveModule createSwerveModule(
+      WPI_TalonFX driveMotor,
+      WPI_TalonFX steeringMotor,
+      CANCoder wheelAngle,
       String name) {
+
     driveMotor.setNeutralMode(NeutralMode.Brake);
     steeringMotor.setNeutralMode(NeutralMode.Brake);
     wheelAngle.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
@@ -184,11 +188,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private void updateSensorState() {
     rawOrientation = Rotation2d.fromDegrees(-ahrs.getAngle());
     rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
+
     if (wasNavXCalibrating && !ahrs.isCalibrating()) {
       tiltOffset = rawTilt;
       System.out.println("Tilt offset: " + tiltOffset.getDegrees());
       wasNavXCalibrating = false;
     }
+
     tiltVelocity = ahrs.getRawGyroY();
   }
 

@@ -20,7 +20,10 @@ import edu.wpi.first.math.util.Units;
  */
 public enum SwerveDriveParameters {
 
-  /** The 2022 competition robot. */
+  /**
+   * The 2022 competition robot using feedforward constants calculated from
+   * theoretical maximums.
+   */
   Competition2022(
       67.5853,
       Units.inchesToMeters(26.3),
@@ -31,6 +34,11 @@ public enum SwerveDriveParameters {
       new int[] { 9, 10, 12, 11 },
       1.0,
       1.0),
+
+  /**
+   * The 2022 competition robot using feedforward constants characterized using
+   * the SysId tool.
+   */
   Competition2022Characterized(
       67.5853,
       Units.inchesToMeters(26.3),
@@ -40,17 +48,22 @@ public enum SwerveDriveParameters {
       new int[] { 1, 2, 3, 4, 7, 8, 5, 6 },
       new int[] { 9, 10, 12, 11 },
       new FeedforwardConstants(0.15928, 4.1384, 0.74797),
-      new FeedforwardConstants(0.15928, 4.1384, 0.74797)),
-    Practice2023(
-        24.6,
-        Units.inchesToMeters(24.5),
-        Units.inchesToMeters(22.5),
-        MK4Standard,
-        Falcon500,
-        new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
-        new int[] { 1, 2, 4, 3},
-        1.0,
-        1.0);
+      new FeedforwardConstants(0.15928, 4.1384, 0.74797)), // TODO: Characterize steering.
+
+  /**
+   * The 2023 practice robot using feedforward constants calculated from
+   * theoretical maximums.
+   */
+  Practice2023(
+      24.6, // TODO: Re-weigh the robot after each change is made.
+      Units.inchesToMeters(24.5),
+      Units.inchesToMeters(22.5),
+      MK4Standard,
+      Falcon500,
+      new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
+      new int[] { 1, 2, 4, 3 },
+      1.0,
+      1.0);
 
   /**
    * A scaling factor used to adjust from theoretical maximums given that any

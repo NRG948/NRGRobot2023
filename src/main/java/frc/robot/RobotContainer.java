@@ -96,6 +96,8 @@ public class RobotContainer {
       leds.setColor(new Color8Bit(red, green, blue));
     }));
 
+    // TODO: Once we're done with testing the autonomous motion commands, change
+    // this to call resetOrientation().
     driverController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
   }
 
@@ -110,6 +112,8 @@ public class RobotContainer {
 
   /** Adds the Shuffleboard tabs for the robot. */
   private void initShuffleboard() {
+    // The "Operator" tab contains UI elements that enable the drive team to set up
+    // and operate the robot.
     ShuffleboardTab operatorTab = Shuffleboard.getTab("Operator");
     ShuffleboardLayout autonomousLayout = operatorTab.getLayout("Autonomous", BuiltInLayouts.kList)
         .withPosition(0, 0)
@@ -117,7 +121,11 @@ public class RobotContainer {
 
     autonomousLayout.add("Routine", autonomousCommandChooser);
 
+    // The "Preferences" tab UI elements that enable configuring robot-specific
+    // settings.
     RobotPreferences.addShuffleBoardTab();
+
+    // The subsystem-specific tabs are added for testing and should be disabled by default.
     subsystems.drivetrain.addShuffleboardTab();
   }
 }
