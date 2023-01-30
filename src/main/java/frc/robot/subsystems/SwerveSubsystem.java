@@ -44,6 +44,7 @@ import frc.robot.drive.SwerveModule;
 import frc.robot.parameters.SwerveAngleEncoder;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.parameters.SwerveMotors;
+import frc.robot.util.SwerveModuleVelocities;
 import frc.robot.util.SwerveModuleVoltages;
 
 @RobotPreferencesLayout(groupName = "Drive", column = 0, row = 1, width = 2, height = 2)
@@ -149,6 +150,7 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> (driveMotor.getSelectedSensorVelocity() * 10) / drivePulsesPerMeter,
         steeringMotor,
         () -> Rotation2d.fromDegrees(wheelAngle.getAbsolutePosition()),
+        () -> Math.toRadians(wheelAngle.getVelocity()),
         name);
   }
 
@@ -295,6 +297,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveModulePosition[] getModulePositions() {
     return drivetrain.getModulesPositions();
+  }
+
+  /**
+   * Returns the swerve module velocities.
+   * 
+   * @return The swerve module velocities.
+   */
+  public SwerveModuleVelocities[] getModuleVelocities() {
+    return drivetrain.getModuleVelocities();
   }
 
   /**

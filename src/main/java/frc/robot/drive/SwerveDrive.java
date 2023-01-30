@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.util.SwerveModuleVelocities;
 import frc.robot.util.SwerveModuleVoltages;
 
 /** SwerveDrive implements swerve drive control. */
@@ -193,6 +194,19 @@ public class SwerveDrive extends RobotDriveBase {
       modulePosition[i] = modules[i].getPosition();
     }
     return modulePosition;
+  }
+
+  /**
+   * Returns the swerve module velocities.
+   * 
+   * @return The swerve module velocities.
+   */
+  public SwerveModuleVelocities[] getModuleVelocities() {
+    SwerveModuleVelocities[] velocities = new SwerveModuleVelocities[4];
+    for (int i = 0; i < modules.length; i++) {
+      velocities[i] = modules[i].getVelocities();
+    }
+    return velocities;
   }
 
   /**

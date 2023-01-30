@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
+import frc.robot.util.SwerveModuleVelocities;
 import frc.robot.util.SwerveModuleVoltages;
 
 /**
@@ -46,6 +47,7 @@ public class SwerveModule {
   private final DoubleSupplier velocitySupplier;
   private final MotorController steeringMotor;
   private final Supplier<Rotation2d> wheelAngleSupplier;
+  private final DoubleSupplier wheelAngleVelocitySupplier;
   private final String name;
   private final double wheelDiameter;
 
@@ -63,6 +65,7 @@ public class SwerveModule {
   // The current supplied state updated by the periodic method.
   private SwerveModuleState state;
   private SwerveModulePosition position;
+  private SwerveModuleVelocities velocities;
 
   // Simulation support.
   private double simVelocity;
@@ -74,15 +77,17 @@ public class SwerveModule {
   /**
    * Constructs the swerve module.
    * 
-   * @param parameters    A {@link SwerveDriveParameters} object providing
-   *                      information on the physical swerve drive
-   *                      characteristics.
-   * @param driveMotor    The drive motor controller.
-   * @param position      Supplies the position in meters.
-   * @param velocity      Supplies velocity in meters per second.
-   * @param steeringMotor The steering motor controller.
-   * @param wheelAngle    Supplies the wheel angle in degrees.
-   * @param name          The name of the module.
+   * @param parameters         A {@link SwerveDriveParameters} object providing
+   *                           information on the physical swerve drive
+   *                           characteristics.
+   * @param driveMotor         The drive motor controller.
+   * @param position           Supplies the position in meters.
+   * @param velocity           Supplies velocity in meters per second.
+   * @param steeringMotor      The steering motor controller.
+   * @param wheelAngle         Supplies the wheel angle.
+   * @param wheelAngleVelocity Supplies the wheel angle velocity in radians per
+   *                           second.
+   * @param name               The name of the module.
    */
   public SwerveModule(
       SwerveDriveParameters parameters,
@@ -91,12 +96,14 @@ public class SwerveModule {
       DoubleSupplier velocity,
       MotorController steeringMotor,
       Supplier<Rotation2d> wheelAngle,
+      DoubleSupplier wheelAngleVelocity,
       String name) {
     boolean realRobot = Robot.isReal();
 
     this.driveMotor = driveMotor;
     this.steeringMotor = steeringMotor;
     this.wheelAngleSupplier = realRobot ? wheelAngle : () -> this.simWheelAngle;
+    this.wheelAngleVelocitySupplier = wheelAngleVelocity;
     this.positionSupplier = realRobot ? position : () -> this.simPosition;
     this.velocitySupplier = realRobot ? velocity : () -> this.simVelocity;
     this.name = name;
@@ -141,9 +148,11 @@ public class SwerveModule {
    */
   private void updateSuppliedState() {
     Rotation2d wheelAngle = wheelAngleSupplier.get();
+    double velocity = velocitySupplier.getAsDouble();
 
     position = new SwerveModulePosition(positionSupplier.getAsDouble(), wheelAngle);
-    state = new SwerveModuleState(velocitySupplier.getAsDouble(), wheelAngle);
+    state = new SwerveModuleState(velocity, wheelAngle);
+    velocities = new SwerveModuleVelocities(velocity, wheelAngleVelocitySupplier.getAsDouble());
   }
 
   /**
@@ -198,6 +207,15 @@ public class SwerveModule {
    */
   public SwerveModuleState getModuleState() {
     return state;
+  }
+
+  /**
+   * Returns the current module velocities.
+   * 
+   * @return The current module velocities.
+   */
+  public SwerveModuleVelocities getVelocities() {
+    return velocities;
   }
 
   /**
