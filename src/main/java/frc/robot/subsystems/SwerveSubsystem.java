@@ -369,7 +369,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Gets the field orientation of the robot.
    */
   public Rotation2d getOrientation() {
-    return rawOrientation.minus(rawOrientationOffset);
+    return rawOrientation.plus(rawOrientationOffset);
   }
 
   /**
