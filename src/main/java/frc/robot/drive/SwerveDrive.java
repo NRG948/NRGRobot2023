@@ -218,6 +218,7 @@ public class SwerveDrive extends RobotDriveBase {
     for (int i = 0; i < modules.length; i++) {
       modules[i].setMotorVoltages(moduleVoltages[i]);
     }
+    feedWatchdog();
   }
 
   /**
