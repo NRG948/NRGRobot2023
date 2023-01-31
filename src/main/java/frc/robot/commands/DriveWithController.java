@@ -11,7 +11,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveWithController extends CommandBase {
 
-  public static final double DEADBAND = 0.02;
+  public static final double DEADBAND = 0.1;
 
   private SwerveSubsystem swerveDrive;
   private CommandXboxController driveController;
