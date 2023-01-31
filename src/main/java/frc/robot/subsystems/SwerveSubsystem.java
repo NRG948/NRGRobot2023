@@ -163,8 +163,6 @@ public class SwerveSubsystem extends SubsystemBase {
     initializeSensorState();
 
     drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
-    drivetrain.setDeadband(0.1);
-
     odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
   }
 
@@ -273,10 +271,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param ySpeed        Speed of the robot in the y direction.
    * @param rSpeed        Rotation speed of the robot.
    * @param fieldRelative Whether the x and y values are relative to field.
-   * @param squareInputs  Decreases sensitivity at low speeds.
    */
-  public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
-    drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative, squareInputs);
+  public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative) {
+    drivetrain.drive(xSpeed, ySpeed, rSpeed, fieldRelative);
   }
 
   /**

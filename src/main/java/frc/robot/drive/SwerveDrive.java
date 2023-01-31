@@ -6,7 +6,6 @@ package frc.robot.drive;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -128,20 +127,12 @@ public class SwerveDrive extends RobotDriveBase {
    * @param ySpeed        Speed of the robot in the y direction.
    * @param rSpeed        Rotation speed of the robot.
    * @param fieldRelative Whether the x and y values are relative to field.
-   * @param squareInputs  Decreases sensitivity at low speeds.
    */
-  public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative, boolean squareInputs) {
-    // Applies deadbands to x, y, and rotation joystick values and multiples all
-    // values with max speed.
-    xSpeed = MathUtil.applyDeadband(xSpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
-    ySpeed = MathUtil.applyDeadband(ySpeed, m_deadband) * m_maxOutput * maxDriveSpeed;
-    rSpeed = MathUtil.applyDeadband(rSpeed, m_deadband) * m_maxOutput * maxRotationalSpeed;
-
-    if (squareInputs) {
-      xSpeed *= xSpeed;
-      ySpeed *= ySpeed;
-      rSpeed *= rSpeed;
-    }
+  public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative) {
+    // multiples all values with max speed.
+    xSpeed = xSpeed * m_maxOutput * maxDriveSpeed;
+    ySpeed = ySpeed * m_maxOutput * maxDriveSpeed;
+    rSpeed = rSpeed * m_maxOutput * maxRotationalSpeed;
 
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(
         fieldRelative

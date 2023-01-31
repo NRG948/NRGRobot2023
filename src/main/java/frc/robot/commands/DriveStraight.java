@@ -39,7 +39,7 @@ public class DriveStraight extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    swerveDrive.drive(xSpeed, ySpeed, 0, true, false); // keeping rotational speed @ 0
+    swerveDrive.drive(xSpeed, ySpeed, 0, true); // keeping rotational speed @ 0
   }
 
   // Called once the command ends or is interrupted.

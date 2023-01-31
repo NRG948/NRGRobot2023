@@ -4,11 +4,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveWithController extends CommandBase {
+
+  public static final double DEADBAND = 0.02;
 
   private SwerveSubsystem swerveDrive;
   private CommandXboxController driveController;
@@ -29,12 +32,29 @@ public class DriveWithController extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    double xSpeed = -driveController.getLeftY();
+    double ySpeed = -driveController.getLeftX();
+    double rSpeed = -driveController.getRightX();
+    double inputScalar = driveController.getRightTriggerAxis() + 1;
+
+    // Applies deadbands to x, y, and rotation joystick values and multiples all
+    // values with max speed.
+    xSpeed = MathUtil.applyDeadband(xSpeed, DEADBAND);
+    ySpeed = MathUtil.applyDeadband(ySpeed, DEADBAND);
+    rSpeed = MathUtil.applyDeadband(rSpeed, DEADBAND)
+;
+    if (inputScalar > 1) {
+      xSpeed = Math.pow(xSpeed, inputScalar);
+      ySpeed = Math.pow(ySpeed, inputScalar);
+      rSpeed = Math.pow(rSpeed, inputScalar);
+    }
+
     swerveDrive.drive(
-        -driveController.getLeftY(),
-        -driveController.getLeftX(),
-        -driveController.getRightX(),
-        true,
-        false);
+        xSpeed,
+        ySpeed,
+        rSpeed,
+        true
+        );
   }
 
   // Called once the command ends or is interrupted.
