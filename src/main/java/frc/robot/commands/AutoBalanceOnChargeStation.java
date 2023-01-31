@@ -63,7 +63,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
       pauseCounter--;
     }
 
-    drivetrain.drive(currentSpeed, 0, 0, false, false);
+    drivetrain.drive(currentSpeed, 0, 0, false);
     previousSpeed = currentSpeed;
   }
 
