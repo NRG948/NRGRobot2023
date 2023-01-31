@@ -344,7 +344,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialPosition Sets the initial position.
    */
   public void resetPosition(Pose2d initialPosition) {
-    rawOrientationOffset = rawOrientation.minus(initialPosition.getRotation());
+    rawOrientationOffset = initialPosition.getRotation().minus(rawOrientation);
     odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
   }
 
@@ -404,7 +404,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Update odometry last since this relies on the subsystem sensor and module
     // states.
-    odometry.update(rawOrientation, drivetrain.getModulesPositions());
+    odometry.update(getOrientation(), drivetrain.getModulesPositions());
 
     // Send the robot and module location to the field
     Pose2d robotPose = getPosition();
