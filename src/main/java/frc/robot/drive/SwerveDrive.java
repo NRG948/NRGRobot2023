@@ -130,9 +130,9 @@ public class SwerveDrive extends RobotDriveBase {
    */
   public void drive(double xSpeed, double ySpeed, double rSpeed, boolean fieldRelative) {
     // multiples all values with max speed.
-    xSpeed = xSpeed * m_maxOutput * maxDriveSpeed;
-    ySpeed = ySpeed * m_maxOutput * maxDriveSpeed;
-    rSpeed = rSpeed * m_maxOutput * maxRotationalSpeed;
+    xSpeed *= m_maxOutput * maxDriveSpeed;
+    ySpeed *= m_maxOutput * maxDriveSpeed;
+    rSpeed *= m_maxOutput * maxRotationalSpeed;
 
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(
         fieldRelative
