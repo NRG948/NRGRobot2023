@@ -90,7 +90,7 @@ public class SwerveDrive extends RobotDriveBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(states, maxDriveSpeed);
 
     for (int i = 0; i < modules.length; ++i) {
-      modules[i].setModuleState(states[i]);
+      modules[i].setState(states[i]);
     }
 
     // Reset the motor watchdog timer.
@@ -150,7 +150,7 @@ public class SwerveDrive extends RobotDriveBase {
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] moduleStates = new SwerveModuleState[4];
     for (int i = 0; i < modules.length; i++) {
-      moduleStates[i] = modules[i].getModuleState();
+      moduleStates[i] = modules[i].getState();
     }
     return moduleStates;
   }

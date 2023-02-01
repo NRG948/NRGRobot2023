@@ -160,7 +160,7 @@ public class SwerveModule {
    * 
    * @param newState The desired state w/ speed and angle
    */
-  public void setModuleState(SwerveModuleState newState) {
+  public void setState(SwerveModuleState newState) {
     // Optimize the state to avoid spinning further than 90 degrees
     Rotation2d currentAngle = getWheelRotation2d();
     newState = SwerveModuleState.optimize(newState, currentAngle);
@@ -205,7 +205,7 @@ public class SwerveModule {
    * 
    * @return The current module state.
    */
-  public SwerveModuleState getModuleState() {
+  public SwerveModuleState getState() {
     return state;
   }
 
@@ -293,7 +293,7 @@ public class SwerveModule {
         .withPosition(1, 0);
     translationLayout.addDouble("Position", () -> getPosition().distanceMeters)
         .withPosition(0, 0);
-    translationLayout.addDouble("Velocity", () -> getModuleState().speedMetersPerSecond)
+    translationLayout.addDouble("Velocity", () -> getState().speedMetersPerSecond)
         .withPosition(0, 1);
 
     return moduleLayout;
