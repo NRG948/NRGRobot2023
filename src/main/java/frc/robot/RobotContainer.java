@@ -25,6 +25,7 @@ import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.ClawSubsystem.Action;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,6 +41,7 @@ public class RobotContainer {
 
   // new drive controller
   private final CommandXboxController driveController = new CommandXboxController(0);
+  private final CommandXboxController manipulatorController = new CommandXboxController(1);
 
   // The robot's subsystems and commands are defined here...
   private final Subsystems subsystems = new Subsystems();
@@ -99,6 +101,11 @@ public class RobotContainer {
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
     driverController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
+
+    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.OPEN)));
+    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.GRAB_CONE)));
+    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.GRAB_CUBE)));
+    
   }
 
   /**

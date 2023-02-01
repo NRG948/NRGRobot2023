@@ -7,4 +7,5 @@ package frc.robot.subsystems;
 /** Container class that manages robot subsystems. */
 public class Subsystems {
   public final SwerveSubsystem drivetrain = new SwerveSubsystem();
+  public final ClawSubsystem claw = new ClawSubsystem();
 }
