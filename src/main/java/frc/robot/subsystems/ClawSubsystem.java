@@ -7,20 +7,35 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * The claw subsystem is responsible for grabbing and holding onto the game
+ * elements for delivery to the scoring grids.
+ */
 public class ClawSubsystem extends SubsystemBase {
 
-  public enum Action {
+  /** An enumeration of possible claw positions. */
+  public enum Position {
     // three action instances for the claw
-    OPEN (0),
-    GRAB_CONE (45),
-    GRAB_CUBE (90);
+    OPEN(0),
+    GRAB_CONE(45),
+    GRAB_CUBE(90);
 
     private final double angle;
 
-    private Action(double angle) {
+    /**
+     * Creates a Position instance.
+     * 
+     * @param angle The servo motor angle.
+     */
+    private Position(double angle) {
       this.angle = angle;
     }
 
+    /**
+     * Returns the servo motor angle.
+     * 
+     * @return
+     */
     private double getAngle() {
       return angle;
     }
@@ -30,10 +45,15 @@ public class ClawSubsystem extends SubsystemBase {
 
   /** Creates a new ClawSubsystem. */
   public ClawSubsystem() {
-    set(Action.OPEN);
+    set(Position.OPEN);
   }
 
-  public void set(Action action) {
+  /**
+   * Sets the claw position.
+   * 
+   * @param action The claw position.
+   */
+  public void set(Position action) {
     servo.setAngle(action.getAngle());
   }
 

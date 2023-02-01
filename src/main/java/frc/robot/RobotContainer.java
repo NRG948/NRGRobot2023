@@ -24,8 +24,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
+import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.Subsystems;
-import frc.robot.subsystems.ClawSubsystem.Action;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -102,10 +102,10 @@ public class RobotContainer {
     // this to call resetOrientation().
     driverController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 
-    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.OPEN)));
-    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.GRAB_CONE)));
-    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Action.GRAB_CUBE)));
-    
+    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.OPEN)));
+    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
+    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
+
   }
 
   /**
@@ -132,7 +132,8 @@ public class RobotContainer {
     // settings.
     RobotPreferences.addShuffleBoardTab();
 
-    // The subsystem-specific tabs are added for testing and should be disabled by default.
+    // The subsystem-specific tabs are added for testing and should be disabled by
+    // default.
     subsystems.drivetrain.addShuffleboardTab();
   }
 }
