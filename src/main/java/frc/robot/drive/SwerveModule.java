@@ -71,6 +71,7 @@ public class SwerveModule {
   private double simVelocity;
   private double simPosition;
   private Rotation2d simWheelAngle = new Rotation2d();
+  private double simWheelAngleVelocity;
   private FlywheelSim simDriveMotor;
   private FlywheelSim simSteeringMotor;
 
@@ -103,7 +104,7 @@ public class SwerveModule {
     this.driveMotor = driveMotor;
     this.steeringMotor = steeringMotor;
     this.wheelAngleSupplier = realRobot ? wheelAngle : () -> this.simWheelAngle;
-    this.wheelAngleVelocitySupplier = wheelAngleVelocity;
+    this.wheelAngleVelocitySupplier = realRobot ? wheelAngleVelocity : () -> this.simWheelAngleVelocity;
     this.positionSupplier = realRobot ? position : () -> this.simPosition;
     this.velocitySupplier = realRobot ? velocity : () -> this.simVelocity;
     this.name = name;
@@ -266,8 +267,8 @@ public class SwerveModule {
     simVelocity = (simDriveMotor.getAngularVelocityRadPerSec() * wheelDiameter) / 2;
     simPosition += simVelocity * Robot.kDefaultPeriod;
 
-    simWheelAngle = new Rotation2d(
-        simWheelAngle.getRadians() + (simSteeringMotor.getAngularVelocityRadPerSec() * Robot.kDefaultPeriod));
+    simWheelAngleVelocity = simSteeringMotor.getAngularVelocityRadPerSec();
+    simWheelAngle = new Rotation2d(simWheelAngle.getRadians() + (simWheelAngleVelocity * Robot.kDefaultPeriod));
   }
 
   /**

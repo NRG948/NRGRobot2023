@@ -13,7 +13,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.Robot;
 import frc.robot.parameters.SwerveDriveParameters;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.SwerveModuleVelocities;
@@ -31,9 +30,6 @@ public class SwerveDrive extends RobotDriveBase {
 
   // The current supplied state updated by the periodic method.
   private Rotation2d orientation;
-
-  // Simulation support.
-  private Rotation2d simOrientation = new Rotation2d();
 
   /**
    * constructs the swerve drive
@@ -56,7 +52,7 @@ public class SwerveDrive extends RobotDriveBase {
       Supplier<Rotation2d> orientationSupplier) {
     this.modules = modules;
     this.kinematics = parameters.getKinematics();
-    this.orientationSupplier = Robot.isReal() ? orientationSupplier : () -> this.simOrientation;
+    this.orientationSupplier = orientationSupplier;
     this.maxDriveSpeed = parameters.getMaxDriveSpeed();
     this.maxRotationalSpeed = parameters.getMaxRotationalSpeed();
 
@@ -232,11 +228,6 @@ public class SwerveDrive extends RobotDriveBase {
     for (SwerveModule module : modules) {
       module.simulationPeriodic();
     }
-
-    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
-
-    simOrientation = new Rotation2d(
-        simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
   }
 
   /**

@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
 import frc.robot.parameters.SwerveAngleEncoder;
@@ -123,6 +124,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
 
+  // Simulation support.
+  private final boolean isSimulation;
+  private Rotation2d simOrientation = new Rotation2d();
+
   /**
    * Creates a {@link SwerveModule} object and intiailizes its motor controllers.
    * 
@@ -160,6 +165,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   /** Creates a new SwerveSubsystem. */
   public SwerveSubsystem() {
+    isSimulation = Robot.isSimulation();
+
     initializeSensorState();
 
     drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
@@ -184,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * sensor state is up to date.
    */
   private void updateSensorState() {
-    rawOrientation = Rotation2d.fromDegrees(-ahrs.getAngle());
+    rawOrientation = !isSimulation ? Rotation2d.fromDegrees(-ahrs.getAngle()) : simOrientation;
     rawTilt = Rotation2d.fromDegrees(-ahrs.getRoll());
 
     if (wasNavXCalibrating && !ahrs.isCalibrating()) {
@@ -424,6 +431,11 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     drivetrain.simulationPeriodic();
+
+    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
+
+    simOrientation = new Rotation2d(
+        simOrientation.getRadians() + (chassisSpeeds.omegaRadiansPerSecond * Robot.kDefaultPeriod));
   }
 
   /**
