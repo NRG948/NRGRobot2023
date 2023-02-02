@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.OperatorConstants.XboxControllerPort;
+import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
@@ -40,34 +40,32 @@ import frc.robot.subsystems.Subsystems;
 @RobotPreferencesLayout(groupName = "Preferences", column = 0, row = 0, width = 2, height = 1)
 public class RobotContainer {
 
-  // new drive controller
-  private final CommandXboxController driveController = new CommandXboxController(0);
-  private final CommandXboxController manipulatorController = new CommandXboxController(1);
-
   // The robot's subsystems and commands are defined here...
   private final Subsystems subsystems = new Subsystems();
 
-  private DriveWithController driveWithController = new DriveWithController(subsystems.drivetrain, driveController);
+  private static AddressableLEDs leds = new AddressableLEDs(PWMPort.LED, 51);
 
-  public static AddressableLEDs leds = new AddressableLEDs(OperatorConstants.LED_PORT, 51);
+  // Operator Xbox controllers.
+  private final CommandXboxController driveController = new CommandXboxController(XboxControllerPort.DRIVER);
+  private final CommandXboxController manipulatorController = new CommandXboxController(XboxControllerPort.MANIPULATOR);
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController driverController = new CommandXboxController(
-      OperatorConstants.DRIVER_CONTROLLER_PORT);
 
-  public final SendableChooser<Command> autonomousCommandChooser;
+  private final SendableChooser<Command> autonomousCommandChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    subsystems.drivetrain.setDefaultCommand(driveWithController);
-    autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
-    initShuffleboard();
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    // Configure the trigger bindings
+    subsystems.drivetrain.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
+
+    autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
+
+    initShuffleboard();
+
     configureCommandBindings();
+
     leds.start();
     leds.setColor(new Color8Bit(255, 0, 0));
   }
@@ -88,11 +86,11 @@ public class RobotContainer {
    */
   private void configureCommandBindings() {
 
-    driverController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
-    driverController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
-    driverController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
+    driveController.a().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, true));
+    driveController.b().onTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain, false));
+    driveController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
 
-    driverController.y().onTrue(new InstantCommand(() -> {
+    driveController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
       int green = (int) (255 * Math.random());
       int blue = (int) (255 * Math.random());
@@ -101,7 +99,7 @@ public class RobotContainer {
 
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
-    driverController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
+    driveController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 
     manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.OPEN)));
     manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));

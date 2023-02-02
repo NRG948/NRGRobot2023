@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RobotConstants.PWMPort;
 
 /**
  * The claw subsystem is responsible for grabbing and holding onto the game
@@ -42,7 +42,7 @@ public class ClawSubsystem extends SubsystemBase {
     }
   };
 
-  private final Servo servo = new Servo(OperatorConstants.SERVO_PORT);
+  private final Servo servo = new Servo(PWMPort.SERVO);
 
   /** Creates a new ClawSubsystem. */
   public ClawSubsystem() {

@@ -13,12 +13,39 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  /**
+   * Defines constant values for robot components.
+   */
   public static class RobotConstants {
+    /**
+     * The maximum battery voltage.
+     */
     public static final double MAX_BATTERY_VOLTAGE = 12.0;
+
+    /**
+     * PWM Ports.
+     */
+    public static class PWMPort {
+
+      public static final int SERVO = 1;
+      public static final int LED = 2;
+
+    }
   }
+
+  /**
+   * Defines operator (i.e. driver and manipulator) constants.
+   */
   public static class OperatorConstants {
-    public static final int DRIVER_CONTROLLER_PORT = 0;
-    public static final int SERVO_PORT = 1;
-    public static final int LED_PORT = 2;
+
+    /**
+     * Defines the port numbers of the Xbox controllers.
+     */
+    public static class XboxControllerPort {
+
+      public static final int DRIVER = 0;
+      public static final int MANIPULATOR = 1;
+
+    }
   }
 }
