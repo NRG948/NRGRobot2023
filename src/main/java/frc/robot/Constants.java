@@ -18,5 +18,7 @@ public final class Constants {
   }
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int SERVO_PORT = 1;
+    public static final int LED_PORT = 2;
   }
 }

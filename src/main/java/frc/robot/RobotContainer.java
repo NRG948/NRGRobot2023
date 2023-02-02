@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.DriveWithController;
@@ -48,7 +49,7 @@ public class RobotContainer {
 
   private DriveWithController driveWithController = new DriveWithController(subsystems.drivetrain, driveController);
 
-  public static AddressableLEDs leds = new AddressableLEDs(2, 51);
+  public static AddressableLEDs leds = new AddressableLEDs(OperatorConstants.LED_PORT, 51);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(
