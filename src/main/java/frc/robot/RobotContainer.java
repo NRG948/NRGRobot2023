@@ -123,10 +123,10 @@ public class RobotContainer {
     ShuffleboardTab operatorTab = Shuffleboard.getTab("Operator");
     ShuffleboardLayout autonomousLayout = operatorTab.getLayout("Autonomous", BuiltInLayouts.kList)
         .withPosition(0, 0)
-        .withSize(2, 2);
+        .withSize(2, 3);
 
     autonomousLayout.add("Routine", autonomousCommandChooser);
-
+    RobotAutonomous.addShuffleboardLayout(autonomousLayout);
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
     RobotPreferences.addShuffleBoardTab();
