@@ -84,5 +84,6 @@ public class ProfiledDriveStraight extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     drivetrain.stopMotors();
+    timer.stop();
   }
 }
