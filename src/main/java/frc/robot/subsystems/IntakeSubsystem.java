@@ -13,24 +13,19 @@ import frc.robot.Constants.RobotConstants.CAN;
 public class IntakeSubsystem extends SubsystemBase {
   private static final double INTAKE_POWER = 0.3;
 
-  private final CANSparkMax frontMotor = new CANSparkMax(CAN.SparkMax.INTAKE_FRONT, MotorType.kBrushless);
-  private final CANSparkMax sideMotor = new CANSparkMax(CAN.SparkMax.INTAKE_SIDE, MotorType.kBrushless);
-
+  private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.INTAKE, MotorType.kBrushless);
   private boolean isEnabled = false;
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
-
   }
 
   @Override
   public void periodic() {
     if (isEnabled) {
-      frontMotor.set(INTAKE_POWER);
-      sideMotor.set(INTAKE_POWER);
+      motor.set(INTAKE_POWER);
     } else {
-      frontMotor.stopMotor();
-      sideMotor.stopMotor();
+      motor.stopMotor();
     }
   }
 
