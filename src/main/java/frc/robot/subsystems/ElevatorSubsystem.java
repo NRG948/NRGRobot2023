@@ -6,13 +6,20 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.parameters.MotorParameters;
 
+/**
+ * The elevator subsystem is responsible for setting the claw position for
+ * acquiring or scoring game elements.
+ */
 public class ElevatorSubsystem extends SubsystemBase {
 
-  private CANSparkMax elevatorMotor;
+  private final CANSparkMax motor;
+  private final RelativeEncoder encoder;
+
   private GoalState goalState;
   private double currentPosition;
 
@@ -29,9 +36,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the desired position of elevator as an int.
+     * Returns the desired position of elevator.
      * 
-     * @return
+     * @return The current position of the elevator.
      */
     private double getPosition() {
       return position;
@@ -40,15 +47,21 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
-    elevatorMotor = new CANSparkMax(102, MotorType.kBrushless);
+    motor = new CANSparkMax(102, MotorType.kBrushless);
+    encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
   }
-  
+
+  /**
+   * Sets the claw position.
+   * 
+   * @param action The claw position.
+   */
   public void setGoal(GoalState goalState) {
     this.goalState = goalState;
   }
-  
+
   @Override
   public void periodic() {
-    currentPosition = elevatorMotor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution()).getPosition();
+    currentPosition = encoder.getPosition();
   }
 }
