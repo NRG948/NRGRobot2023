@@ -40,6 +40,7 @@ public final class Constants {
         public static final int INTAKE_FRONT = 100;
         public static final int INTAKE_SIDE = 101;
         public static final int ELEVATOR = 102;
+        public static final int ELEVATOR_ANGLE = 103;
       }
     }
   }
