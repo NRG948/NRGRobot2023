@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants.CAN;
 import frc.robot.parameters.MotorParameters;
 
 /**
@@ -47,7 +48,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
-    motor = new CANSparkMax(102, MotorType.kBrushless);
+    motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
     encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
   }
 

@@ -31,6 +31,17 @@ public final class Constants {
       public static final int LED = 2;
 
     }
+
+    /**
+     * CAN Ids.
+     */
+    public static class CAN{
+      public static class SparkMax{
+        public static final int INTAKE_FRONT = 100;
+        public static final int INTAKE_SIDE = 101;
+        public static final int ELEVATOR = 102;
+      }
+    }
   }
 
   /**

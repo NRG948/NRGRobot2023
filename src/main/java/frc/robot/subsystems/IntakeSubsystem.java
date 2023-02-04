@@ -8,11 +8,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants.CAN;
 
 public class IntakeSubsystem extends SubsystemBase {
-  // TODO: Need to assign proper CAN ID's
-  private static final int FRONT_MOTOR_ID = 100;
-  private static final int SIDE_MOTOR_ID = 101;
   private static final double INTAKE_POWER = 0.3;
 
   private CANSparkMax frontMotor;
@@ -20,8 +18,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
-    frontMotor = new CANSparkMax(FRONT_MOTOR_ID, MotorType.kBrushless);
-    sideMotor = new CANSparkMax(SIDE_MOTOR_ID, MotorType.kBrushless);
+    frontMotor = new CANSparkMax(CAN.SparkMax.INTAKE_FRONT, MotorType.kBrushless);
+    sideMotor = new CANSparkMax(CAN.SparkMax.INTAKE_SIDE, MotorType.kBrushless);
   }
 
   @Override
