@@ -102,8 +102,8 @@ public class RobotContainer {
     driveController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 
     manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.OPEN)));
-    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
-    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
+    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
+    manipulatorController.x().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
 
   }
 
