@@ -60,7 +60,7 @@ public final class Autos {
       true,
       drivetrain);
       
-    return autoBuilder.fullAuto(pathGroup).andThen(new AssistedBalanceOnChargeStation(drivetrain));
+    return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation2(drivetrain));
   }
 
   private Autos() {
