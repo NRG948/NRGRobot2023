@@ -5,10 +5,13 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
@@ -115,6 +118,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveDrive drivetrain;
   private final SwerveDriveOdometry odometry;
   private final Field2d field = new Field2d();
+
+  private final Orchestra orchestra = new Orchestra(
+    List.of(frontLeftDriveMotor, frontLeftSteeringMotor, frontRightDriveMotor, frontRightSteeringMotor));
 
   // The current sensor state updated by the periodic method.
   private Rotation2d rawOrientation;
@@ -396,6 +402,39 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public double getTiltVelocity() {
     return tiltVelocity;
+  }
+
+  /**
+   * Plays music contained in the specified Chirp file on the Falcon 500 motors.
+   * 
+   * @param musicFilePath The path to a Chirp file.
+   */
+  public void playMusic(String musicFilePath) {
+    ErrorCode error = orchestra.loadMusic(musicFilePath);
+
+    if (error != ErrorCode.OK) {
+      System.out.printf("ERROR: Failed to load file \"%s\": %s\n", musicFilePath, error);
+    }
+
+    drivetrain.setSafetyEnabled(false);
+    orchestra.play();
+  }
+
+  /**
+   * Stops music currently being played in the Falcon 500 motors.
+   */
+  public void stopMusic() {
+    orchestra.stop();
+    drivetrain.setSafetyEnabled(true);
+  }
+
+  /**
+   * Returns whether music is playing on the Falcon 500 motors.
+   * 
+   * @return If true, music is playing.
+   */
+  public boolean isMusicPlaying() {
+    return orchestra.isPlaying();
   }
 
   @Override
