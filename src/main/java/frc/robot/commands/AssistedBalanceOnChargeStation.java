@@ -14,7 +14,7 @@ import frc.robot.subsystems.SwerveSubsystem;
  */
 public class AssistedBalanceOnChargeStation extends CommandBase {
 
-  private static final double CLIMB_SPEED = 0.25;
+  private static final double CLIMB_SPEED = 0.12;
   private static final double BALANCE_THRESHOLD = 2.0; // degrees, "balanced" if within +/- BALANCE_THRESHOLD.
   private static final double MAX_TILT = 15; // maxmimum incline of the charge station
 
