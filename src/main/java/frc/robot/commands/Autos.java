@@ -4,9 +4,16 @@
 
 package frc.robot.commands;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.nrg948.autonomous.AutonomousCommandMethod;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +21,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.drive.SwerveDrive;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
@@ -35,6 +44,23 @@ public final class Autos {
     return Commands.sequence(
         new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0))));
+  }
+
+  @AutonomousCommandMethod(name = "Test Path")
+  public static CommandBase followTestPath(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Test", 
+      new PathConstraints(drivetrain.getMaxSpeed()*0.5, drivetrain.getMaxAcceleration()));
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(drivetrain::getPosition,
+      drivetrain::resetPosition,
+      drivetrain.getKinematics(),
+      new PIDConstants(1.0, 0, 0),
+      new PIDConstants(1.0, 0, 0),
+      drivetrain::setModuleStates,
+      Map.of(),
+      true,
+      drivetrain);
+    return autoBuilder.fullAuto(pathGroup).andThen(new AssistedBalanceOnChargeStation(drivetrain));
   }
 
   private Autos() {
