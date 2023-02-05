@@ -2,10 +2,15 @@ package frc.robot;
 
 import java.util.EnumSet;
 
+import com.nrg948.autonomous.Autonomous;
+
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.subsystems.Subsystems;
 
 /**
  * This class creates and manages the user interface operators use to select
@@ -52,15 +57,44 @@ public class RobotAutonomous {
         }
     }
 
-    private static SendableChooser<ChooseAutoDelay> chooseAutoDelay = new SendableChooser<>();
+    private final Subsystems subsystems;
+    private final SendableChooser<Command> autonomousCommandChooser;
+    private final SendableChooser<ChooseAutoDelay> autoDelayChooser = new SendableChooser<>();
 
     /**
-     * Returns a {@link WaitCommand} used to wait before starting the autonomous routine.
+     * Creates a new RobotAutonomous.
+     * 
+     * @param subsystems The subsystems container.
+     */
+    public RobotAutonomous(Subsystems subsystems) {
+        this.subsystems = subsystems;
+
+        autonomousCommandChooser = Autonomous.getChooser(this.subsystems, "frc.robot");
+
+        for (ChooseAutoDelay delay : EnumSet.allOf(ChooseAutoDelay.class)) {
+            autoDelayChooser.addOption(delay.toString(), delay);
+        }
+
+        autoDelayChooser.setDefaultOption(ChooseAutoDelay.NO_DELAY.toString(), ChooseAutoDelay.NO_DELAY);
+    }
+
+    /**
+     * Returns the autonomous command selected in the chooser.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return getSelectedDelayCommand().andThen(autonomousCommandChooser.getSelected());
+    }
+
+    /**
+     * Returns a {@link WaitCommand} used to wait before starting the autonomous
+     * routine.
      * 
      * @return A {@link WaitCommand} that waits for the selected delay.
      */
-    private static Command getSelectedDelayCommand() {
-        ChooseAutoDelay delayChoice = chooseAutoDelay.getSelected();
+    private Command getSelectedDelayCommand() {
+        ChooseAutoDelay delayChoice = autoDelayChooser.getSelected();
         return new WaitCommand(delayChoice.getDelay());
     }
 
@@ -69,13 +103,12 @@ public class RobotAutonomous {
      * 
      * @param layout The layout to add user interface elements.
      */
-    public static void addShuffleboardLayout(ShuffleboardLayout layout) {
-        for (ChooseAutoDelay delay : EnumSet.allOf(ChooseAutoDelay.class)) {
-            chooseAutoDelay.addOption(delay.toString(), delay);
-        }
+    public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
+        ShuffleboardLayout autonomousLayout = tab.getLayout("Autonomous", BuiltInLayouts.kList);
 
-        chooseAutoDelay.setDefaultOption(ChooseAutoDelay.NO_DELAY.toString(), ChooseAutoDelay.NO_DELAY);
+        autonomousLayout.add("Routine", autonomousCommandChooser);
+        autonomousLayout.add("Delay", autoDelayChooser);
 
-        layout.add("Delay", chooseAutoDelay);
+        return autonomousLayout;
     }
 }

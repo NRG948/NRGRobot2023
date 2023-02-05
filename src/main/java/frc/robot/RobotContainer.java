@@ -4,17 +4,13 @@
 
 package frc.robot;
 
-import com.nrg948.autonomous.Autonomous;
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,7 +46,7 @@ public class RobotContainer {
   private final CommandXboxController manipulatorController = new CommandXboxController(XboxControllerPort.MANIPULATOR);
 
 
-  private final SendableChooser<Command> autonomousCommandChooser;
+  private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -59,8 +55,6 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     subsystems.drivetrain.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-
-    autonomousCommandChooser = Autonomous.getChooser(subsystems, "frc.robot");
 
     initShuffleboard();
 
@@ -113,7 +107,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonomousCommandChooser.getSelected();
+    return autonomous.getAutonomousCommand();
   }
 
   /** Adds the Shuffleboard tabs for the robot. */
@@ -121,12 +115,11 @@ public class RobotContainer {
     // The "Operator" tab contains UI elements that enable the drive team to set up
     // and operate the robot.
     ShuffleboardTab operatorTab = Shuffleboard.getTab("Operator");
-    ShuffleboardLayout autonomousLayout = operatorTab.getLayout("Autonomous", BuiltInLayouts.kList)
+
+    autonomous.addShuffleboardLayout(operatorTab)
         .withPosition(0, 0)
         .withSize(2, 3);
 
-    autonomousLayout.add("Routine", autonomousCommandChooser);
-    RobotAutonomous.addShuffleboardLayout(autonomousLayout);
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
     RobotPreferences.addShuffleBoardTab();
