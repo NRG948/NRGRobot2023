@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants.CAN;
 import frc.robot.parameters.MotorParameters;
 
+/**
+ * The elevator angle subsystem is responsible for controlling the elevator
+ * angle.
+ */
 public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // AQUIRING and SCORING are out of the frame perimeter

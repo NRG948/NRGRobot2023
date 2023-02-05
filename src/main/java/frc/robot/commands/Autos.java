@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,12 +20,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.drive.SwerveDrive;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public final class Autos {
-  /** Example static factory for an autonomous command. */
   @AutonomousCommandMethod(name = "Follow S-Curve Path")
   public static CommandBase followSCurvePath(Subsystems subsystems) {
     return Commands.sequence(
@@ -49,9 +46,11 @@ public final class Autos {
   @AutonomousCommandMethod(name = "Test Path")
   public static CommandBase followTestPath(Subsystems subsystems) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
-    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Test", 
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
+      "Test", 
       new PathConstraints(drivetrain.getMaxSpeed()*0.5, drivetrain.getMaxAcceleration()));
-    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(drivetrain::getPosition,
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+      drivetrain::getPosition,
       drivetrain::resetPosition,
       drivetrain.getKinematics(),
       new PIDConstants(1.0, 0, 0),
@@ -60,6 +59,7 @@ public final class Autos {
       Map.of(),
       true,
       drivetrain);
+      
     return autoBuilder.fullAuto(pathGroup).andThen(new AssistedBalanceOnChargeStation(drivetrain));
   }
 
