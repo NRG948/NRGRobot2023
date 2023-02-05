@@ -36,15 +36,30 @@ public class ProfiledDriveStraight extends CommandBase {
    * @param drivetrain  The {@link SwerveSubsystem} representing the robot
    *                    drivetrain.
    * @param translation A {@link Translation2d} instance describing the line on
-   *                    which to travel.
+   *                    which to travel. This is a vector relative to the current
+   *                    position.
    */
   public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
+    this(drivetrain, translation, drivetrain.getMaxSpeed());
+  }
+
+  /**
+   * Constructs an instance of this class.
+   * 
+   * @param drivetrain  The {@link SwerveSubsystem} representing the robot
+   *                    drivetrain.
+   * @param translation A {@link Translation2d} instance describing the line on
+   *                    which to travel. This is a vector relative to the current
+   *                    position.
+   * @param maxSpeed    The maximum speed at which to travel.
+   */
+  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
     this.drivetrain = drivetrain;
     this.heading = translation.getAngle();
     this.kinematics = drivetrain.getKinematics();
     this.controller = drivetrain.createDriveController();
     this.profile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()),
+        new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
         new TrapezoidProfile.State(translation.getNorm(), 0));
 
     addRequirements(drivetrain);
