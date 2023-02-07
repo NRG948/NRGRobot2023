@@ -26,7 +26,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
       "Auto Balance", "Initial Speed", 0.35);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MAX_SPEED_PERCENT = new RobotPreferences.DoubleValue(
-      "Auto Balance", "Speed", 0.15);
+      "Auto Balance", "Speed", 0.20);
 
   /*
    * The PID constant were derived using the Zeigler-Nichols tuning method. We
