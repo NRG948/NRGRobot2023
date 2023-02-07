@@ -288,8 +288,21 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @param speeds The chassis speeds.
    */
+
   public void setChassisSpeeds(ChassisSpeeds speeds) {
-    drivetrain.setChassisSpeeds(speeds);
+    setChassisSpeeds(speeds, false);
+  }
+
+  /**
+   * Sets the current module's states based on the chassis speed.
+   * 
+   * @param speeds           The chassis speeds.
+   * @param adjustForGravity If true, use the tilt angle to adjust feedforward for
+   *                         the effects of gravity.
+   * @param tilt             The robot base tilt angle.
+   */
+  public void setChassisSpeeds(ChassisSpeeds speeds, boolean adjustForGravity) {
+    drivetrain.setChassisSpeeds(speeds, adjustForGravity, getTilt());
   }
 
   /**
@@ -324,8 +337,13 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param states An array of four {@link SwerveModuleState} objects in the
    *               order: front left, front right, back left, back right
    */
+
   public void setModuleStates(SwerveModuleState[] states) {
-    drivetrain.setModuleStates(states);
+    setModuleStates(states, false);
+  }
+
+  public void setModuleStates(SwerveModuleState[] states, boolean adjustForGravity) {
+    drivetrain.setModuleStates(states, adjustForGravity, getTilt());
   }
 
   /**

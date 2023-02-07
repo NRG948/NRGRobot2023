@@ -10,8 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -24,7 +22,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class ProfiledDriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
   private final Rotation2d heading;
-  private final SwerveDriveKinematics kinematics;
   private final HolonomicDriveController controller;
   private final TrapezoidProfile profile;
   private final Timer timer = new Timer();
@@ -56,7 +53,6 @@ public class ProfiledDriveStraight extends CommandBase {
   public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
     this.drivetrain = drivetrain;
     this.heading = translation.getAngle();
-    this.kinematics = drivetrain.getKinematics();
     this.controller = drivetrain.createDriveController();
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
@@ -86,9 +82,8 @@ public class ProfiledDriveStraight extends CommandBase {
     // Calculate the swerve drive modules states needed to reach the next state.
     ChassisSpeeds speeds = controller.calculate(drivetrain.getPosition(), nextPose, state.velocity,
         initialPose.getRotation());
-    SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
 
-    drivetrain.setModuleStates(moduleStates);
+    drivetrain.setChassisSpeeds(speeds);
   }
 
   @Override

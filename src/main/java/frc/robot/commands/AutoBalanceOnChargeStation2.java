@@ -82,7 +82,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         speed, 0.0, 0.0, drivetrain.getOrientation());
 
-    drivetrain.setChassisSpeeds(chassisSpeeds);
+    drivetrain.setChassisSpeeds(chassisSpeeds, true);
   }
 
   // Called once the command ends or is interrupted.
