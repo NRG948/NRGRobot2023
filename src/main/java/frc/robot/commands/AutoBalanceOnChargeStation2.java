@@ -75,12 +75,15 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   @Override
   public void execute() {
     double measuredAngle = drivetrain.getTilt().getDegrees();
+
     if (measuredAngle <= 2.0) {
       maxSpeed = MAX_SPEED_PERCENT.getValue();
     }
+
     double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
     SmartDashboard.putNumber("Tilt", measuredAngle);
     SmartDashboard.putNumber("Speed", speed);
+
     if (anglePID.atSetpoint()) {
       drivetrain.stopMotors();
       return;
