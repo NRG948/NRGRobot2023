@@ -22,6 +22,9 @@ import frc.robot.subsystems.SwerveSubsystem;
 @RobotPreferencesLayout(groupName = "Auto Balance", row = 0, column = 2, width = 2, height = 3)
 public class AutoBalanceOnChargeStation2 extends CommandBase {
   @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue INITIAL_SPEED_PERCENT = new RobotPreferences.DoubleValue(
+      "Auto Balance", "Initial Speed", 0.35);
+  @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MAX_SPEED_PERCENT = new RobotPreferences.DoubleValue(
       "Auto Balance", "Speed", 0.15);
 
@@ -47,6 +50,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
 
   private PIDController anglePID;
   private boolean wasLevel = false;
+  private double maxSpeed;
 
   /** Creates a new AutoBalanceOnChargeStation2. */
   public AutoBalanceOnChargeStation2(SwerveSubsystem drivetrain) {
@@ -58,9 +62,9 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    double maxSpeed = this.drivetrain.getMaxSpeed() * MAX_SPEED_PERCENT.getValue();
+    maxSpeed = this.drivetrain.getMaxSpeed() * INITIAL_SPEED_PERCENT.getValue();
 
-    anglePID = new PIDController(ANGLE_KP.getValue() * maxSpeed, 0, ANGLE_KD.getValue() * maxSpeed);
+    anglePID = new PIDController(ANGLE_KP.getValue(), 0, ANGLE_KD.getValue());
     anglePID.setSetpoint(0);
     anglePID.setTolerance(2.0);
     anglePID.reset();
@@ -71,7 +75,10 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   @Override
   public void execute() {
     double measuredAngle = drivetrain.getTilt().getDegrees();
-    double speed = -anglePID.calculate(measuredAngle);
+    if (measuredAngle <= 2.0) {
+      maxSpeed = MAX_SPEED_PERCENT.getValue();
+    }
+    double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
     SmartDashboard.putNumber("Tilt", measuredAngle);
     SmartDashboard.putNumber("Speed", speed);
     if (anglePID.atSetpoint()) {
