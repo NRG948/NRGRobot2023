@@ -16,8 +16,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -67,6 +69,11 @@ public class SwerveModule {
   private SwerveModulePosition position;
   private SwerveModuleVelocities velocities;
 
+  private DoubleLogEntry driveSpeedLog;
+  private DoubleLogEntry positionLog;
+  private DoubleLogEntry wheelAngleLog;
+  private DoubleLogEntry wheelAngleVelocityLog;
+
   // Simulation support.
   private double simVelocity;
   private double simPosition;
@@ -110,6 +117,10 @@ public class SwerveModule {
     this.name = name;
     this.wheelDiameter = parameters.getSwerveModule().getWheelDiameter();
 
+    this.driveSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/driveSpeed"));
+    this.positionLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/position"));
+    this.wheelAngleLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngle"));
+    this.wheelAngleVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngleVelocity"));
     initializeSuppliedState();
 
     this.driveFeedForward = new SimpleMotorFeedforward(
@@ -150,10 +161,17 @@ public class SwerveModule {
   private void updateSuppliedState() {
     Rotation2d wheelAngle = wheelAngleSupplier.get();
     double velocity = velocitySupplier.getAsDouble();
+    double wheelAngleVelocity = wheelAngleVelocitySupplier.getAsDouble();
+    double position = positionSupplier.getAsDouble();
 
-    position = new SwerveModulePosition(positionSupplier.getAsDouble(), wheelAngle);
-    state = new SwerveModuleState(velocity, wheelAngle);
-    velocities = new SwerveModuleVelocities(velocity, wheelAngleVelocitySupplier.getAsDouble());
+    this.position = new SwerveModulePosition(position, wheelAngle);
+    this.state = new SwerveModuleState(velocity, wheelAngle);
+    this.velocities = new SwerveModuleVelocities(velocity, wheelAngleVelocity);
+
+    driveSpeedLog.append(velocity);
+    positionLog.append(position);
+    wheelAngleLog.append(wheelAngle.getDegrees());
+    wheelAngleVelocityLog.append(wheelAngleVelocity);
   }
 
   /**
