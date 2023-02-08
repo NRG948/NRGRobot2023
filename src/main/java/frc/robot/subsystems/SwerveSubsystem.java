@@ -29,6 +29,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -132,8 +133,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry tiltOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltOffset");
   private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
 
-
-
+  private DoubleLogEntry xSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/xSpeed");
+  private DoubleLogEntry ySpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/ySpeed");
+  private DoubleLogEntry omegaSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/omegaSpeed");
 
   // Simulation support.
   private final boolean isSimulation;
@@ -319,6 +321,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param tilt             The robot base tilt angle.
    */
   public void setChassisSpeeds(ChassisSpeeds speeds, boolean adjustForGravity) {
+    xSpeedLog.append(speeds.vxMetersPerSecond);
+    ySpeedLog.append(speeds.vyMetersPerSecond);
+    omegaSpeedLog.append(Math.toDegrees(speeds.omegaRadiansPerSecond));
     drivetrain.setChassisSpeeds(speeds, adjustForGravity, getTilt());
   }
 
