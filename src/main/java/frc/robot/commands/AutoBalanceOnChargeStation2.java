@@ -49,7 +49,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   private final Timer timer = new Timer();
 
   private PIDController anglePID;
-  private boolean wasLevel = false;
+  private boolean wasLevel;
   private double maxSpeed;
 
   /** Creates a new AutoBalanceOnChargeStation2. */
@@ -69,6 +69,8 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
     anglePID.setTolerance(2.0);
     anglePID.reset();
     timer.reset();
+
+    wasLevel = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
