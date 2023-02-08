@@ -133,10 +133,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry tiltOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltOffset");
   private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
 
-  private DoubleLogEntry xSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/xSpeed");
-  private DoubleLogEntry ySpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/ySpeed");
-  private DoubleLogEntry omegaSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/omegaSpeed");
-
   // Simulation support.
   private final boolean isSimulation;
   private Rotation2d simOrientation = new Rotation2d();
@@ -321,9 +317,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param tilt             The robot base tilt angle.
    */
   public void setChassisSpeeds(ChassisSpeeds speeds, boolean adjustForGravity) {
-    xSpeedLog.append(speeds.vxMetersPerSecond);
-    ySpeedLog.append(speeds.vyMetersPerSecond);
-    omegaSpeedLog.append(Math.toDegrees(speeds.omegaRadiansPerSecond));
     drivetrain.setChassisSpeeds(speeds, adjustForGravity, getTilt());
   }
 

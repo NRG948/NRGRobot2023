@@ -117,10 +117,10 @@ public class SwerveModule {
     this.name = name;
     this.wheelDiameter = parameters.getSwerveModule().getWheelDiameter();
 
-    this.driveSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/driveSpeed"));
-    this.positionLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/position"));
-    this.wheelAngleLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngle"));
-    this.wheelAngleVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngleVelocity"));
+    this.driveSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/driveSpeed", name));
+    this.positionLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/position", name));
+    this.wheelAngleLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngle", name));
+    this.wheelAngleVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("/SwerveModule/%s/wheelAngleVelocity", name));
     initializeSuppliedState();
 
     this.driveFeedForward = new SimpleMotorFeedforward(

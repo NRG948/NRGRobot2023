@@ -11,6 +11,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.parameters.SwerveDriveParameters;
@@ -32,6 +34,10 @@ public class SwerveDrive extends RobotDriveBase {
 
   // The current supplied state updated by the periodic method.
   private Rotation2d orientation;
+
+  private DoubleLogEntry xSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveDrive/xSpeed");
+  private DoubleLogEntry ySpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveDrive/ySpeed");
+  private DoubleLogEntry omegaSpeedLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveDrive/omegaSpeed");
 
   /**
    * constructs the swerve drive
@@ -136,12 +142,11 @@ public class SwerveDrive extends RobotDriveBase {
     ySpeed *= m_maxOutput * maxDriveSpeed;
     rSpeed *= m_maxOutput * maxRotationalSpeed;
 
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(
+    setChassisSpeeds(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
-            : new ChassisSpeeds(xSpeed, ySpeed, rSpeed));
-
-    setModuleStates(states, false, ZERO_TILT);
+            : new ChassisSpeeds(xSpeed, ySpeed, rSpeed),
+        false, ZERO_TILT);
   }
 
   /**
@@ -166,6 +171,10 @@ public class SwerveDrive extends RobotDriveBase {
    * @param tilt             The robot base tilt angle.
    */
   public void setChassisSpeeds(ChassisSpeeds speeds, boolean adjustForGravity, Rotation2d tilt) {
+    xSpeedLog.append(speeds.vxMetersPerSecond);
+    ySpeedLog.append(speeds.vyMetersPerSecond);
+    omegaSpeedLog.append(Math.toDegrees(speeds.omegaRadiansPerSecond));
+
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     setModuleStates(states, adjustForGravity, tilt);
   }
