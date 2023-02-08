@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
@@ -21,6 +23,7 @@ import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation2;
+import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.ProfiledDriveStraight;
 import frc.robot.subsystems.ClawSubsystem.Position;
@@ -48,6 +51,7 @@ public class RobotContainer {
   private final CommandXboxController manipulatorController = new CommandXboxController(XboxControllerPort.MANIPULATOR);
 
   private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
+  private final PhotonCamera photonCamera = new PhotonCamera("photonvison.local");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -97,6 +101,9 @@ public class RobotContainer {
       int blue = (int) (255 * Math.random());
       leds.setColor(new Color8Bit(red, green, blue));
     }));
+
+    driveController.rightBumper()
+        .whileTrue(new ChaseTagCommand(photonCamera, subsystems.drivetrain, subsystems.drivetrain::getPosition));
 
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
