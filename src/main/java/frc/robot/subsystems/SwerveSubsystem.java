@@ -29,8 +29,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -124,6 +126,15 @@ public class SwerveSubsystem extends SubsystemBase {
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
 
+  private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawOrientation");
+  private DoubleLogEntry rawOrientationOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawOrientationOffset");
+  private DoubleLogEntry rawTiltLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawTilt");
+  private DoubleLogEntry tiltOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltOffset");
+  private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
+
+
+
+
   // Simulation support.
   private final boolean isSimulation;
   private Rotation2d simOrientation = new Rotation2d();
@@ -198,9 +209,15 @@ public class SwerveSubsystem extends SubsystemBase {
       tiltOffset = rawTilt;
       System.out.println("Tilt offset: " + tiltOffset.getDegrees());
       wasNavXCalibrating = false;
+      tiltOffsetLog.append(tiltOffset.getDegrees());
     }
 
     tiltVelocity = ahrs.getRawGyroY();
+
+    rawOrientationLog.append(rawOrientation.getDegrees());
+    rawTiltLog.append(rawTilt.getDegrees());
+    tiltVelocityLog.append(tiltVelocity);
+
   }
 
   /**
@@ -367,6 +384,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetPosition(Pose2d initialPosition) {
     rawOrientationOffset = initialPosition.getRotation().minus(rawOrientation);
+    rawOrientationOffsetLog.append(rawOrientationOffset.getDegrees());
     odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
   }
 
