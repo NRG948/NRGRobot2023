@@ -169,8 +169,9 @@ public class SwerveModule {
     Rotation2d currentAngle = getWheelRotation2d();
     newState = SwerveModuleState.optimize(newState, currentAngle);
 
-    // Adjust for gravity, if specified
+    // Adjust for the effects of gravity on the drivetrain, if needed.
     double acceleration = 0.0;
+
     if (adjustForGravity) {
       acceleration = 9.81 * Math.cos(Math.PI / 2 - tilt.getRadians());
     }

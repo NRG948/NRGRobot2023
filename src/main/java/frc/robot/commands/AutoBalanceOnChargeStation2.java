@@ -26,7 +26,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
       "Auto Balance", "Initial Speed", 0.35);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MAX_SPEED_PERCENT = new RobotPreferences.DoubleValue(
-      "Auto Balance", "Speed", 0.15);
+      "Auto Balance", "Speed", 0.20);
 
   /*
    * The PID constant were derived using the Zeigler-Nichols tuning method. We
@@ -75,12 +75,15 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   @Override
   public void execute() {
     double measuredAngle = drivetrain.getTilt().getDegrees();
+
     if (measuredAngle <= 2.0) {
       maxSpeed = MAX_SPEED_PERCENT.getValue();
     }
+
     double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
     SmartDashboard.putNumber("Tilt", measuredAngle);
     SmartDashboard.putNumber("Speed", speed);
+
     if (anglePID.atSetpoint()) {
       drivetrain.stopMotors();
       return;
