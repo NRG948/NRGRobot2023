@@ -142,11 +142,11 @@ public class SwerveDrive extends RobotDriveBase {
     ySpeed *= m_maxOutput * maxDriveSpeed;
     rSpeed *= m_maxOutput * maxRotationalSpeed;
 
-    setChassisSpeeds(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
-            : new ChassisSpeeds(xSpeed, ySpeed, rSpeed),
-        false, ZERO_TILT);
+    ChassisSpeeds speeds = fieldRelative
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed, orientation)
+        : new ChassisSpeeds(xSpeed, ySpeed, rSpeed);
+
+    setChassisSpeeds(speeds, false, ZERO_TILT);
   }
 
   /**
@@ -156,9 +156,11 @@ public class SwerveDrive extends RobotDriveBase {
    */
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+
     for (int i = 0; i < modules.length; i++) {
       moduleStates[i] = modules[i].getState();
     }
+
     return moduleStates;
   }
 
@@ -176,6 +178,7 @@ public class SwerveDrive extends RobotDriveBase {
     omegaSpeedLog.append(Math.toDegrees(speeds.omegaRadiansPerSecond));
 
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+
     setModuleStates(states, adjustForGravity, tilt);
   }
 
@@ -195,9 +198,11 @@ public class SwerveDrive extends RobotDriveBase {
    */
   public SwerveModulePosition[] getModulesPositions() {
     SwerveModulePosition[] modulePosition = new SwerveModulePosition[4];
+
     for (int i = 0; i < modules.length; i++) {
       modulePosition[i] = modules[i].getPosition();
     }
+
     return modulePosition;
   }
 
@@ -208,9 +213,11 @@ public class SwerveDrive extends RobotDriveBase {
    */
   public SwerveModuleVelocities[] getModuleVelocities() {
     SwerveModuleVelocities[] velocities = new SwerveModuleVelocities[4];
+
     for (int i = 0; i < modules.length; i++) {
       velocities[i] = modules[i].getVelocities();
     }
+
     return velocities;
   }
 
@@ -223,6 +230,7 @@ public class SwerveDrive extends RobotDriveBase {
     for (int i = 0; i < modules.length; i++) {
       modules[i].setMotorVoltages(moduleVoltages[i]);
     }
+
     feedWatchdog();
   }
 

@@ -49,12 +49,14 @@ public class CharacterizeSwerveDrive extends CommandBase {
   @Override
   public void execute() {
     logger.logData();
+
     double voltage = logger.getMotorVoltage();
     ChassisSpeeds speeds = new ChassisSpeeds(
         (voltage / RobotConstants.MAX_BATTERY_VOLTAGE) * drivetrain.getMaxSpeed(),
         0.0,
         0.0);
-    drivetrain.setChassisSpeeds(speeds);
+
+        drivetrain.setChassisSpeeds(speeds);
   }
 
   // Called once the command ends or is interrupted.
