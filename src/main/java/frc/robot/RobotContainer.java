@@ -51,8 +51,6 @@ public class RobotContainer {
   private final CommandXboxController manipulatorController = new CommandXboxController(XboxControllerPort.MANIPULATOR);
 
   private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
-  private final PhotonCamera photonCamera = new PhotonCamera("photonvison.local");
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -103,7 +101,7 @@ public class RobotContainer {
     }));
 
     driveController.rightBumper()
-        .whileTrue(new ChaseTagCommand(photonCamera, subsystems.drivetrain, subsystems.drivetrain::getPosition));
+        .whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain, subsystems.drivetrain::getPosition));
 
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
@@ -141,5 +139,6 @@ public class RobotContainer {
     // The subsystem-specific tabs are added for testing and should be disabled by
     // default.
     subsystems.drivetrain.addShuffleboardTab();
+    subsystems.photonVision.addShuffleboardTab();
   }
 }

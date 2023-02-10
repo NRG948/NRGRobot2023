@@ -8,4 +8,5 @@ package frc.robot.subsystems;
 public class Subsystems {
   public final SwerveSubsystem drivetrain = new SwerveSubsystem();
   public final ClawSubsystem claw = new ClawSubsystem();
+  public final PhotonVisionSubsystem photonVision = new PhotonVisionSubsystem();
 }

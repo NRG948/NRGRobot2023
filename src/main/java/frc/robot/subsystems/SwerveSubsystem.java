@@ -256,6 +256,15 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the drive constraints.
+   * 
+   * @return The drive constraints.
+   */
+  public TrapezoidProfile.Constraints getDriveConstraints() {
+    return new TrapezoidProfile.Constraints(getMaxSpeed(), getMaxAcceleration());
+  }
+
+  /**
    * Returns a {@link TrapezoidProfile.Constraints} object used to enforce
    * velocity and acceleration constraints on the {@link ProfiledPIDController}
    * used to reach the goal robot orientation.
