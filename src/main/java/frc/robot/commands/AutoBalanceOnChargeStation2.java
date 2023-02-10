@@ -21,27 +21,29 @@ import frc.robot.subsystems.SwerveSubsystem;
  */
 @RobotPreferencesLayout(groupName = "Auto Balance", row = 0, column = 2, width = 2, height = 3)
 public class AutoBalanceOnChargeStation2 extends CommandBase {
+  private static final String PREFERENCES_GROUP = "Auto Balance";
+
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue INITIAL_SPEED_PERCENT = new RobotPreferences.DoubleValue(
-      "Auto Balance", "Initial Speed", 0.35);
+      PREFERENCES_GROUP, "Initial Speed", 0.35);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MAX_SPEED_PERCENT = new RobotPreferences.DoubleValue(
-      "Auto Balance", "Speed", 0.20);
+      PREFERENCES_GROUP, "Speed", 0.20);
 
   /*
-   * The PID constant were derived using the Zeigler-Nichols tuning method. We
+   * The PID constants were derived using the Zeigler-Nichols tuning method. We
    * started with a kP of 0.7 and measured an oscillation period of 2.26733
    * seconds.
    */
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KP = new RobotPreferences.DoubleValue(
-      "Auto Balance", "KP", 0.042);
+      PREFERENCES_GROUP, "KP", 0.042);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KI = new RobotPreferences.DoubleValue(
-      "Auto Balance", "KI", 0.037047927);
+      PREFERENCES_GROUP, "KI", 0.037047927);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
-      "Auto Balance", "KD", 0.0119035);
+      PREFERENCES_GROUP, "KD", 0.0119035);
 
   private static final double TIME_AT_LEVEL = 0.2;
 
@@ -49,7 +51,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   private final Timer timer = new Timer();
 
   private PIDController anglePID;
-  private boolean wasLevel = false;
+  private boolean wasLevel;
   private double maxSpeed;
 
   /** Creates a new AutoBalanceOnChargeStation2. */
@@ -69,6 +71,8 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
     anglePID.setTolerance(2.0);
     anglePID.reset();
     timer.reset();
+
+    wasLevel = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
