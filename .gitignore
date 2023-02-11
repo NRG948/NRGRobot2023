@@ -162,6 +162,7 @@ bin/
 *-window.json
 simgui*.json
 .SysId/*
+.DataLogTool/*
 
 # Persistent Network Tables Values
 networktables.*
