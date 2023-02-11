@@ -98,6 +98,40 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.start();
   }
 
+  /**
+   * Sets the motor voltage.
+   * 
+   * @param voltage The desired voltage.
+   */
+  public void setMotorVoltage(double voltage) {
+    motor.setVoltage(voltage);
+  }
+
+  /**
+   * Stops the motor.
+   */
+  public void stopMotor() {
+    motor.stopMotor();
+  }
+
+  /**
+   * Returns the current position.
+   * 
+   * @return The current position.
+   */
+  public double getPosition() {
+    return currentPosition;
+  }
+
+  /**
+   * Returns the current velocity.
+   * 
+   * @return The current velocity.
+   */
+  public double getVelocity() {
+    return currentVelocity;
+  }
+
   @Override
   public void periodic() {
     currentPosition = encoder.getPosition();
@@ -115,4 +149,4 @@ public class ElevatorSubsystem extends SubsystemBase {
         + (Math.sin(currentAngle.getRadians()) * KG);
     motor.setVoltage(outputVolts + feedforwardVolts);
   }
-}
+ }
