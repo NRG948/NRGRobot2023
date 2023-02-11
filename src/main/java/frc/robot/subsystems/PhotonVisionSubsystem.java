@@ -17,7 +17,6 @@ import com.nrg948.preferences.RobotPreferencesValue;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,22 +28,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * This subsystem is responsible for getting target information from
  * PhotonVision.
  */
-@RobotPreferencesLayout(groupName = "PhotonVision", row=0, column = 6, width = 2, height = 1)
+@RobotPreferencesLayout(groupName = "PhotonVision", row = 0, column = 4, width = 2, height = 1)
 public class PhotonVisionSubsystem extends SubsystemBase {
   @RobotPreferencesValue
-  public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue("PhotonVision", "Enable Tab", false);
+  public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
+      "PhotonVision", "Enable Tab", false);
 
   private final PhotonCamera camera = new PhotonCamera("IMX219");
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
   /** Creates a new PhotonVisionSubsystem. */
   public PhotonVisionSubsystem() {
+
   }
 
   @Override
   public void periodic() {
     result = camera.getLatestResult();
-
   }
 
   /**
@@ -65,8 +65,13 @@ public class PhotonVisionSubsystem extends SubsystemBase {
     return result.getBestTarget();
   }
 
-  public double getDistanceToBestTarget(){
-    if(!hasTargets()){
+  /**
+   * Returns the distance to the best target.
+   * 
+   * @return The distance, in meters, to the best target.
+   */
+  public double getDistanceToBestTarget() {
+    if (!hasTargets()) {
       return 0;
     }
 
@@ -74,8 +79,13 @@ public class PhotonVisionSubsystem extends SubsystemBase {
     return Math.hypot(bestTarget.getX(), bestTarget.getY());
   }
 
-  public double getBestAngleToTarget(){
-    if(!hasTargets()){
+  /**
+   * Returns the angle to the best target.
+   * 
+   * @return The angle to the best target.
+   */
+  public double getBestAngleToTarget() {
+    if (!hasTargets()) {
       return 0;
     }
 
@@ -91,10 +101,14 @@ public class PhotonVisionSubsystem extends SubsystemBase {
     return result.getTargets();
   }
 
-  public void addShuffleboardTab(){
-    if(!enableTab.getValue()){
+  /**
+   * Adds a tab for PhotonVision in Shuffleboard.
+   */
+  public void addShuffleboardTab() {
+    if (!enableTab.getValue()) {
       return;
     }
+
     ShuffleboardTab visionTab = Shuffleboard.getTab("PhotonVision");
     ShuffleboardLayout targetLayout = visionTab.getLayout("Target Info", BuiltInLayouts.kList)
         .withPosition(0, 0)
@@ -108,9 +122,5 @@ public class PhotonVisionSubsystem extends SubsystemBase {
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
         .withSize(4, 3);
-
   }
-
-
-
 }

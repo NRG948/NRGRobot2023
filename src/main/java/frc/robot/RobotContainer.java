@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.photonvision.PhotonCamera;
-
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
@@ -51,6 +49,7 @@ public class RobotContainer {
   private final CommandXboxController manipulatorController = new CommandXboxController(XboxControllerPort.MANIPULATOR);
 
   private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -100,8 +99,7 @@ public class RobotContainer {
       leds.setColor(new Color8Bit(red, green, blue));
     }));
 
-    driveController.rightBumper()
-        .whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain, subsystems.drivetrain::getPosition));
+    driveController.rightBumper().whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain));
 
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
