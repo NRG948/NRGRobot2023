@@ -21,7 +21,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
     ACQUIRING(30),
-    STOWED(90),
+    // STOWED(90),
     SCORING(120);
 
     private final double angle;
@@ -38,6 +38,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   // CONSTANTS
   private final double ANGLE_RANGE = 90;
   private final double GEAR_RATIO = 4 / 1;
+  private final double MOTOR_POWER = 0.3;
 
   // Calculate degrees per pulse
   private final double DEGREES_PER_REVOLUTION = ANGLE_RANGE / (GEAR_RATIO * 360);
@@ -46,13 +47,14 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final RelativeEncoder encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
   private double angleOffset; // record encoder's current position
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
-  private double currentAngle = ElevatorAngle.STOWED.getAngle(); // start as stowed
+  private double motorPower = 0;
+  private double currentAngle = ElevatorAngle.ACQUIRING.getAngle(); // start as acquiring
 
   /** Creates a new ElevatorAngleSubsystem. */
   public ElevatorAngleSubsystem() {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
-    angleOffset = encoder.getPosition() - ElevatorAngle.STOWED.getAngle();
+    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getAngle();
   }
 
   /**
@@ -62,6 +64,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    */
   public void setGoalAngle(ElevatorAngle goalAngle) {
     this.goalAngle = goalAngle;
+    // Acquiring to scoring -> Positive motor power
+    // Scoring to acquiring -> Negative motor power
+    this.motorPower = Math.signum(goalAngle.getAngle() - currentAngle) * MOTOR_POWER;
   }
 
   /**
@@ -77,5 +82,16 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     currentAngle = encoder.getPosition() - angleOffset;
+
+    // shut off motor if past the desired angle
+    if (motorPower > 0 ? currentAngle >= goalAngle.getAngle() : currentAngle <= goalAngle.getAngle()) {
+      motorPower = 0;
+    }
+
+    if (motorPower == 0) {
+      motor.stopMotor();
+    } else {
+      motor.set(motorPower);
+    }
   }
 }
