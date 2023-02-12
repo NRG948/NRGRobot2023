@@ -12,6 +12,6 @@ public class Subsystems {
   public final ClawSubsystem claw = new ClawSubsystem();
   public final PhotonVisionSubsystem photonVision = new PhotonVisionSubsystem();
   public final ColorSensorSubsystem colorSensor = new ColorSensorSubsystem();
-  public final ElevatorAngleSubsystem elevatorAngle = new ElevatorAngleSubsystem();
-  public final ElevatorSubsystem elevator = new ElevatorSubsystem(() -> Rotation2d.fromDegrees(elevatorAngle.getAngle()));
+  // public final ElevatorAngleSubsystem elevatorAngle = new ElevatorAngleSubsystem();
+  // public final ElevatorSubsystem elevator = new ElevatorSubsystem(() -> Rotation2d.fromDegrees(elevatorAngle.getAngle()));
 }
