@@ -23,20 +23,26 @@ import frc.robot.parameters.MotorParameters;
  */
 public class ElevatorSubsystem extends SubsystemBase {
 
+  // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
   private static final double GEAR_RATIO = 4; // TODO: Get real ratio
   private static final double PULLEY_DIAMETER = Units.inchesToMeters(2); // TODO: Get real value
   private static final double ELEVATOR_MASS = 1; // TODO: Get real mass
+
+  // Trapezoidal profile constants.
   private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * PULLEY_DIAMETER * Math.PI)
       / (60 * GEAR_RATIO); // meters/sec
   private static final double MAX_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO)
       / (PULLEY_DIAMETER * ELEVATOR_MASS);
+
+  private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
+      MAX_SPEED, MAX_ACCELERATION);
+
+  // Feedfoward constants.
   private static final double KS = 0.15;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
-  private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_SPEED,
-      MAX_ACCELERATION);
 
   private final CANSparkMax motor;
   private final RelativeEncoder encoder;
@@ -46,14 +52,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Timer timer = new Timer();
 
   private GoalState goalState = GoalState.ACQUIRE;
-  private TrapezoidProfile profile = 
-      new TrapezoidProfile(CONSTRAINTS, new TrapezoidProfile.State(goalState.getPosition(), 0));
+  private TrapezoidProfile profile = new TrapezoidProfile(
+      CONSTRAINTS, new TrapezoidProfile.State(goalState.getPosition(), 0));
   private double currentPosition;
   private double currentVelocity;
   private Rotation2d currentAngle;
 
   /** Encapsulates various goal heights we want to raise the elevator to. */
-  public enum GoalState {  // TODO: get real values
+  public enum GoalState { // TODO: get real values
     ACQUIRE(0),
     SCORE_LOW(100),
     SCORE_MID(200),
@@ -75,17 +81,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
-  /** 
+  /**
    * Creates a new ElevatorSubsystem.
-   *  
+   * 
    * @param angleSupplier Supplier that returns the current elevator angle.
-  */
+   */
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
     motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
     encoder = motor.getAlternateEncoder(MOTOR.getPulsesPerRevolution());
     angle = angleSupplier;
   }
-  
+
   /**
    * Sets the desired claw position.
    * 
@@ -134,19 +140,25 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Update the sensor state.
     currentPosition = encoder.getPosition();
     currentVelocity = encoder.getVelocity();
     currentAngle = angle.get();
 
+    // If the elevator has been moved to the lowest position, stop the motor.
     if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition()) {
       motor.stopMotor();
       return;
     }
 
+    // Find the desired elevator state (position and velocity) using the trapezoid
+    // profile and use feedback (PID) and feedforward to calculate the required
+    // voltage to apply to the motor.
     TrapezoidProfile.State state = profile.calculate(timer.get());
-    double outputVolts = pidController.calculate(currentVelocity, state.velocity);
+    double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
     double feedforwardVolts = feedforward.calculate(currentVelocity, state.velocity)
         + (Math.sin(currentAngle.getRadians()) * KG);
-    motor.setVoltage(outputVolts + feedforwardVolts);
+
+    motor.setVoltage(feedbackVolts + feedforwardVolts);
   }
- }
+}
