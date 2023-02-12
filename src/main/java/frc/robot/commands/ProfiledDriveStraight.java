@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,8 +26,10 @@ public class ProfiledDriveStraight extends CommandBase {
   private final Rotation2d heading;
   private final HolonomicDriveController controller;
   private final TrapezoidProfile profile;
+  private final Supplier<Rotation2d> orientationSupplier;
   private final Timer timer = new Timer();
   private Pose2d initialPose;
+  private Rotation2d orientation;
 
   /**
    * Constructs an instance of this class.
@@ -51,9 +55,45 @@ public class ProfiledDriveStraight extends CommandBase {
    * @param maxSpeed    The maximum speed at which to travel.
    */
   public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
+    this(drivetrain, translation, maxSpeed, () -> drivetrain.getPosition().getRotation());
+  }
+
+  /**
+   * Constructs an instance of this class.
+   * 
+   * @param drivetrain  The {@link SwerveSubsystem} representing the robot
+   *                    drivetrain.
+   * @param translation A {@link Translation2d} instance describing the line on
+   *                    which to travel. This is a vector relative to the current
+   *                    position.
+   * @param maxSpeed    The maximum speed at which to travel.
+   * @param orientation The desired orientation at the end of the command.
+   */
+  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
+      Rotation2d desiredOrientation) {
+    this(drivetrain, translation, maxSpeed, () -> desiredOrientation);
+  }
+
+  /**
+   * Constructs an instance of this class.
+   * 
+   * @param drivetrain          The {@link SwerveSubsystem} representing the robot
+   *                            drivetrain.
+   * @param translation         A {@link Translation2d} instance describing the
+   *                            line on
+   *                            which to travel. This is a vector relative to the
+   *                            current
+   *                            position.
+   * @param maxSpeed            The maximum speed at which to travel.
+   * @param orientationSupplier Supplies the desired orientation at the end of the
+   *                            command.
+   */
+  private ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
+      Supplier<Rotation2d> poseSupplier) {
     this.drivetrain = drivetrain;
     this.heading = translation.getAngle();
     this.controller = drivetrain.createDriveController();
+    this.orientationSupplier = poseSupplier;
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
         new TrapezoidProfile.State(translation.getNorm(), 0));
@@ -64,6 +104,7 @@ public class ProfiledDriveStraight extends CommandBase {
   @Override
   public void initialize() {
     initialPose = drivetrain.getPosition();
+    orientation = orientationSupplier.get();
     timer.reset();
     timer.start();
   }
@@ -81,7 +122,7 @@ public class ProfiledDriveStraight extends CommandBase {
 
     // Calculate the swerve drive modules states needed to reach the next state.
     ChassisSpeeds speeds = controller.calculate(drivetrain.getPosition(), nextPose, state.velocity,
-        initialPose.getRotation());
+        orientation);
 
     drivetrain.setChassisSpeeds(speeds);
   }

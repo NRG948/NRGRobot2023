@@ -50,6 +50,13 @@ public final class Autos {
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(45.0))));
   }
 
+  @AutonomousCommandMethod(name = "Drive Straight For 3 Meters and Rotate")
+  public static CommandBase driveStraight3MetersAndRotate(Subsystems subsystems) {
+    return Commands.sequence(
+        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)), subsystems.drivetrain.getMaxSpeed()*0.5, Rotation2d.fromDegrees(-90.0)));
+  }
+
   @AutonomousCommandMethod(name = "Test Path")
   public static CommandBase followTestPath(Subsystems subsystems) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
