@@ -37,9 +37,9 @@ public final class Constants {
      */
     public static class CAN{
       public static class SparkMax{
-        public static final int INTAKE = 100;
-        public static final int ELEVATOR = 102;
-        public static final int ELEVATOR_ANGLE = 103;
+        public static final int INTAKE = 1;
+        public static final int ELEVATOR = 2;
+        public static final int ELEVATOR_ANGLE = 3;
       }
     }
   }

@@ -16,6 +16,7 @@ import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -117,7 +118,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
     targetLayout.addDouble("Angle", this::getBestAngleToTarget);
 
-    VideoSource video = new HttpCamera("PhotonVision", "http://photonvision.local:1181/stream.mjpg");
+    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream", HttpCameraKind.kMJPGStreamer);
     visionTab.add("PhotonVision", video)
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
