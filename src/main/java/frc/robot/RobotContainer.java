@@ -10,7 +10,9 @@ import com.nrg948.preferences.RobotPreferencesLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -129,6 +131,31 @@ public class RobotContainer {
     autonomous.addShuffleboardLayout(operatorTab)
         .withPosition(0, 0)
         .withSize(2, 3);
+
+    ShuffleboardLayout gridLayout = operatorTab.getLayout("Grid", BuiltInLayouts.kGrid)
+        .withPosition(6, 0)
+        .withSize(3,3);
+
+    gridLayout.addBoolean("Left High", ()-> manipulatorController.getHID().getPOV() == 315)
+      .withPosition(0,0);
+    gridLayout.addBoolean("Left Mid", ()-> manipulatorController.getHID().getPOV() == 270)
+      .withPosition(0,1);
+    gridLayout.addBoolean("Left Low", ()-> manipulatorController.getHID().getPOV() == 225)
+      .withPosition(0,2);
+    gridLayout.addBoolean("Center High", ()-> manipulatorController.getHID().getPOV() == 0)
+      .withPosition(1,0);
+    gridLayout.addBoolean("Center Mid", ()-> manipulatorController.getHID().getPOV() == -1)
+      .withPosition(1, 1);
+    gridLayout.addBoolean("Center Low", ()-> manipulatorController.getHID().getPOV() == 180)
+      .withPosition(1, 2);
+    gridLayout.addBoolean("Right High", ()-> manipulatorController.getHID().getPOV() == 45)
+      .withPosition(2, 0);
+    gridLayout.addBoolean("Right Mid", ()-> manipulatorController.getHID().getPOV() == 90)
+      .withPosition(2, 1);
+    gridLayout.addBoolean("Right Low", ()-> manipulatorController.getHID().getPOV() == 135)
+      .withPosition(2, 2);
+
+
 
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
