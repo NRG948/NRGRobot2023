@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import java.util.function.Supplier;
@@ -10,7 +6,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,14 +22,13 @@ import frc.robot.parameters.MotorParameters;
  * acquiring or scoring game elements.
  */
 public class ElevatorSubsystem extends SubsystemBase {
-  /**
-   *
-   */
+
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
   private static final double GEAR_RATIO = 4; // TODO: Get real ratio
   private static final double PULLEY_DIAMETER = Units.inchesToMeters(2); // TODO: Get real value
   private static final double ELEVATOR_MASS = 1; // TODO: Get real mass
-  private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * PULLEY_DIAMETER * Math.PI) / (60 * GEAR_RATIO);
+  private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * PULLEY_DIAMETER * Math.PI)
+      / (60 * GEAR_RATIO); // meters/sec
   private static final double MAX_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO)
       / (PULLEY_DIAMETER * ELEVATOR_MASS);
   private static final double KS = 0.15;
@@ -52,13 +46,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Timer timer = new Timer();
 
   private GoalState goalState = GoalState.ACQUIRE;
-  private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS,
-      new TrapezoidProfile.State(goalState.getPosition(), 0));
+  private TrapezoidProfile profile = 
+      new TrapezoidProfile(CONSTRAINTS, new TrapezoidProfile.State(goalState.getPosition(), 0));
   private double currentPosition;
   private double currentVelocity;
   private Rotation2d currentAngle;
 
-  public enum GoalState {
+  /** Encapsulates various goal heights we want to raise the elevator to. */
+  public enum GoalState {  // TODO: get real values
     ACQUIRE(0),
     SCORE_LOW(100),
     SCORE_MID(200),
@@ -71,7 +66,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the desired position of elevator.
+     * Returns the current position of elevator.
      * 
      * @return The current position of the elevator.
      */
@@ -80,22 +75,61 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
-  /** Creates a new ElevatorSubsystem. */
+  /** 
+   * Creates a new ElevatorSubsystem.
+   *  
+   * @param angleSupplier Supplier that returns the current elevator angle.
+  */
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
     motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
     encoder = motor.getAlternateEncoder(MOTOR.getPulsesPerRevolution());
     angle = angleSupplier;
   }
-
+  
   /**
-   * Sets the claw position.
+   * Sets the desired claw position.
    * 
-   * @param action The claw position.
+   * @param goalState The desired claw position.
    */
   public void setGoal(GoalState goalState) {
     this.goalState = goalState;
     pidController.setGoal(new TrapezoidProfile.State(goalState.getPosition(), 0));
     timer.reset();
+    timer.start();
+  }
+
+  /**
+   * Sets the motor voltage.
+   * 
+   * @param voltage The desired voltage.
+   */
+  public void setMotorVoltage(double voltage) {
+    motor.setVoltage(voltage);
+  }
+
+  /**
+   * Stops the motor.
+   */
+  public void stopMotor() {
+    motor.stopMotor();
+  }
+
+  /**
+   * Returns the current position.
+   * 
+   * @return The current position.
+   */
+  public double getPosition() {
+    return currentPosition;
+  }
+
+  /**
+   * Returns the current velocity.
+   * 
+   * @return The current velocity.
+   */
+  public double getVelocity() {
+    return currentVelocity;
   }
 
   @Override
@@ -110,9 +144,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     TrapezoidProfile.State state = profile.calculate(timer.get());
-    double output = pidController.calculate(currentVelocity, state.velocity);
-    double feedforward = this.feedforward.calculate(currentVelocity, state.velocity)
-        + (Math.cos(currentAngle.getRadians()) * KG);
-    motor.setVoltage(output + feedforward);
+    double outputVolts = pidController.calculate(currentVelocity, state.velocity);
+    double feedforwardVolts = feedforward.calculate(currentVelocity, state.velocity)
+        + (Math.sin(currentAngle.getRadians()) * KG);
+    motor.setVoltage(outputVolts + feedforwardVolts);
   }
-}
+ }
