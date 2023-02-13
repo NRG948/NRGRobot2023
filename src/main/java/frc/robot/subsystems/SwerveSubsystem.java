@@ -20,7 +20,9 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -126,8 +128,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
 
-  private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawOrientation");
-  private DoubleLogEntry rawOrientationOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawOrientationOffset");
+  private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(),
+      "/SwerveSubsystem/rawOrientation");
+  private DoubleLogEntry rawOrientationOffsetLog = new DoubleLogEntry(DataLogManager.getLog(),
+      "/SwerveSubsystem/rawOrientationOffset");
   private DoubleLogEntry rawTiltLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawTilt");
   private DoubleLogEntry tiltOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltOffset");
   private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
@@ -410,6 +414,15 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Pose2d getPosition() {
     return odometry.getPoseMeters();
+  }
+
+  public Pose3d getPosition3d() {
+    Pose2d robotPose2d = getPosition();
+    return new Pose3d(
+        robotPose2d.getX(),
+        robotPose2d.getY(),
+        0.0,
+        new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
   }
 
   /**

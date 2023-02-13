@@ -16,13 +16,17 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation2;
+import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.ProfiledDriveStraight;
@@ -110,6 +114,10 @@ public class RobotContainer {
     manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.OPEN)));
     manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
     manipulatorController.x().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
+    manipulatorController.rightBumper().whileTrue(Commands.sequence(
+      new WaitUntilCommand(()-> subsystems.photonVision.hasTargets()),
+      new ProxyCommand(()-> Autos.scoreToGrid(subsystems, manipulatorController.getHID()))
+    ));
 
   }
 

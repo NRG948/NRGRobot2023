@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -42,6 +47,17 @@ public final class Constants {
         public static final int ELEVATOR_ANGLE = 3;
       }
     }
+
+    /**
+     * A transform from the camera to the center of the robot.
+     */
+    public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
+            new Translation3d(Units.inchesToMeters(-28.0), Units.inchesToMeters(2.0), Units.inchesToMeters(-25.6)),
+            new Rotation3d());
+    /**
+     * A transform from the robot center to the camera.
+     */
+    public static final Transform3d ROBOT_TO_CAMERA = CAMERA_TO_ROBOT.inverse();
   }
 
   /**

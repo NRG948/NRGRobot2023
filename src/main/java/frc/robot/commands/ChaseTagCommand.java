@@ -4,7 +4,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -12,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.PhotonVisionSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -25,18 +25,6 @@ public class ChaseTagCommand extends CommandBase {
     private static final Transform3d TAG_TO_GOAL = new Transform3d(
             new Translation3d(1, 0, 0),
             new Rotation3d(0.0, 0.0, Math.PI));
-
-    /**
-     * A transform from the camera to the center of the robot.
-     */
-    public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
-            new Translation3d(Units.inchesToMeters(-28.0), Units.inchesToMeters(2.0), Units.inchesToMeters(-25.6)),
-            new Rotation3d());
-
-    /**
-     * A transform from the robot center to the camera.
-     */
-    public static final Transform3d ROBOT_TO_CAMERA = CAMERA_TO_ROBOT.inverse();
 
     private final PhotonVisionSubsystem photonVision;
     private final SwerveSubsystem swerveSubsystem;
@@ -89,12 +77,7 @@ public class ChaseTagCommand extends CommandBase {
     @Override
     public void execute() {
         // Get the current robot pose and map it to a 3-dimensional coordinate space.
-        var robotPose2d = swerveSubsystem.getPosition();
-        var robotPose3d = new Pose3d(
-                robotPose2d.getX(),
-                robotPose2d.getY(),
-                0.0,
-                new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
+        var robotPose3d = swerveSubsystem.getPosition3d();
 
         if (photonVision.hasTargets()) {
             // Find the tag we want to chase
@@ -112,7 +95,7 @@ public class ChaseTagCommand extends CommandBase {
                     var camToTarget = target.getBestCameraToTarget();
 
                     // Transform the robot's pose to find the tag's pose
-                    var cameraPose = robotPose3d.transformBy(CAMERA_TO_ROBOT);
+                    var cameraPose = robotPose3d.transformBy(RobotConstants.CAMERA_TO_ROBOT);
                     var targetPose = cameraPose.transformBy(camToTarget);
 
                     // Transform the tag's pose to set our goal
@@ -141,13 +124,13 @@ public class ChaseTagCommand extends CommandBase {
             ySpeed = 0;
         }
 
-        var omegaSpeed = omegaController.calculate(robotPose2d.getRotation().getRadians());
+        var omegaSpeed = omegaController.calculate(robotPose3d.toPose2d().getRotation().getRadians());
         if (omegaController.atGoal()) {
             omegaSpeed = 0;
         }
 
         swerveSubsystem.setChassisSpeeds(
-                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose2d.getRotation()));
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose3d.toPose2d().getRotation()));
     }
 
     @Override

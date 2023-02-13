@@ -23,6 +23,7 @@ import frc.robot.subsystems.SwerveSubsystem;
  */
 public class ProfiledDriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
+  private final double distance;
   private final Rotation2d heading;
   private final HolonomicDriveController controller;
   private final TrapezoidProfile profile;
@@ -91,12 +92,13 @@ public class ProfiledDriveStraight extends CommandBase {
   private ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
       Supplier<Rotation2d> poseSupplier) {
     this.drivetrain = drivetrain;
+    this.distance = translation.getNorm();
     this.heading = translation.getAngle();
     this.controller = drivetrain.createDriveController();
     this.orientationSupplier = poseSupplier;
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
-        new TrapezoidProfile.State(translation.getNorm(), 0));
+        new TrapezoidProfile.State(distance, 0));
 
     addRequirements(drivetrain);
   }
@@ -105,6 +107,7 @@ public class ProfiledDriveStraight extends CommandBase {
   public void initialize() {
     initialPose = drivetrain.getPosition();
     orientation = orientationSupplier.get();
+    System.out.println("BEGIN ProfiledDriveStraight intitialPose = " + initialPose + ", orientation = " + orientation + ", distance = " + distance + ", heading = " + heading);
     timer.reset();
     timer.start();
   }
@@ -136,5 +139,6 @@ public class ProfiledDriveStraight extends CommandBase {
   public void end(boolean interrupted) {
     drivetrain.stopMotors();
     timer.stop();
+    System.out.println("END ProfiledDriveStraight");
   }
 }
