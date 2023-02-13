@@ -85,7 +85,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
    * 
    * @return The angle to the best target.
    */
-  public double getBestAngleToTarget() {
+  public double getAngleToBestTarget() {
     if (!hasTargets()) {
       return 0;
     }
@@ -116,7 +116,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
         .withSize(2, 3);
     targetLayout.addBoolean("Has Target", this::hasTargets);
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
-    targetLayout.addDouble("Angle", this::getBestAngleToTarget);
+    targetLayout.addDouble("Angle", this::getAngleToBestTarget);
 
     VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream", HttpCameraKind.kMJPGStreamer);
     visionTab.add("PhotonVision", video)
