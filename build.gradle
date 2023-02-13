@@ -75,7 +75,7 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    implementation 'com.nrg948:nrgcommon:2023.2.1-SNAPSHOT'
+    implementation 'com.nrg948:nrgcommon:2023.3.0-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
