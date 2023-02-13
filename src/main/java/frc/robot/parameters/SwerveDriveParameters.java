@@ -51,7 +51,7 @@ public enum SwerveDriveParameters {
       new int[] { 1, 2, 3, 4, 7, 8, 5, 6 },
       new int[] { 9, 10, 12, 11 },
       new FeedforwardConstants(0.15928, 4.1384, 0.74797),
-      new FeedforwardConstants(0.85646, 0.037298, 0.0032558)), // TODO: Characterize steering.
+      new FeedforwardConstants(0.85646, 0.037298, 0.0032558)),
 
   /**
    * The 2023 practice robot using feedforward constants calculated from
