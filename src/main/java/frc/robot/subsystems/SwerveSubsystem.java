@@ -416,8 +416,15 @@ public class SwerveSubsystem extends SubsystemBase {
     return odometry.getPoseMeters();
   }
 
+  /**
+   * Returns the current position and orienation of the robot on the field in
+   * 3-dimensional space.
+   * 
+   * @return The current position and orientation in 3-dimensional space.
+   */
   public Pose3d getPosition3d() {
     Pose2d robotPose2d = getPosition();
+    
     return new Pose3d(
         robotPose2d.getX(),
         robotPose2d.getY(),

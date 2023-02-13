@@ -85,6 +85,16 @@ public final class Autos {
     return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation2(drivetrain));
   }
 
+  /**
+   * Returns a command sequence that drives the robot to the grid based on the
+   * detected AprilTag and selected alignment (left, center or right), and scores
+   * the acquired game element.
+   * 
+   * @param subsystems            The subsystems container.
+   * @param manipulatorController The manipulator's Xbox controller.
+   * 
+   * @return A command sequence to drive the robot to the grid and score.
+   */
   public static Command scoreToGrid(Subsystems subsystems, XboxController manipulatorController) {
     var target = subsystems.photonVision.getBestTarget();
     var cameraToTarget = target.getBestCameraToTarget();
@@ -96,6 +106,7 @@ public final class Autos {
     var targetPose = cameraPose.transformBy(cameraToTarget);
     System.out.println("TARGET POSE = " + targetPose);
 
+    // Determine the grid aligment y-offset for scoring on left, center or right.
     double yOffset = 0;
 
     int pov = manipulatorController.getPOV();
@@ -105,16 +116,22 @@ public final class Autos {
       yOffset = Units.inchesToMeters(-22);
     }
 
+    // Find the scoring position pose.
     var tagToGoal = new Transform3d(
-      new Translation3d(Units.inchesToMeters(15), yOffset, 0.0),
-      new Rotation3d(0, 0, Math.PI));
+        new Translation3d(Units.inchesToMeters(15), yOffset, 0.0),
+        new Rotation3d(0, 0, Math.PI));
     var goalPose = targetPose.transformBy(tagToGoal).toPose2d();
 
     System.out.println("GOAL POSE = " + goalPose);
 
-    return new ProfiledDriveStraight(subsystems.drivetrain,
-        new Translation2d(goalPose.getTranslation().getNorm(), goalPose.getTranslation().getAngle()),
-        subsystems.drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0));
+    Translation2d translationToGoal = goalPose.getTranslation();
+    Translation2d driveVector = new Translation2d(translationToGoal.getNorm(), translationToGoal.getAngle());
+
+    return Commands.sequence(
+        new ProfiledDriveStraight(subsystems.drivetrain, driveVector, subsystems.drivetrain.getMaxSpeed() * 0.5,
+            new Rotation2d(0))
+    // TODO: Add scoring sequence here
+    );
   }
 
   private Autos() {

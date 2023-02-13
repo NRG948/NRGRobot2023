@@ -50,6 +50,8 @@ public final class Constants {
 
     /**
      * A transform from the camera to the center of the robot.
+     * 
+     * TODO: Determine location of camera on the competition robot.
      */
     public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
             new Translation3d(Units.inchesToMeters(-28.0), Units.inchesToMeters(2.0), Units.inchesToMeters(-25.6)),
