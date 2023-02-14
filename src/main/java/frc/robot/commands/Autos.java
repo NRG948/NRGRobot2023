@@ -99,7 +99,9 @@ public final class Autos {
     double yOffset = 0;
 
     int pov = manipulatorController.getPOV();
-    if (pov >= 45 && pov <= 145) {
+    if (pov == 0) {
+      yOffset = Units.inchesToMeters(0);
+    } else if (pov >= 45 && pov <= 145) {
       yOffset = Units.inchesToMeters(22);
     } else if (pov >= 225 && pov <= 315) {
       yOffset = Units.inchesToMeters(-22);
@@ -107,7 +109,7 @@ public final class Autos {
 
     var tagToGoal = new Transform3d(
       new Translation3d(Units.inchesToMeters(15), yOffset, 0.0),
-      new Rotation3d(0, 0, Math.PI));
+      new Rotation3d(0, 0, 0)); //changed from Math.PI to 0;
     var goalPose = targetPose.transformBy(tagToGoal).toPose2d();
 
     System.out.println("GOAL POSE = " + goalPose);
