@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Subsystems;
 
@@ -84,7 +85,10 @@ public class RobotAutonomous {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return getSelectedDelayCommand().andThen(autonomousCommandChooser.getSelected());
+        // Use ProxyCommand to run the autonomous routine. This allow multiple runs of
+        // the same command with potentially different initial delays. It is mainly
+        // useful for debugging.
+        return getSelectedDelayCommand().andThen(new ProxyCommand(autonomousCommandChooser.getSelected()));
     }
 
     /**
