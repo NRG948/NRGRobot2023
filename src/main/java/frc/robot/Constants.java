@@ -77,7 +77,7 @@ public final class Constants {
      * 
      * TODO: Determine competition robot length.
      */
-    public static final double ROBOT_LENGTH = Units.inchesToMeters(38);
+    public static final double ROBOT_LENGTH = Units.inchesToMeters(39);
 
     /**
      * The offset from the center of the grid to side scoring position.
