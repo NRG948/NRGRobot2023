@@ -7,10 +7,14 @@ package frc.robot;
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -115,9 +119,8 @@ public class RobotContainer {
     manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
     manipulatorController.x().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
     manipulatorController.rightBumper().whileTrue(Commands.sequence(
-      new WaitUntilCommand(()-> subsystems.photonVision.hasTargets()),
-      new ProxyCommand(()-> Autos.scoreToGrid(subsystems, manipulatorController.getHID()))
-    ));
+        new WaitUntilCommand(() -> subsystems.photonVision.hasTargets()),
+        new ProxyCommand(() -> Autos.scoreToGrid(subsystems, manipulatorController.getHID()))));
 
   }
 
@@ -140,30 +143,35 @@ public class RobotContainer {
         .withPosition(0, 0)
         .withSize(2, 3);
 
+    VideoSource video = new HttpCamera(
+        "photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream", HttpCameraKind.kMJPGStreamer);
+    operatorTab.add("PhotonVision", video)
+        .withWidget(BuiltInWidgets.kCameraStream)
+        .withPosition(2, 0)
+        .withSize(4, 3);
+
     ShuffleboardLayout gridLayout = operatorTab.getLayout("Grid", BuiltInLayouts.kGrid)
         .withPosition(6, 0)
-        .withSize(3,3);
+        .withSize(3, 3);
 
-    gridLayout.addBoolean("Left High", ()-> manipulatorController.getHID().getPOV() == 315)
-      .withPosition(0,0);
-    gridLayout.addBoolean("Left Mid", ()-> manipulatorController.getHID().getPOV() == 270)
-      .withPosition(0,1);
-    gridLayout.addBoolean("Left Low", ()-> manipulatorController.getHID().getPOV() == 225)
-      .withPosition(0,2);
-    gridLayout.addBoolean("Center High", ()-> manipulatorController.getHID().getPOV() == 0)
-      .withPosition(1,0);
-    gridLayout.addBoolean("Center Mid", ()-> manipulatorController.getHID().getPOV() == -1)
-      .withPosition(1, 1);
-    gridLayout.addBoolean("Center Low", ()-> manipulatorController.getHID().getPOV() == 180)
-      .withPosition(1, 2);
-    gridLayout.addBoolean("Right High", ()-> manipulatorController.getHID().getPOV() == 45)
-      .withPosition(2, 0);
-    gridLayout.addBoolean("Right Mid", ()-> manipulatorController.getHID().getPOV() == 90)
-      .withPosition(2, 1);
-    gridLayout.addBoolean("Right Low", ()-> manipulatorController.getHID().getPOV() == 135)
-      .withPosition(2, 2);
-
-
+    gridLayout.addBoolean("Left High", () -> manipulatorController.getHID().getPOV() == 315)
+        .withPosition(0, 0);
+    gridLayout.addBoolean("Left Mid", () -> manipulatorController.getHID().getPOV() == 270)
+        .withPosition(0, 1);
+    gridLayout.addBoolean("Left Low", () -> manipulatorController.getHID().getPOV() == 225)
+        .withPosition(0, 2);
+    gridLayout.addBoolean("Center High", () -> manipulatorController.getHID().getPOV() == 0)
+        .withPosition(1, 0);
+    gridLayout.addBoolean("Center Mid", () -> manipulatorController.getHID().getPOV() == -1)
+        .withPosition(1, 1);
+    gridLayout.addBoolean("Center Low", () -> manipulatorController.getHID().getPOV() == 180)
+        .withPosition(1, 2);
+    gridLayout.addBoolean("Right High", () -> manipulatorController.getHID().getPOV() == 45)
+        .withPosition(2, 0);
+    gridLayout.addBoolean("Right Mid", () -> manipulatorController.getHID().getPOV() == 90)
+        .withPosition(2, 1);
+    gridLayout.addBoolean("Right Low", () -> manipulatorController.getHID().getPOV() == 135)
+        .withPosition(2, 2);
 
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
