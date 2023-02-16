@@ -120,8 +120,8 @@ public class ProfiledDriveStraight extends CommandBase {
 
     // Determine the next position on the field by offsetting the initial position
     // by the distance moved along the line of travel.
-    Translation2d offset = new Translation2d(state.position, 0.0);
-    Pose2d nextPose = initialPose.plus(new Transform2d(offset, heading));
+    Translation2d offset = new Translation2d(state.position, heading);
+    Pose2d nextPose = new Pose2d(initialPose.getTranslation().plus(offset), heading);
 
     // Calculate the swerve drive modules states needed to reach the next state.
     ChassisSpeeds speeds = controller.calculate(drivetrain.getPosition(), nextPose, state.velocity,
