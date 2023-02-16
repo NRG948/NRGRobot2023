@@ -70,7 +70,7 @@ public final class Constants {
      * A constant representing the distance from the grid to position the robot for
      * scoring a game element.
      */
-    public static final double SCORING_DISTANCE_FROM_GRID = Units.inchesToMeters(15);
+    public static final double SCORING_DISTANCE_FROM_GRID = Units.inchesToMeters(16);
 
     /**
      * The robot length including bumpers.
