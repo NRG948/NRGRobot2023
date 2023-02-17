@@ -32,7 +32,7 @@ import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveWithController;
-import frc.robot.commands.ProfiledDriveStraight;
+import frc.robot.commands.DriveStraight;
 import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.Subsystems;
 
@@ -92,11 +92,11 @@ public class RobotContainer {
   private void configureCommandBindings() {
 
     driveController.a().onTrue(
-        new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
+        new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     driveController.b().onTrue(
-        new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
+        new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain));

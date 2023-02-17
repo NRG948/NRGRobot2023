@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -21,7 +20,7 @@ import frc.robot.subsystems.SwerveSubsystem;
  * A command to drive the robot on a straight line in using trapezoidal motion
  * profiling.
  */
-public class ProfiledDriveStraight extends CommandBase {
+public class DriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
   private final double distance;
   private final Rotation2d heading;
@@ -41,7 +40,7 @@ public class ProfiledDriveStraight extends CommandBase {
    *                    which to travel. This is a vector relative to the current
    *                    position.
    */
-  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
+  public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
     this(drivetrain, translation, drivetrain.getMaxSpeed());
   }
 
@@ -55,7 +54,7 @@ public class ProfiledDriveStraight extends CommandBase {
    *                    position.
    * @param maxSpeed    The maximum speed at which to travel.
    */
-  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
+  public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
     this(drivetrain, translation, maxSpeed, () -> drivetrain.getPosition().getRotation());
   }
 
@@ -70,7 +69,7 @@ public class ProfiledDriveStraight extends CommandBase {
    * @param maxSpeed    The maximum speed at which to travel.
    * @param orientation The desired orientation at the end of the command.
    */
-  public ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
+  public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
       Rotation2d desiredOrientation) {
     this(drivetrain, translation, maxSpeed, () -> desiredOrientation);
   }
@@ -89,7 +88,7 @@ public class ProfiledDriveStraight extends CommandBase {
    * @param orientationSupplier Supplies the desired orientation at the end of the
    *                            command.
    */
-  private ProfiledDriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
+  private DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
       Supplier<Rotation2d> poseSupplier) {
     this.drivetrain = drivetrain;
     this.distance = translation.getNorm();
