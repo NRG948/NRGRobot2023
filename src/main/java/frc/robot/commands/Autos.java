@@ -84,6 +84,27 @@ public final class Autos {
     return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation2(drivetrain));
   }
 
+  @AutonomousCommandMethod(name = "Right Start")
+    public static CommandBase followRightPath(Subsystems subsystems) {
+      SwerveSubsystem drivetrain = subsystems.drivetrain;
+      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
+        "Right Start",
+        new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+        drivetrain::getPosition,
+        drivetrain::resetPosition,
+        drivetrain.getKinematics(),
+        new PIDConstants(1.0, 0, 0),
+        new PIDConstants(1.0, 0, 0),
+        drivetrain::setModuleStates,
+        Map.of(),
+        true,
+        drivetrain);
+
+
+        return autoBuilder.fullAuto(pathGroup);
+    } 
+
   /**
    * Returns a command sequence that drives the robot to the grid based on the
    * detected AprilTag and selected alignment (left, center or right), and scores
