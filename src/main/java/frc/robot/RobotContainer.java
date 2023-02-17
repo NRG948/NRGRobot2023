@@ -8,8 +8,8 @@ import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
-import frc.robot.commands.AssistedBalanceOnChargeStation;
 import frc.robot.commands.AutoBalanceOnChargeStation2;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
@@ -100,7 +99,7 @@ public class RobotContainer {
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation2(subsystems.drivetrain)));
-    driveController.x().whileTrue(new AssistedBalanceOnChargeStation(subsystems.drivetrain));
+    driveController.x().whileTrue(new AutoBalanceOnChargeStation2(subsystems.drivetrain));
 
     driveController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());
