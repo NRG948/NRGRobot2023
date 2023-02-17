@@ -81,7 +81,7 @@ public final class Autos {
         true,
         drivetrain);
 
-    return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation2(drivetrain));
+    return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation(drivetrain));
   }
 
   @AutonomousCommandMethod(name = "Right Start")

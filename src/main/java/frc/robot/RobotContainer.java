@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
-import frc.robot.commands.AutoBalanceOnChargeStation2;
+import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveWithController;
@@ -94,12 +94,12 @@ public class RobotContainer {
     driveController.a().onTrue(
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-            .andThen(new AutoBalanceOnChargeStation2(subsystems.drivetrain)));
+            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     driveController.b().onTrue(
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-            .andThen(new AutoBalanceOnChargeStation2(subsystems.drivetrain)));
-    driveController.x().whileTrue(new AutoBalanceOnChargeStation2(subsystems.drivetrain));
+            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
+    driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain));
 
     driveController.y().onTrue(new InstantCommand(() -> {
       int red = (int) (255 * Math.random());

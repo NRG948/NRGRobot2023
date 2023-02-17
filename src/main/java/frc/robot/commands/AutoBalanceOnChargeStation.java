@@ -20,7 +20,7 @@ import frc.robot.subsystems.SwerveSubsystem;
  * robot has been driven at least partially onto the charging station.
  */
 @RobotPreferencesLayout(groupName = "Auto Balance", row = 0, column = 2, width = 2, height = 3)
-public class AutoBalanceOnChargeStation2 extends CommandBase {
+public class AutoBalanceOnChargeStation extends CommandBase {
   private static final String PREFERENCES_GROUP = "Auto Balance";
 
   @RobotPreferencesValue
@@ -55,7 +55,7 @@ public class AutoBalanceOnChargeStation2 extends CommandBase {
   private double maxSpeed;
 
   /** Creates a new AutoBalanceOnChargeStation2. */
-  public AutoBalanceOnChargeStation2(SwerveSubsystem drivetrain) {
+  public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain) {
     this.drivetrain = drivetrain;
 
     addRequirements(this.drivetrain);
