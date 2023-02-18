@@ -69,9 +69,12 @@ public class DriveStraight extends CommandBase {
    * @param maxSpeed    The maximum speed at which to travel.
    * @param orientation The desired orientation at the end of the command.
    */
-  public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
-      Rotation2d desiredOrientation) {
-    this(drivetrain, translation, maxSpeed, () -> desiredOrientation);
+  public DriveStraight(
+      SwerveSubsystem drivetrain,
+      Translation2d translation,
+      double maxSpeed,
+      Rotation2d orientation) {
+    this(drivetrain, translation, maxSpeed, () -> orientation);
   }
 
   /**
@@ -88,13 +91,16 @@ public class DriveStraight extends CommandBase {
    * @param orientationSupplier Supplies the desired orientation at the end of the
    *                            command.
    */
-  private DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed,
-      Supplier<Rotation2d> poseSupplier) {
+  private DriveStraight(
+      SwerveSubsystem drivetrain,
+      Translation2d translation,
+      double maxSpeed,
+      Supplier<Rotation2d> orientationSupplier) {
     this.drivetrain = drivetrain;
     this.distance = translation.getNorm();
     this.heading = translation.getAngle();
     this.controller = drivetrain.createDriveController();
-    this.orientationSupplier = poseSupplier;
+    this.orientationSupplier = orientationSupplier;
     this.profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
         new TrapezoidProfile.State(distance, 0));
@@ -106,7 +112,8 @@ public class DriveStraight extends CommandBase {
   public void initialize() {
     initialPose = drivetrain.getPosition();
     orientation = orientationSupplier.get();
-    System.out.println("BEGIN ProfiledDriveStraight intitialPose = " + initialPose + ", orientation = " + orientation + ", distance = " + distance + ", heading = " + heading);
+    System.out.println("BEGIN ProfiledDriveStraight intitialPose = " + initialPose + ", orientation = " + orientation
+        + ", distance = " + distance + ", heading = " + heading);
     timer.reset();
     timer.start();
   }
@@ -123,8 +130,8 @@ public class DriveStraight extends CommandBase {
     Pose2d nextPose = new Pose2d(initialPose.getTranslation().plus(offset), heading);
 
     // Calculate the swerve drive modules states needed to reach the next state.
-    ChassisSpeeds speeds = controller.calculate(drivetrain.getPosition(), nextPose, state.velocity,
-        orientation);
+    ChassisSpeeds speeds = controller.calculate(
+        drivetrain.getPosition(), nextPose, state.velocity, orientation);
 
     drivetrain.setChassisSpeeds(speeds);
   }
