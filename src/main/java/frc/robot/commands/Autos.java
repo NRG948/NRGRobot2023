@@ -4,8 +4,13 @@
 
 package frc.robot.commands;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.javatuples.LabelValue;
 
 import com.nrg948.autonomous.AutonomousCommandMethod;
 import com.pathplanner.lib.PathConstraints;
@@ -20,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -63,47 +69,6 @@ public final class Autos {
         new ProfiledDriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)),
             subsystems.drivetrain.getMaxSpeed() * 0.5, Rotation2d.fromDegrees(-90.0)));
   }
-
-  @AutonomousCommandMethod(name = "Test Path")
-  public static CommandBase followTestPath(Subsystems subsystems) {
-    SwerveSubsystem drivetrain = subsystems.drivetrain;
-    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
-        "Test",
-        new PathConstraints(drivetrain.getMaxSpeed() * 0.5, drivetrain.getMaxAcceleration()));
-    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-        drivetrain::getPosition,
-        drivetrain::resetPosition,
-        drivetrain.getKinematics(),
-        new PIDConstants(1.0, 0, 0),
-        new PIDConstants(1.0, 0, 0),
-        drivetrain::setModuleStates,
-        Map.of(),
-        true,
-        drivetrain);
-
-    return autoBuilder.fullAuto(pathGroup).andThen(new AutoBalanceOnChargeStation2(drivetrain));
-  }
-
-  @AutonomousCommandMethod(name = "Right Start")
-    public static CommandBase followRightPath(Subsystems subsystems) {
-      SwerveSubsystem drivetrain = subsystems.drivetrain;
-      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
-        "Right Start",
-        new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
-    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-        drivetrain::getPosition,
-        drivetrain::resetPosition,
-        drivetrain.getKinematics(),
-        new PIDConstants(1.0, 0, 0),
-        new PIDConstants(1.0, 0, 0),
-        drivetrain::setModuleStates,
-        Map.of(),
-        true,
-        drivetrain);
-
-
-        return autoBuilder.fullAuto(pathGroup);
-    } 
 
   /**
    * Returns a command sequence that drives the robot to the grid based on the
@@ -164,6 +129,41 @@ public final class Autos {
         new ProfiledDriveStraight(drivetrain, driveVector, drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0))
     // TODO: Add scoring sequence here
     );
+  }
+
+  /**
+   * Returns a collection of pathfinder commands.
+   * 
+   * @param subsystems The subsystems container.
+   * 
+   * @return Collection of pathfinder commands.
+   */
+  public static Collection<LabelValue<String, Command>> getPathfinderCommands(Subsystems subsystems) {
+    File deployDir = Filesystem.getDeployDirectory();
+    File pathfinderDir = new File(deployDir, "pathplanner");
+    ArrayList<LabelValue<String, Command>> commands = new ArrayList<>();
+    File[] files = pathfinderDir.listFiles((dir, fileName) -> fileName.endsWith(".path"));
+    for (File file : files) {
+      String fileName = file.getName();
+      SwerveSubsystem drivetrain = subsystems.drivetrain;
+      String pathName = fileName.substring(0, fileName.lastIndexOf("."));
+      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
+          pathName,
+          new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
+      SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+          drivetrain::getPosition,
+          drivetrain::resetPosition,
+          drivetrain.getKinematics(),
+          new PIDConstants(1.0, 0, 0),
+          new PIDConstants(1.0, 0, 0),
+          drivetrain::setModuleStates,
+          Map.of(),
+          true,
+          drivetrain);
+      commands.add(new LabelValue<String, Command>(pathName, autoBuilder.fullAuto(pathGroup)));
+    }
+
+    return commands;
   }
 
   private Autos() {

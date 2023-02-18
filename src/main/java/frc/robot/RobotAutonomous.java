@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.Autos;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -71,6 +72,9 @@ public class RobotAutonomous {
         this.subsystems = subsystems;
 
         autonomousCommandChooser = Autonomous.getChooser(this.subsystems, "frc.robot");
+        Autos.getPathfinderCommands(subsystems)
+                .stream()
+                .forEach(path -> autonomousCommandChooser.addOption(path.getLabel(), path.getValue()));
 
         for (ChooseAutoDelay delay : EnumSet.allOf(ChooseAutoDelay.class)) {
             autoDelayChooser.addOption(delay.toString(), delay);
