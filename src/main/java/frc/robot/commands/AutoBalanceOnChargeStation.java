@@ -4,87 +4,124 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesLayout;
+import com.nrg948.preferences.RobotPreferencesValue;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveSubsystem;
 
 /**
- * Command which balances the robot on the charge station at the end of auto.
+ * A command that balances the robot on the charging station. It assumes the
+ * robot has been driven at least partially onto the charging station.
  */
+@RobotPreferencesLayout(groupName = "Auto Balance", row = 0, column = 2, width = 2, height = 3)
 public class AutoBalanceOnChargeStation extends CommandBase {
+  private static final String PREFERENCES_GROUP = "Auto Balance";
 
-  private static final double CLIMB_SPEED = 0.25;
-  private static final double APPROACH_SPEED = 0.5; // speed for approaching charge station, higher for momentum
-  private static final double BALANCE_THRESHOLD = 2.0; // degrees, "balanced" if within +/- BALANCE_THRESHOLD.
-  private static final double MAX_TILT = 15; // maxmimum incline of the charge station
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue INITIAL_SPEED_PERCENT = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "Initial Speed", 0.35);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue MAX_SPEED_PERCENT = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "Speed", 0.20);
 
-  private SwerveSubsystem drivetrain;
-  private boolean isDrivingForward;
-  private boolean wasTiltedUp;
-  private double previousSpeed;
-  private int pauseCounter;
-  private Rotation2d tiltAngle;
+  /*
+   * The PID constants were derived using the Zeigler-Nichols tuning method. We
+   * started with a kP of 0.7 and measured an oscillation period of 2.26733
+   * seconds.
+   */
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue ANGLE_KP = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "KP", 0.042);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue ANGLE_KI = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "KI", 0.037047927);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "KD", 0.0119035);
 
-  /** Creates a new AutoBalanceOnChargeStation command. */
-  public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain, boolean isDrivingForward) {
+  private static final double TIME_AT_LEVEL = 0.2;
+
+  private final SwerveSubsystem drivetrain;
+  private final Timer timer = new Timer();
+
+  private PIDController anglePID;
+  private boolean wasLevel;
+  private double maxSpeed;
+
+  /** Creates a new AutoBalanceOnChargeStation2. */
+  public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain) {
     this.drivetrain = drivetrain;
-    this.isDrivingForward = isDrivingForward;
-    addRequirements(drivetrain);
+
+    addRequirements(this.drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    wasTiltedUp = false;
-    previousSpeed = 0;
-    pauseCounter = 0;
+    maxSpeed = this.drivetrain.getMaxSpeed() * INITIAL_SPEED_PERCENT.getValue();
+
+    anglePID = new PIDController(ANGLE_KP.getValue(), 0, ANGLE_KD.getValue());
+    anglePID.setSetpoint(0);
+    anglePID.setTolerance(2.0);
+    anglePID.reset();
+    timer.reset();
+
+    wasLevel = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    tiltAngle = drivetrain.getTilt();
-    double currentSpeed;
+    double measuredAngle = drivetrain.getTilt().getDegrees();
 
-    if (!wasTiltedUp) {
-      // If the robot has never gotten onto the charge station, the robot drives
-      // foward at approach speed
-      currentSpeed = isDrivingForward ? APPROACH_SPEED : -APPROACH_SPEED;
-      wasTiltedUp = Math.abs(tiltAngle.getDegrees()) > 9;
-    } else {
-      currentSpeed = calculateSpeed(tiltAngle.getDegrees());
+    if (measuredAngle <= 2.0) {
+      maxSpeed = MAX_SPEED_PERCENT.getValue();
     }
 
-    if (previousSpeed != 0 && currentSpeed == 0) {
-      pauseCounter = 50; // Pause for 1s (50*20ms)
-    }
-    if (pauseCounter > 0) {
-      currentSpeed = 0;
-      pauseCounter--;
+    double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
+    SmartDashboard.putNumber("Tilt", measuredAngle);
+    SmartDashboard.putNumber("Speed", speed);
+
+    if (anglePID.atSetpoint()) {
+      drivetrain.stopMotors();
+      return;
     }
 
-    drivetrain.drive(currentSpeed, 0, 0, false);
-    previousSpeed = currentSpeed;
-  }
+    ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        speed, 0.0, 0.0, drivetrain.getOrientation());
 
-  // proportionally map the tilt angle to speed
-  private double calculateSpeed(double tiltAngle) {
-    if (Math.abs(tiltAngle) <= BALANCE_THRESHOLD) {
-      return 0;
-    }
-    return tiltAngle / MAX_TILT * CLIMB_SPEED;
+    drivetrain.setChassisSpeeds(chassisSpeeds, true);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drivetrain.stopMotors();
+    timer.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return pauseCounter == 1 && Math.abs(tiltAngle.getDegrees()) <= BALANCE_THRESHOLD; // ends command if balanced for
-                                                                                       // 1s
+    boolean level = anglePID.atSetpoint();
+
+    if (level != wasLevel) {
+      if (!level) {
+        timer.stop();
+      } else {
+        timer.reset();
+        timer.start();
+      }
+
+      wasLevel = level;
+    }
+
+    return timer.hasElapsed(TIME_AT_LEVEL);
   }
 }
