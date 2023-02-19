@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,9 +29,9 @@ import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.ChaseTagCommand;
+import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.Scoring;
-import frc.robot.commands.DriveStraight;
 import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.Subsystems;
 
@@ -101,7 +100,7 @@ public class RobotContainer {
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain));
 
-    driveController.y().onTrue(new InstantCommand(() -> {
+    driveController.y().onTrue(Commands.runOnce(() -> {
       int red = (int) (255 * Math.random());
       int green = (int) (255 * Math.random());
       int blue = (int) (255 * Math.random());
@@ -112,11 +111,11 @@ public class RobotContainer {
 
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
-    driveController.start().onTrue(new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
+    driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 
-    manipulatorController.a().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.OPEN)));
-    manipulatorController.b().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CUBE)));
-    manipulatorController.x().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
+    manipulatorController.a().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN)));
+    manipulatorController.b().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CUBE)));
+    manipulatorController.x().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CONE)));
     manipulatorController.rightBumper().whileTrue(Commands.sequence(
         new WaitUntilCommand(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));

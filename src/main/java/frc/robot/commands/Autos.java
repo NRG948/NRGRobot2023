@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -35,7 +34,7 @@ public final class Autos {
   @AutonomousCommandMethod(name = "Follow S-Curve Path")
   public static CommandBase followSCurvePath(Subsystems subsystems) {
     return Commands.sequence(
-        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         FollowTrajectory.fromWaypoints(
             subsystems.drivetrain,
             new Pose2d(0, 0, new Rotation2d(0)),
@@ -47,21 +46,21 @@ public final class Autos {
   @AutonomousCommandMethod(name = "Drive Straight For 3 Meters")
   public static CommandBase driveStraight3Meters(Subsystems subsystems) {
     return Commands.sequence(
-        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0))));
   }
 
   @AutonomousCommandMethod(name = "Drive Diagonal For 3 Meters")
   public static CommandBase driveDiagonal3Meters(Subsystems subsystems) {
     return Commands.sequence(
-        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(45.0))));
   }
 
   @AutonomousCommandMethod(name = "Drive Straight For 3 Meters and Rotate")
   public static CommandBase driveStraight3MetersAndRotate(Subsystems subsystems) {
     return Commands.sequence(
-        new InstantCommand(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
+        Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)),
             subsystems.drivetrain.getMaxSpeed() * 0.5, Rotation2d.fromDegrees(-90.0)));
   }
