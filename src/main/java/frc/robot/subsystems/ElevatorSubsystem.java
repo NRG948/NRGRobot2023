@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
 import frc.robot.parameters.MotorParameters;
+import frc.robot.subsystems.ClawSubsystem.Position;
 
 /**
  * The elevator subsystem is responsible for setting the claw position for
@@ -103,6 +104,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.reset();
     timer.start();
   }
+  
+  /**
+   * Returns whether the elevator is at the goal state.
+   * 
+   * @return true if the elevator is at the goal state.
+   */
+  public boolean atGoal() {
+    return pidController.atGoal();
+  }
 
   /**
    * Sets the motor voltage.
@@ -127,6 +137,16 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public double getPosition() {
     return currentPosition;
+  }
+
+  /**
+   * Returns whether the elevator is at the specified state.
+   * 
+   * @param state The state to check.
+   * @return True if the elevator is at the specified state.
+   */
+  public boolean atPosition(GoalState state) {
+    return Math.abs(currentPosition - state.getPosition()) <= 25; //TODO: determine tolerance with real units
   }
 
   /**

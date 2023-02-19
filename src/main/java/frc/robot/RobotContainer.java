@@ -29,9 +29,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.Scoring;
 import frc.robot.commands.DriveStraight;
 import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.Subsystems;
@@ -119,7 +119,7 @@ public class RobotContainer {
     manipulatorController.x().onTrue(new InstantCommand(() -> subsystems.claw.set(Position.GRAB_CONE)));
     manipulatorController.rightBumper().whileTrue(Commands.sequence(
         new WaitUntilCommand(() -> subsystems.photonVision.hasTargets()),
-        new ProxyCommand(() -> Autos.scoreToGrid(subsystems, manipulatorController.getHID()))));
+        new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));
 
   }
 

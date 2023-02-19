@@ -70,6 +70,15 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns whether the elevator is at the goal angle.
+   * 
+   * @return True if the elevator is at the goal angle.
+   */
+  public boolean atGoalAngle() {
+    return motorPower > 0 ? currentAngle >= goalAngle.getAngle() : currentAngle <= goalAngle.getAngle();
+  }
+
+  /**
    * Gets the current elevator angle.
    * 
    * @return the current elevator angle.
@@ -84,7 +93,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     currentAngle = encoder.getPosition() - angleOffset;
 
     // shut off motor if past the desired angle
-    if (motorPower > 0 ? currentAngle >= goalAngle.getAngle() : currentAngle <= goalAngle.getAngle()) {
+    if (atGoalAngle()) {
       motorPower = 0;
     }
 
@@ -94,4 +103,6 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
       motor.set(motorPower);
     }
   }
+
+
 }
