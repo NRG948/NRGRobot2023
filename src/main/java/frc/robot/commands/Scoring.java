@@ -141,7 +141,7 @@ public class Scoring {
         // when it flips over to the acquiring position.
         Commands.either(
             Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_MID), elevator)
-                .until(() -> subsystems.elevator.atGoal()),
+                .until(() -> elevator.atGoal()),
             Commands.none(),
             () -> elevator.atPosition(GoalState.SCORE_HIGH)),
         // Ensure the claw is open, and set the elevator angle and position to acquire
