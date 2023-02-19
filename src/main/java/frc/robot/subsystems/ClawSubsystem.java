@@ -16,12 +16,12 @@ public class ClawSubsystem extends SubsystemBase {
 
   /** An enumeration of possible claw positions. */
   public enum Position {
-    // three action instances for the claw
+    // three position instances for the claw
     OPEN(90),
     GRAB_CONE(60),
     GRAB_CUBE(70);
 
-    private final double angle;
+    private final double angle;  // The servo angle (0-180 degree range)
 
     /**
      * Creates a Position instance.
@@ -33,7 +33,7 @@ public class ClawSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the servo motor angle.
+     * Returns the servo motor angle in degrees (0-180).
      * 
      * @return
      */
@@ -50,13 +50,13 @@ public class ClawSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the claw position.
+   * Sets the claw servo to a desired claw position.
    * 
-   * @param action The claw position.
+   * @param position The claw position.
    */
-  public void set(Position action) {
-    servo.setAngle(action.getAngle());
-    System.out.println("Servo Angle: " + action.getAngle());
+  public void set(Position position) {
+    servo.setAngle(position.getAngle());
+    System.out.println("Servo Angle: " + position.getAngle());
   }
 
   @Override
