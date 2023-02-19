@@ -112,11 +112,11 @@ public class Scoring {
         // the upper crossbar.
         Commands.parallel(
             Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
-            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator))
-            .until(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
+            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator)),
+        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
         // Raise the elevator to the desired scoring elevation.
-        Commands.runOnce(() -> elevator.setGoal(target), elevator)
-            .until(() -> elevator.atGoal()),
+        Commands.runOnce(() -> elevator.setGoal(target), elevator),
+        Commands.waitUntil(() -> elevator.atGoal()),
         // Open the claw and wait for the game piece to fall out.
         Commands.runOnce(() -> claw.set(Position.OPEN), claw),
         // TODO: Use color sensor to detect game piece is no longer present.
@@ -141,7 +141,7 @@ public class Scoring {
         // when it flips over to the acquiring position.
         Commands.either(
             Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_MID), elevator)
-                .until(() -> elevator.atGoal()),
+                .andThen(Commands.waitUntil(() -> elevator.atGoal())),
             Commands.none(),
             () -> elevator.atPosition(GoalState.SCORE_HIGH)),
         // Ensure the claw is open, and set the elevator angle and position to acquire
@@ -149,8 +149,8 @@ public class Scoring {
         Commands.parallel(
             Commands.runOnce(() -> claw.set(Position.OPEN), claw),
             Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
-            Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator))
-            .until(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()));
+            Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator)),
+        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()));
   }
 
 }
