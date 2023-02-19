@@ -118,7 +118,8 @@ public class PhotonVisionSubsystem extends SubsystemBase {
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
     targetLayout.addDouble("Angle", this::getAngleToBestTarget);
 
-    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream", HttpCameraKind.kMJPGStreamer);
+    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream",
+        HttpCameraKind.kMJPGStreamer);
     visionTab.add("PhotonVision", video)
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)

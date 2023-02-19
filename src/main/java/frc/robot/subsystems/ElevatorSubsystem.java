@@ -104,7 +104,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.reset();
     timer.start();
   }
-  
+
   /**
    * Returns whether the elevator is at the goal state.
    * 
@@ -146,7 +146,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @return True if the elevator is at the specified state.
    */
   public boolean atPosition(GoalState state) {
-    return Math.abs(currentPosition - state.getPosition()) <= 25; //TODO: determine tolerance with real units
+    return Math.abs(currentPosition - state.getPosition()) <= 25; // TODO: determine tolerance with real units
   }
 
   /**

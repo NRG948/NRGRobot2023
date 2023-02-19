@@ -424,7 +424,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Pose3d getPosition3d() {
     Pose2d robotPose2d = getPosition();
-    
+
     return new Pose3d(
         robotPose2d.getX(),
         robotPose2d.getY(),
