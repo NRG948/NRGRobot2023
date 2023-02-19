@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 /** Add your docs here. */
 public class MatchLogger {
 
-    private static DriverStation driverStation; // creates a drivers station
     // TODO: Research if we need to create some sort of instance of the drivers
     // station...
 

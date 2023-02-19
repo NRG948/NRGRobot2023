@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
 import frc.robot.parameters.MotorParameters;
-import frc.robot.subsystems.ClawSubsystem.Position;
 
 /**
  * The elevator subsystem is responsible for setting the claw position for
