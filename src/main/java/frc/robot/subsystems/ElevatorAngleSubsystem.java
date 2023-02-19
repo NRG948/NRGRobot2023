@@ -21,7 +21,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
     ACQUIRING(30),
-    // STOWED(90),
+    STOWED(90),
     SCORING(120);
 
     private final double angle;
@@ -30,6 +30,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
       this.angle = angle;
     }
 
+    /** Returns elevator angle in degrees.*/
     private double getAngle() {
       return angle;
     }
@@ -46,15 +47,24 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR_ANGLE, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
   private double angleOffset; // record encoder's current position
-  private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
+  private ElevatorAngle goalAngle = ElevatorAngle.STOWED;
   private double motorPower = 0;
-  private double currentAngle = ElevatorAngle.ACQUIRING.getAngle(); // start as acquiring
+  private double currentAngle = ElevatorAngle.STOWED.getAngle(); // start as stowed
+  private boolean isPeriodicControlEnabled = false;
 
   /** Creates a new ElevatorAngleSubsystem. */
   public ElevatorAngleSubsystem() {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
-    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getAngle();
+    angleOffset = encoder.getPosition() - ElevatorAngle.STOWED.getAngle();
+  }
+
+  public void setMotor(double power) {
+    if (power == 0) {
+      motor.stopMotor();
+    } else {
+      motor.set(power);
+    }
   }
 
   /**
@@ -79,7 +89,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   }
 
   /**
-   * Gets the current elevator angle.
+   * Gets the current elevator angle in degrees.
    * 
    * @return the current elevator angle.
    */
@@ -87,21 +97,24 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     return currentAngle;
   }
 
+  /** Enables periodic control. */
+  public void enablePeriodicControl(boolean isEnabled){
+    isPeriodicControlEnabled = isEnabled;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (!isPeriodicControlEnabled){
+      return;
+    }
     currentAngle = encoder.getPosition() - angleOffset;
 
-    // shut off motor if past the desired angle
+    // Shut off motor if at the desired angle.
     if (atGoalAngle()) {
       motorPower = 0;
     }
-
-    if (motorPower == 0) {
-      motor.stopMotor();
-    } else {
-      motor.set(motorPower);
-    }
+    setMotor(motorPower);
   }
 
 }
