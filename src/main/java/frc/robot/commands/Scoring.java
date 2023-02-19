@@ -78,8 +78,7 @@ public class Scoring {
     if (pov != -1) {
       if (pov <= 45 || pov >= 315) {
         targetState = GoalState.SCORE_LOW;
-      } 
-      else if (pov >= 135 && pov <= 225) {
+      } else if (pov >= 135 && pov <= 225) {
         targetState = GoalState.SCORE_HIGH;
       }
     }
@@ -117,7 +116,8 @@ public class Scoring {
    * Set the elevator and claw to acquiring position.
    * 
    * @param subsystems The Subsytems container.
-   * @return A command sequence to set the elevator and claw to acquiring position.
+   * @return A command sequence to set the elevator and claw to acquiring
+   *         position.
    */
   public static Command prepareToAcquire(Subsystems subsystems) {
     return Commands.sequence(
