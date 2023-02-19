@@ -15,6 +15,9 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
 import frc.robot.subsystems.ElevatorSubsystem.GoalState;
+import frc.robot.subsystems.ClawSubsystem;
+import frc.robot.subsystems.ElevatorAngleSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.Subsystems;
 
 /** Add your docs here. */
@@ -87,7 +90,6 @@ public class Scoring {
         new DriveStraight(drivetrain, driveVector, drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0)),
         scoreGamePiece(subsystems, targetState),
         prepareToAcquire(subsystems)
-    // TODO: Add scoring sequence here
     );
   }
 
@@ -100,15 +102,24 @@ public class Scoring {
    * @return A command sequence to automate scoring the game piece.
    */
   public static Command scoreGamePiece(Subsystems subsystems, GoalState target) {
+    ClawSubsystem claw = subsystems.claw;
+    ElevatorSubsystem elevator = subsystems.elevator;
+    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
+
     return Commands.sequence(
+        // Set the elevator angle to scoring position and being raising the elevator to
+        // at least the low scoring position so the claw arm will flip over but clear
+        // the upper crossbar.
         Commands.parallel(
-            Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.SCORING),
-                subsystems.elevatorAngle),
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_LOW), subsystems.elevator))
-            .until(() -> subsystems.elevatorAngle.atGoalAngle() && subsystems.elevator.atGoal()),
-        Commands.runOnce(() -> subsystems.elevator.setGoal(target), subsystems.elevator)
-            .until(() -> subsystems.elevator.atGoal()),
-        Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
+            Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
+            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator))
+            .until(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
+        // Raise the elevator to the desired scoring elevation.
+        Commands.runOnce(() -> elevator.setGoal(target), elevator)
+            .until(() -> elevator.atGoal()),
+        // Open the claw and wait for the game piece to fall out.
+        Commands.runOnce(() -> claw.set(Position.OPEN), claw),
+        // TODO: Use color sensor to detect game piece is no longer present.
         Commands.waitSeconds(1));
   }
 
@@ -120,18 +131,26 @@ public class Scoring {
    *         position.
    */
   public static Command prepareToAcquire(Subsystems subsystems) {
+    ClawSubsystem claw = subsystems.claw;
+    ElevatorSubsystem elevator = subsystems.elevator;
+    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
+
     return Commands.sequence(
+        // If the elevator is currently at the high scoring position, lower it to the
+        // middle scoring position so that the claw arm can clear the upper crossbar
+        // when it flips over to the acquiring position.
         Commands.either(
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID), subsystems.elevator)
+            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_MID), elevator)
                 .until(() -> subsystems.elevator.atGoal()),
             Commands.none(),
-            () -> subsystems.elevator.atPosition(GoalState.SCORE_HIGH)),
+            () -> elevator.atPosition(GoalState.SCORE_HIGH)),
+        // Ensure the claw is open, and set the elevator angle and position to acquire
+        // new game pieces.
         Commands.parallel(
-            Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
-            Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING),
-                subsystems.elevatorAngle),
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.ACQUIRE), subsystems.elevator))
-            .until(() -> subsystems.elevatorAngle.atGoalAngle() && subsystems.elevator.atGoal()));
+            Commands.runOnce(() -> claw.set(Position.OPEN), claw),
+            Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
+            Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator))
+            .until(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()));
   }
 
 }
