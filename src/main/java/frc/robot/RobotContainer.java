@@ -30,6 +30,7 @@ import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.Subsystems;
@@ -64,6 +65,8 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     subsystems.drivetrain.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
+    // For elevator testing.
+    subsystems.elevator.setDefaultCommand(new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
 
     initShuffleboard();
 
