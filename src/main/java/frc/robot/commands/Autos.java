@@ -4,8 +4,10 @@
 
 package frc.robot.commands;
 
-import java.io.File;
-import java.util.ArrayList;
+import static frc.robot.util.FileUtil.withExtension;
+import static frc.robot.util.FilesystemUtil.getPathplannerDirectory;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +25,12 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.util.FileUtil;
 
 public final class Autos {
   @AutonomousCommandMethod(name = "Follow S-Curve Path")
@@ -66,39 +68,49 @@ public final class Autos {
   }
 
   /**
-   * Returns a collection of pathfinder commands.
+   * Returns a {@link Collection} of {@link LabelValue} objects mapping a display
+   * name to a {@link Command} to follow a path group stored in the PathPlanner
+   * deployment directory.
    * 
    * @param subsystems The subsystems container.
    * 
-   * @return Collection of pathfinder commands.
+   * @return A {@link Collection} of {@link LabelValue} objects mapping a display
+   *         name to a {@link Command} to follow a PathPlanner path group.
    */
   @AutonomousCommandGenerator
-  public static Collection<LabelValue<String, Command>> getPathfinderCommands(Subsystems subsystems) {
-    File deployDir = Filesystem.getDeployDirectory();
-    File pathfinderDir = new File(deployDir, "pathplanner");
-    ArrayList<LabelValue<String, Command>> commands = new ArrayList<>();
-    File[] files = pathfinderDir.listFiles((dir, fileName) -> fileName.endsWith(".path"));
-    for (File file : files) {
-      String fileName = file.getName();
-      SwerveSubsystem drivetrain = subsystems.drivetrain;
-      String pathName = fileName.substring(0, fileName.lastIndexOf("."));
-      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
-          pathName,
-          new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
-      SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-          drivetrain::getPosition,
-          drivetrain::resetPosition,
-          drivetrain.getKinematics(),
-          new PIDConstants(1.0, 0, 0),
-          new PIDConstants(1.0, 0, 0),
-          drivetrain::setModuleStates,
-          Map.of(),
-          true,
-          drivetrain);
-      commands.add(new LabelValue<String, Command>(pathName, autoBuilder.fullAuto(pathGroup)));
-    }
+  public static Collection<LabelValue<String, Command>> getPathplannerCommands(Subsystems subsystems) {
+    return Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
+        .map(FileUtil::basenameOf)
+        .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
+        .toList();
+  }
 
-    return commands;
+  /**
+   * Returns a {@link Command} to follow a path group stored in the PathPlanner
+   * deployment directory.
+   * 
+   * @param subsystems The subsystems container.
+   * @param pathGroupName The path group to follow.
+   * 
+   * @return A {@link Command} to follow a PathPlanner path group.
+   */
+  public static Command getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
+        pathGroupName,
+        new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+        drivetrain::getPosition,
+        drivetrain::resetPosition,
+        drivetrain.getKinematics(),
+        new PIDConstants(1.0, 0, 0),
+        new PIDConstants(1.0, 0, 0),
+        drivetrain::setModuleStates,
+        Map.of(),
+        true,
+        drivetrain);
+
+    return autoBuilder.fullAuto(pathGroup);
   }
 
   private Autos() {
