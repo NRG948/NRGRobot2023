@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
@@ -117,7 +116,7 @@ public class RobotContainer {
     manipulatorController.b().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CUBE)));
     manipulatorController.x().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CONE)));
     manipulatorController.rightBumper().whileTrue(Commands.sequence(
-        new WaitUntilCommand(() -> subsystems.photonVision.hasTargets()),
+        Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));
 
   }
