@@ -72,9 +72,6 @@ public class RobotAutonomous {
     this.subsystems = subsystems;
 
     autonomousCommandChooser = Autonomous.getChooser(this.subsystems, "frc.robot");
-    Autos.getPathfinderCommands(subsystems)
-        .stream()
-        .forEach(path -> autonomousCommandChooser.addOption(path.getLabel(), path.getValue()));
 
     for (ChooseAutoDelay delay : EnumSet.allOf(ChooseAutoDelay.class)) {
       autoDelayChooser.addOption(delay.toString(), delay);

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.javatuples.LabelValue;
 
+import com.nrg948.autonomous.AutonomousCommandGenerator;
 import com.nrg948.autonomous.AutonomousCommandMethod;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -72,6 +73,7 @@ public final class Autos {
    * 
    * @return Collection of pathfinder commands.
    */
+  @AutonomousCommandGenerator
   public static Collection<LabelValue<String, Command>> getPathfinderCommands(Subsystems subsystems) {
     File deployDir = Filesystem.getDeployDirectory();
     File pathfinderDir = new File(deployDir, "pathplanner");
