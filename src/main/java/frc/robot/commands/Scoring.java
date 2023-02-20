@@ -20,8 +20,11 @@ import frc.robot.subsystems.ElevatorAngleSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.Subsystems;
 
-/** Add your docs here. */
-public class Scoring {
+/**
+ * A class of static methods used to create command sequences to score game
+ * elements.
+ */
+public final class Scoring {
 
   /**
    * Returns a command sequence that drives the robot to the grid based on the
@@ -77,6 +80,8 @@ public class Scoring {
     System.out.println("GOAL POSE = " + goalPose);
 
     var driveVector = goalPose.relativeTo(robotPose.toPose2d()).getTranslation();
+
+    // Determine the grid scoring level.
     GoalState targetState = GoalState.SCORE_MID;
     if (pov != -1) {
       if (pov <= 45 || pov >= 315) {
@@ -89,8 +94,7 @@ public class Scoring {
     return Commands.sequence(
         new DriveStraight(drivetrain, driveVector, drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0)),
         scoreGamePiece(subsystems, targetState),
-        prepareToAcquire(subsystems)
-    );
+        prepareToAcquire(subsystems));
   }
 
   /**
@@ -153,4 +157,7 @@ public class Scoring {
         Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()));
   }
 
+  private Scoring() {
+    throw new UnsupportedOperationException("This is a utility class!");
+  }
 }

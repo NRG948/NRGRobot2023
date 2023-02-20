@@ -10,12 +10,26 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
 
+/**
+ * This command uses the left joystick input of the controller to raise and
+ * lower the elevator. It is intended for use as the default command of
+ * {@link ElevatorSubsystem}, but should only be used for testing.
+ */
 public class RaiseElevatorWithController extends CommandBase {
   private ElevatorSubsystem elevator;
   private CommandXboxController controller;
   private static final double MAX_POWER = 0.5;
 
-  /** Creates a new ElevatorWithController. */
+  /**
+   * Creates a new ElevatorWithController.
+   * 
+   * This command uses the left joystick input of the controller to raise and
+   * lower the elevator. It is intended for use as the default command of
+   * {@link ElevatorSubsystem}, but should only be used for testing.
+   * 
+   * @param elevator   The elevator subsystem.
+   * @param controller The Xbox controller used to raise and lower the elevator.
+   */
   public RaiseElevatorWithController(ElevatorSubsystem elevator, CommandXboxController controller) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.elevator = elevator;
@@ -25,11 +39,13 @@ public class RaiseElevatorWithController extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
-  /*  Called every time the scheduler runs while the command is scheduled.
-      Converts the left joystick input of manipulator to raise/lower the elevator.
-  */
+  /**
+   * Called every time the scheduler runs while the command is scheduled.
+   * Converts the left joystick input of manipulator to raise/lower the elevator.
+   */
   @Override
   public void execute() {
     double speed = -controller.getLeftY();

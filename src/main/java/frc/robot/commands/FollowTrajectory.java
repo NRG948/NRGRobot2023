@@ -26,7 +26,7 @@ public class FollowTrajectory extends SwerveControllerCommand {
 
   /**
    * Returns a FollowTrajectory command to follow the path defined by the
-   * wavepoints.
+   * waypoints.
    * 
    * @param drivetrain  A SwerveSubsystem object.
    * @param start       The start of the path.

@@ -14,7 +14,16 @@ public class TiltElevatorWithController extends CommandBase {
   private CommandXboxController controller;
   private static final double MAX_POWER = 0.3;
 
-  /** Creates a new TiltElevatorWithController. For initial elevator testing. */
+  /**
+   * Creates a new TiltElevatorWithController.
+   * 
+   * This command uses the right joystick input of the controller to change the
+   * angle of the elevator. It is intended for use as the default command of
+   * {@link ElevatorAngleSubsystem}, but should only be used for testing.
+   * 
+   * @param elevatorAngle The elevator angle subsystem.
+   * @param controller    The Xbox controller used to adjust the elevator angle.
+   */
   public TiltElevatorWithController(ElevatorAngleSubsystem elevatorAngle, CommandXboxController controller) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.elevatorAngle = elevatorAngle;
@@ -24,9 +33,13 @@ public class TiltElevatorWithController extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
-  // Called every time the scheduler runs while the command is scheduled.
+  /**
+   * Called every time the scheduler runs while the command is scheduled.
+   * Converts the right joystick input of manipulator to adjst the elevator angle.
+   */
   @Override
   public void execute() {
     double speed = controller.getRightX();

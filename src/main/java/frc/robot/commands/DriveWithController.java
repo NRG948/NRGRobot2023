@@ -9,6 +9,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 
+/**
+ * This command uses the joystick inputs of the controller to drive the robot.
+ * The left joystick controls translational movement and the right joystick
+ * controls rotation of the robot.
+ * <p>
+ * This command intended for use as the default command of
+ * {@link SwerveSubsystem}.
+ */
 public class DriveWithController extends CommandBase {
 
   public static final double DEADBAND = 0.1;
@@ -16,7 +24,19 @@ public class DriveWithController extends CommandBase {
   private SwerveSubsystem swerveDrive;
   private CommandXboxController driveController;
 
-  /** Creates a new DriveWithController. */
+  /**
+   * Creates a new DriveWithController.
+   * 
+   * This command uses the joystick inputs of the controller to drive the robot.
+   * The left joystick controls translational movement and the right joystick
+   * controls rotation of the robot.
+   * <p>
+   * This command intended for use as the default command of
+   * {@link SwerveSubsystem}.
+   * 
+   * @param sDrive      The swerve drive subsystem.
+   * @param dController The driver's Xbox controller.
+   */
   public DriveWithController(SwerveSubsystem sDrive, CommandXboxController dController) {
     // Use addRequirements() here to declare subsystem dependencies.
     swerveDrive = sDrive;
@@ -41,8 +61,7 @@ public class DriveWithController extends CommandBase {
     // values with max speed.
     xSpeed = MathUtil.applyDeadband(xSpeed, DEADBAND);
     ySpeed = MathUtil.applyDeadband(ySpeed, DEADBAND);
-    rSpeed = MathUtil.applyDeadband(rSpeed, DEADBAND)
-;
+    rSpeed = MathUtil.applyDeadband(rSpeed, DEADBAND);
     if (inputScalar > 1) {
       xSpeed = Math.pow(xSpeed, inputScalar);
       ySpeed = Math.pow(ySpeed, inputScalar);
@@ -53,8 +72,7 @@ public class DriveWithController extends CommandBase {
         xSpeed,
         ySpeed,
         rSpeed,
-        true
-        );
+        true);
   }
 
   // Called once the command ends or is interrupted.
