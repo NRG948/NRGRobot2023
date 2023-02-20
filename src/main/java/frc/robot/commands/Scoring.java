@@ -111,7 +111,7 @@ public final class Scoring {
     ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
 
     return Commands.sequence(
-        // Set the elevator angle to scoring position and being raising the elevator to
+        // Set the elevator angle to scoring position and begins raising the elevator to
         // at least the low scoring position so the claw arm will flip over but clear
         // the upper crossbar.
         Commands.parallel(
@@ -123,7 +123,7 @@ public final class Scoring {
         Commands.waitUntil(() -> elevator.atGoal()),
         // Open the claw and wait for the game piece to fall out.
         Commands.runOnce(() -> claw.set(Position.OPEN), claw),
-        // TODO: Use color sensor to detect game piece is no longer present.
+        // TODO: Use color sensor to detect when game piece is no longer present.
         Commands.waitSeconds(1));
   }
 
