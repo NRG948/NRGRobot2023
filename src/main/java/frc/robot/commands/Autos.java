@@ -38,6 +38,8 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
+  private static Map<String, Command> pathplannerEventMap;
+
   /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
    * position of the robot to (0, 0, 0°).
@@ -154,11 +156,25 @@ public final class Autos {
         new PIDConstants(1.0, 0, 0),
         new PIDConstants(1.0, 0, 0),
         drivetrain::setModuleStates,
-        Map.of(),
+        getPathplannerEventMap(subsystems),
         true,
         drivetrain);
 
     return autoBuilder.fullAuto(pathGroup);
+  }
+
+  private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
+    if (pathplannerEventMap == null) {
+      pathplannerEventMap = Map.of(
+        "DriveAndAutoBalance",
+        Commands.sequence(
+          new DriveStraight(subsystems.drivetrain, new Pose2d(), subsystems.drivetrain.getMaxSpeed())
+              .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0),
+          new AutoBalanceOnChargeStation(subsystems.drivetrain)
+        )
+      );
+    }
+    return pathplannerEventMap;
   }
 
   private Autos() {
