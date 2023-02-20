@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
@@ -22,13 +23,14 @@ import frc.robot.subsystems.SwerveSubsystem;
  */
 public class DriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
-  private final double distance;
-  private final Rotation2d heading;
   private final HolonomicDriveController controller;
   private final TrapezoidProfile profile;
+  private final Supplier<Translation2d> translationSupplier;
   private final Supplier<Rotation2d> orientationSupplier;
   private final Timer timer = new Timer();
   private Pose2d initialPose;
+  private double distance;
+  private Rotation2d heading;
   private Rotation2d orientation;
 
   /**
@@ -41,7 +43,7 @@ public class DriveStraight extends CommandBase {
    *                    position.
    */
   public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
-    this(drivetrain, translation, drivetrain.getMaxSpeed());
+    this(drivetrain, () -> translation, drivetrain.getMaxSpeed(), () -> drivetrain.getPosition().getRotation());
   }
 
   /**
@@ -55,7 +57,7 @@ public class DriveStraight extends CommandBase {
    * @param maxSpeed    The maximum speed at which to travel.
    */
   public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
-    this(drivetrain, translation, maxSpeed, () -> drivetrain.getPosition().getRotation());
+    this(drivetrain, () -> translation, maxSpeed, () -> drivetrain.getPosition().getRotation());
   }
 
   /**
@@ -74,7 +76,24 @@ public class DriveStraight extends CommandBase {
       Translation2d translation,
       double maxSpeed,
       Rotation2d orientation) {
-    this(drivetrain, translation, maxSpeed, () -> orientation);
+    this(drivetrain, () -> translation, maxSpeed, () -> orientation);
+  }
+
+  /**
+   * Constructs an instance of this class.
+   * 
+   * @param drivetrain The {@link SwerveSubsystem} representing the robot
+   *                   drivetrain.
+   * @param position   A {@link Pose2d} instance describing the absolute position
+   *                   and orientation to drive to.
+   * @param maxSpeed   The maximum speed at which to travel.
+   */
+  public DriveStraight(SwerveSubsystem drivetrain, Pose2d position, double maxSpeed) {
+    this(
+      drivetrain,
+      () -> position.relativeTo(new Pose2d(drivetrain.getPosition().getTranslation(), new Rotation2d())).getTranslation(),
+      maxSpeed,
+      () -> position.getRotation());
   }
 
   /**
@@ -82,23 +101,19 @@ public class DriveStraight extends CommandBase {
    * 
    * @param drivetrain          The {@link SwerveSubsystem} representing the robot
    *                            drivetrain.
-   * @param translation         A {@link Translation2d} instance describing the
-   *                            line on
-   *                            which to travel. This is a vector relative to the
-   *                            current
-   *                            position.
+   * @param distanceSupplier    Supplies the distance to travel.
+   * @param headingSupplier     Supplies the heading on which to travel.
    * @param maxSpeed            The maximum speed at which to travel.
    * @param orientationSupplier Supplies the desired orientation at the end of the
    *                            command.
    */
   private DriveStraight(
       SwerveSubsystem drivetrain,
-      Translation2d translation,
+      Supplier<Translation2d> translationSupplier,
       double maxSpeed,
       Supplier<Rotation2d> orientationSupplier) {
     this.drivetrain = drivetrain;
-    this.distance = translation.getNorm();
-    this.heading = translation.getAngle();
+    this.translationSupplier = translationSupplier;
     this.controller = drivetrain.createDriveController();
     this.orientationSupplier = orientationSupplier;
     this.profile = new TrapezoidProfile(
@@ -111,6 +126,9 @@ public class DriveStraight extends CommandBase {
   @Override
   public void initialize() {
     initialPose = drivetrain.getPosition();
+    Translation2d translation = translationSupplier.get();
+    distance = translation.getNorm();
+    heading = translation.getAngle();
     orientation = orientationSupplier.get();
     System.out.println("BEGIN ProfiledDriveStraight intitialPose = " + initialPose + ", orientation = " + orientation
         + ", distance = " + distance + ", heading = " + heading);
