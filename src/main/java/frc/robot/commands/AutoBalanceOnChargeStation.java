@@ -51,13 +51,16 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   private final Timer timer = new Timer();
 
   private PIDController anglePID;
-  private boolean wasLevel;
+  private boolean wasLevel; // Was the robot "level" during the last command execution
   private double maxSpeed;
 
-  /** Creates a new AutoBalanceOnChargeStation2. */
+  /** 
+   * Creates a new AutoBalanceOnChargeStation command.
+   * 
+   * Robot must already be on the Charge Station before this command is invoked.
+   */
   public AutoBalanceOnChargeStation(SwerveSubsystem drivetrain) {
     this.drivetrain = drivetrain;
-
     addRequirements(this.drivetrain);
   }
 
