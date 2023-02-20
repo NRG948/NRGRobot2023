@@ -163,16 +163,24 @@ public final class Autos {
     return autoBuilder.fullAuto(pathGroup);
   }
 
+  /**
+   * Returns the map of event marker names to commands to run when the marker is
+   * reached.
+   * 
+   * @param subsystems The subsystems container.
+   * 
+   * @return The map of event marker names to commands.
+   */
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
     if (pathplannerEventMap == null) {
       pathplannerEventMap = Map.of(
-        "DriveAndAutoBalance",
-        Commands.sequence(
-          new DriveStraight(subsystems.drivetrain, new Pose2d(), subsystems.drivetrain.getMaxSpeed())
-              .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0),
-          new AutoBalanceOnChargeStation(subsystems.drivetrain)
-        )
-      );
+          // Drive to the center of the charging station and balance. This command is
+          // intended to be used at the end of autonomous.
+          "DriveAndAutoBalance",
+          Commands.sequence(
+              new DriveStraight(subsystems.drivetrain, new Pose2d(), subsystems.drivetrain.getMaxSpeed())
+                  .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0),
+              new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     }
     return pathplannerEventMap;
   }

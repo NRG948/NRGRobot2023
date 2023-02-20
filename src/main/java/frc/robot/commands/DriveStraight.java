@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
@@ -34,7 +33,8 @@ public class DriveStraight extends CommandBase {
   private Rotation2d orientation;
 
   /**
-   * Constructs an instance of this class.
+   * Creates a new DriveStraight that drives robot along the specified vector at
+   * maximum speed while maintaining the current orientation of the robot.
    * 
    * @param drivetrain  The {@link SwerveSubsystem} representing the robot
    *                    drivetrain.
@@ -47,7 +47,8 @@ public class DriveStraight extends CommandBase {
   }
 
   /**
-   * Constructs an instance of this class.
+   * Creates a new DriveStraight that drives robot along the specified vector and
+   * speed while maintaining the current orientation of the robot.
    * 
    * @param drivetrain  The {@link SwerveSubsystem} representing the robot
    *                    drivetrain.
@@ -61,7 +62,8 @@ public class DriveStraight extends CommandBase {
   }
 
   /**
-   * Constructs an instance of this class.
+   * Creates a new DriveStraight that drives robot along the specified vector
+   * while rotating the robot to the desired orientation.
    * 
    * @param drivetrain  The {@link SwerveSubsystem} representing the robot
    *                    drivetrain.
@@ -80,7 +82,8 @@ public class DriveStraight extends CommandBase {
   }
 
   /**
-   * Constructs an instance of this class.
+   * Creates a new DriveStraight that drives robot to the specified absolute
+   * location and orientation on the field.
    * 
    * @param drivetrain The {@link SwerveSubsystem} representing the robot
    *                   drivetrain.
@@ -90,10 +93,11 @@ public class DriveStraight extends CommandBase {
    */
   public DriveStraight(SwerveSubsystem drivetrain, Pose2d position, double maxSpeed) {
     this(
-      drivetrain,
-      () -> position.relativeTo(new Pose2d(drivetrain.getPosition().getTranslation(), new Rotation2d())).getTranslation(),
-      maxSpeed,
-      () -> position.getRotation());
+        drivetrain,
+        () -> position.relativeTo(new Pose2d(drivetrain.getPosition().getTranslation(), new Rotation2d()))
+            .getTranslation(),
+        maxSpeed,
+        () -> position.getRotation());
   }
 
   /**
@@ -101,8 +105,9 @@ public class DriveStraight extends CommandBase {
    * 
    * @param drivetrain          The {@link SwerveSubsystem} representing the robot
    *                            drivetrain.
-   * @param distanceSupplier    Supplies the distance to travel.
-   * @param headingSupplier     Supplies the heading on which to travel.
+   * @param translationSupplier Supplies a {@link Translation2d} instance
+   *                            describing the line on which to travel. This is a
+   *                            vector relative to the current position.
    * @param maxSpeed            The maximum speed at which to travel.
    * @param orientationSupplier Supplies the desired orientation at the end of the
    *                            command.
@@ -126,12 +131,18 @@ public class DriveStraight extends CommandBase {
   @Override
   public void initialize() {
     initialPose = drivetrain.getPosition();
+
     Translation2d translation = translationSupplier.get();
     distance = translation.getNorm();
     heading = translation.getAngle();
     orientation = orientationSupplier.get();
-    System.out.println("BEGIN ProfiledDriveStraight intitialPose = " + initialPose + ", orientation = " + orientation
-        + ", distance = " + distance + ", heading = " + heading);
+
+    System.out.println(
+      "BEGIN ProfiledDriveStraight intitialPose = " + initialPose +
+      ", orientation = " + orientation +
+      ", distance = " + distance +
+      ", heading = " + heading);
+
     timer.reset();
     timer.start();
   }
