@@ -1,0 +1,12 @@
+{
+  "teamNumber" : 948,
+  "connectionType" : 1,
+  "staticIp" : "10.9.48.11",
+  "hostname" : "photonvision",
+  "runNTServer" : false,
+  "shouldManage" : true,
+  "networkManagerIface" : "Wired\\ connection\\ 1",
+  "physicalInterface" : "eth0",
+  "setStaticCommand" : "nmcli con mod ${interface} ipv4.addresses ${ipaddr}/8 ipv4.method \"manual\" ipv6.method \"disabled\"",
+  "setDHCPcommand" : "nmcli con mod ${interface} ipv4.method \"auto\" ipv6.method \"disabled\""
+}
