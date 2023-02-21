@@ -38,6 +38,8 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
+  private static final Pose2d CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+
   private static Map<String, Command> pathplannerEventMap;
 
   /**
@@ -178,7 +180,7 @@ public final class Autos {
           // intended to be used at the end of autonomous.
           "DriveAndAutoBalance",
           Commands.sequence(
-              new DriveStraight(subsystems.drivetrain, new Pose2d(), subsystems.drivetrain.getMaxSpeed())
+              new DriveStraight(subsystems.drivetrain, CHARGING_STATION_CENTER, subsystems.drivetrain.getMaxSpeed())
                   .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0),
               new AutoBalanceOnChargeStation(subsystems.drivetrain)));
     }
