@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -12,12 +11,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.subsystems.ClawSubsystem.Position;
-import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
-import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.ClawSubsystem;
+import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.ElevatorAngleSubsystem;
+import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -79,8 +78,6 @@ public final class Scoring {
 
     System.out.println("GOAL POSE = " + goalPose);
 
-    var driveVector = goalPose.relativeTo(robotPose.toPose2d()).getTranslation();
-
     // Determine the grid scoring level.
     GoalState targetState = GoalState.SCORE_MID;
     if (pov != -1) {
@@ -92,7 +89,7 @@ public final class Scoring {
     }
 
     return Commands.sequence(
-        new DriveStraight(drivetrain, driveVector, drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0)),
+        new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
         scoreGamePiece(subsystems, targetState),
         prepareToAcquire(subsystems));
   }
