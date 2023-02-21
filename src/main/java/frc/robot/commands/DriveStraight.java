@@ -95,8 +95,7 @@ public class DriveStraight extends CommandBase {
   public DriveStraight(SwerveSubsystem drivetrain, Pose2d position, double maxSpeed) {
     this(
         drivetrain,
-        () -> position.relativeTo(new Pose2d(drivetrain.getPosition().getTranslation(), new Rotation2d()))
-            .getTranslation(),
+        () -> position.getTranslation().minus(drivetrain.getPosition().getTranslation()),
         maxSpeed,
         () -> position.getRotation());
   }

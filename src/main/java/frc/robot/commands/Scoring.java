@@ -79,8 +79,6 @@ public final class Scoring {
 
     System.out.println("GOAL POSE = " + goalPose);
 
-    var driveVector = goalPose.relativeTo(robotPose.toPose2d()).getTranslation();
-
     // Determine the grid scoring level.
     GoalState targetState = GoalState.SCORE_MID;
     if (pov != -1) {
@@ -92,7 +90,7 @@ public final class Scoring {
     }
 
     return Commands.sequence(
-        new DriveStraight(drivetrain, driveVector, drivetrain.getMaxSpeed() * 0.5, new Rotation2d(0)),
+        new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
         scoreGamePiece(subsystems, targetState),
         prepareToAcquire(subsystems));
   }
