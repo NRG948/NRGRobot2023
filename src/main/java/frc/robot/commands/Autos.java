@@ -77,9 +77,11 @@ public final class Autos {
    */
   @AutonomousCommandMethod(name = "Drive Straight For 3 Meters")
   public static CommandBase driveStraight3Meters(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+
     return Commands.sequence(
-        Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
-        new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0))));
+        Commands.runOnce(() -> drivetrain.resetPosition(new Pose2d())),
+        new DriveStraight(drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)), drivetrain.getMaxSpeed() * 0.667));
   }
 
   /**
