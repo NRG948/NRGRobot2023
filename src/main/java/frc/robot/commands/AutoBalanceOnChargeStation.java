@@ -84,7 +84,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     double measuredAngle = drivetrain.getTilt().getDegrees();
 
     if (measuredAngle <= 2.0) {
-      maxSpeed = MAX_SPEED_PERCENT.getValue();
+      maxSpeed = this.drivetrain.getMaxSpeed() * MAX_SPEED_PERCENT.getValue();
     }
 
     double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
