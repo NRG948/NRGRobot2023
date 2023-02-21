@@ -23,14 +23,15 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class DriveStraight extends CommandBase {
   private final SwerveSubsystem drivetrain;
   private final HolonomicDriveController controller;
-  private final TrapezoidProfile profile;
   private final Supplier<Translation2d> translationSupplier;
+  private final double maxSpeed;
   private final Supplier<Rotation2d> orientationSupplier;
   private final Timer timer = new Timer();
   private Pose2d initialPose;
   private double distance;
   private Rotation2d heading;
   private Rotation2d orientation;
+  private TrapezoidProfile profile;
 
   /**
    * Creates a new DriveStraight that drives robot along the specified vector at
@@ -120,23 +121,24 @@ public class DriveStraight extends CommandBase {
     this.drivetrain = drivetrain;
     this.translationSupplier = translationSupplier;
     this.controller = drivetrain.createDriveController();
+    this.maxSpeed = maxSpeed;
     this.orientationSupplier = orientationSupplier;
-    this.profile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
-        new TrapezoidProfile.State(distance, 0));
-
+    
     addRequirements(drivetrain);
   }
-
+  
   @Override
   public void initialize() {
     initialPose = drivetrain.getPosition();
-
+    
     Translation2d translation = translationSupplier.get();
     distance = translation.getNorm();
     heading = translation.getAngle();
     orientation = orientationSupplier.get();
-
+    profile = new TrapezoidProfile(
+        new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
+        new TrapezoidProfile.State(distance, 0));
+    
     System.out.println(
       "BEGIN ProfiledDriveStraight intitialPose = " + initialPose +
       ", orientation = " + orientation +
