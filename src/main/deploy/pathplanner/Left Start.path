@@ -113,12 +113,10 @@
       "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "DriveAndAutoBalance"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "minimum",
+        "waitTime": 1.0
       }
     }
   ],

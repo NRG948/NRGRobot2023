@@ -39,9 +39,9 @@ import frc.robot.util.FileUtil;
 public final class Autos {
 
   private static final Pose2d CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+  private static final double AUTO_SPEED_PERCENT = 0.8;
 
   private static Map<String, Command> pathplannerEventMap;
-
   /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
    * position of the robot to (0, 0, 0°).
@@ -81,7 +81,8 @@ public final class Autos {
 
     return Commands.sequence(
         Commands.runOnce(() -> drivetrain.resetPosition(new Pose2d())),
-        new DriveStraight(drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)), drivetrain.getMaxSpeed() * 0.667));
+        new DriveStraight(drivetrain, new Translation2d(3.0, Rotation2d.fromDegrees(0)),
+            drivetrain.getMaxSpeed() * 0.667));
   }
 
   /**
@@ -152,7 +153,7 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
-        new PathConstraints(drivetrain.getMaxSpeed(), drivetrain.getMaxAcceleration()));
+        new PathConstraints(drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT, drivetrain.getMaxAcceleration()));
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         drivetrain::getPosition,
         drivetrain::resetPosition,
@@ -164,7 +165,10 @@ public final class Autos {
         true,
         drivetrain);
 
-    return autoBuilder.fullAuto(pathGroup);
+    return Commands.sequence(
+        autoBuilder.fullAuto(pathGroup),
+        new DriveStraight(drivetrain, CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+        new AutoBalanceOnChargeStation(drivetrain));
   }
 
   /**
@@ -177,14 +181,7 @@ public final class Autos {
    */
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
     if (pathplannerEventMap == null) {
-      pathplannerEventMap = Map.of(
-          // Drive to the center of the charging station and balance. This command is
-          // intended to be used at the end of autonomous.
-          "DriveAndAutoBalance",
-          Commands.sequence(
-              new DriveStraight(subsystems.drivetrain, CHARGING_STATION_CENTER, subsystems.drivetrain.getMaxSpeed())
-                  .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0),
-              new AutoBalanceOnChargeStation(subsystems.drivetrain)));
+      pathplannerEventMap = Map.of();
     }
     return pathplannerEventMap;
   }
