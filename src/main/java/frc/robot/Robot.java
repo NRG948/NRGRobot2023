@@ -113,6 +113,7 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     matchLogger.printTeleOpStart();
+    matchLogger.printMatchTimeLeft();
   }
 
   /** This function is called periodically during operator control. */

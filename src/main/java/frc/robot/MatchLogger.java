@@ -47,4 +47,16 @@ public class MatchLogger {
             "\nalliance: " + DriverStation.getAlliance() + 
             "\ndrivers' station: " + DriverStation.getLocation());
     }
+
+    public void printMatchTimeLeft() {
+        System.out.println("Match Time Remaining: " + DriverStation.getMatchTime());
+    }
+
+    public void printReplayNumber() { // TODO: Understand what the replay number is...and when we would call it.
+        System.out.println(DriverStation.getReplayNumber());
+    }
+
+    public void printGameSpeceficMessage() {
+        DriverStation.getGameSpecificMessage();
+    }
 }
