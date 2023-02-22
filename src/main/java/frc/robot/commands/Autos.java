@@ -38,10 +38,23 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
+  /**
+   * The location of the center of the blue alliance charging station on the
+   * field.
+   * 
+   * TODO: Add support for driving to the red alliance charging station.
+   */
   private static final Pose2d CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+
+  /**
+   * The speed of driving during autonomous as a percent of the maximum robot
+   * speed. We must use a value lower than maximum to allow headroom for course
+   * corrections.
+   */
   private static final double AUTO_SPEED_PERCENT = 0.8;
 
   private static Map<String, Command> pathplannerEventMap;
+
   /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
    * position of the robot to (0, 0, 0°).
