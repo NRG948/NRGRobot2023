@@ -25,9 +25,12 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.FileUtil;
@@ -38,13 +41,24 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
+  private static final double FIELD_WIDTH_METERS = 8.02; // meters
+
   /**
    * The location of the center of the blue alliance charging station on the
    * field.
-   * 
-   * TODO: Add support for driving to the red alliance charging station.
    */
-  private static final Pose2d CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+  private static final Pose2d BLUE_CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+
+  /**
+   * The location of the center of the red alliance charging station on the
+   * field.
+   * <p>
+   * The pose is a mirror of the blue alliance charging station pose.
+   */
+  private static final Pose2d RED_CHARGING_STATION_CENTER = new Pose2d(
+      BLUE_CHARGING_STATION_CENTER.getX(),
+      FIELD_WIDTH_METERS - BLUE_CHARGING_STATION_CENTER.getY(),
+      BLUE_CHARGING_STATION_CENTER.getRotation().times(-1));
 
   /**
    * The speed of driving during autonomous as a percent of the maximum robot
@@ -179,9 +193,22 @@ public final class Autos {
         drivetrain);
 
     return Commands.sequence(
+        // Create the pathplanner command to follow the trajectory.
         autoBuilder.fullAuto(pathGroup),
-        new DriveStraight(drivetrain, CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
-        new AutoBalanceOnChargeStation(drivetrain));
+        // Drive to the center of the correct alliance charging station and auto-balance.
+        Commands.select(
+          Map.of(
+            Alliance.Blue,
+            Commands.sequence(
+              new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+              new AutoBalanceOnChargeStation(drivetrain)),
+            Alliance.Red,
+            Commands.sequence(
+              new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+              new AutoBalanceOnChargeStation(drivetrain)),
+            Alliance.Invalid,
+            new PrintCommand("ERROR: Invalid alliance color!")),
+          DriverStation::getAlliance));
   }
 
   /**

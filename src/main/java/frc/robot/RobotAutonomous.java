@@ -3,15 +3,12 @@ package frc.robot;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
-
 import com.nrg948.autonomous.Autonomous;
 
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.concurrent.Event;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
