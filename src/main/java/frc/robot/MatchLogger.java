@@ -9,9 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 /** Add your docs here. */
 public class MatchLogger {
 
-    // TODO: Research if we need to create some sort of instance of the drivers
-    // station...
-
     /**
      * Prints Tele-Op starts now
      */
@@ -56,7 +53,7 @@ public class MatchLogger {
         System.out.println(DriverStation.getReplayNumber());
     }
 
-    public void printGameSpeceficMessage() {
+    public void printGameSpecificMessage() {
         DriverStation.getGameSpecificMessage();
     }
 }
