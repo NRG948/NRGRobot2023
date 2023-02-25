@@ -4,12 +4,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.SerialPortJNI;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class ColorSensorSubsystem implements AutoCloseable {
+public class ColorSensorSubsystem extends SubsystemBase implements AutoCloseable {
   public static class RawColor {
     public RawColor(int r, int g, int b, int _ir) {
       red = r;
