@@ -51,6 +51,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final ProfiledPIDController pidController = new ProfiledPIDController(1.0, 0, 0, CONSTRAINTS);
   private final Timer timer = new Timer();
 
+  private boolean enabled = false;
   private GoalState goalState = GoalState.ACQUIRE;
   private TrapezoidProfile profile = new TrapezoidProfile(
       CONSTRAINTS, new TrapezoidProfile.State(goalState.getPosition(), 0));
@@ -102,6 +103,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     pidController.setGoal(new TrapezoidProfile.State(goalState.getPosition(), 0));
     timer.reset();
     timer.start();
+    enabled = true;
+  }
+
+  /**
+   * Disables autonomous goal seeking.
+   */
+  public void disableGoalSeeking() {
+    enabled = false;
+    motor.stopMotor();
   }
 
   /**
@@ -164,20 +174,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     currentVelocity = encoder.getVelocity();
     currentAngle = angle.get();
 
-    // If the elevator has been moved to the lowest position, stop the motor.
-    if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition()) {
-      motor.stopMotor();
-      return;
+    if (enabled) {
+      // If the elevator has been moved to the lowest position, stop the motor.
+      if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition()) {
+        motor.stopMotor();
+        return;
+      }
+
+      // Find the desired elevator state (position and velocity) using the trapezoid
+      // profile and use feedback (PID) and feedforward to calculate the required
+      // voltage to apply to the motor.
+      TrapezoidProfile.State state = profile.calculate(timer.get());
+      double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
+      double feedforwardVolts = feedforward.calculate(currentVelocity, state.velocity)
+          + (Math.sin(currentAngle.getRadians()) * KG);
+
+      motor.setVoltage(feedbackVolts + feedforwardVolts);
     }
-
-    // Find the desired elevator state (position and velocity) using the trapezoid
-    // profile and use feedback (PID) and feedforward to calculate the required
-    // voltage to apply to the motor.
-    TrapezoidProfile.State state = profile.calculate(timer.get());
-    double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
-    double feedforwardVolts = feedforward.calculate(currentVelocity, state.velocity)
-        + (Math.sin(currentAngle.getRadians()) * KG);
-
-    motor.setVoltage(feedbackVolts + feedforwardVolts);
   }
 }
