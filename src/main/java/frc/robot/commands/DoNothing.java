@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Subsystems;
 
 /** An autonomous command that performs no action. */
-@AutonomousCommand(name = "Do Nothing", isDefault = true)
+@AutonomousCommand(name = "* Do Nothing", isDefault = true)
 public class DoNothing extends WaitUntilCommand {
 
   public DoNothing(Subsystems subsystems) {

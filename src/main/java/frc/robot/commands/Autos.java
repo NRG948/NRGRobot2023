@@ -80,7 +80,7 @@ public final class Autos {
    * 
    * @return A command sequence to follow an S-curve path.
    */
-  @AutonomousCommandMethod(name = "Follow S-Curve Path")
+  @AutonomousCommandMethod(name = "[TEST] Follow S-Curve Path")
   public static CommandBase followSCurvePath(Subsystems subsystems) {
     return Commands.sequence(
         Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
@@ -102,7 +102,7 @@ public final class Autos {
    * 
    * @return A command sequence to drive the robot straight forward for 3 meters.
    */
-  @AutonomousCommandMethod(name = "Drive Straight For 3 Meters")
+  @AutonomousCommandMethod(name = "[TEST] Drive Straight For 3 Meters")
   public static CommandBase driveStraight3Meters(Subsystems subsystems) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
 
@@ -122,7 +122,7 @@ public final class Autos {
    * 
    * @return A command sequence to drive the robot straight forward for 3 meters.
    */
-  @AutonomousCommandMethod(name = "Drive Diagonal For 3 Meters")
+  @AutonomousCommandMethod(name = "[TEST] Drive Diagonal For 3 Meters")
   public static CommandBase driveDiagonal3Meters(Subsystems subsystems) {
     return Commands.sequence(
         Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
@@ -141,7 +141,7 @@ public final class Autos {
    * @return A command sequence to drive the robot straight forward for 3 meters
    *         while rotating to an orientation of -90°.
    */
-  @AutonomousCommandMethod(name = "Drive Straight For 3 Meters and Rotate")
+  @AutonomousCommandMethod(name = "[TEST] Drive Straight For 3 Meters and Rotate")
   public static CommandBase driveStraight3MetersAndRotate(Subsystems subsystems) {
     return Commands.sequence(
         Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),

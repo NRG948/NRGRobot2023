@@ -30,7 +30,7 @@ public class CharacterizeSwerveSteering extends CommandBase {
    * @param subsystems The subsystems container.
    * @return a command to characterize swerve steering module 0.
    */
-  @AutonomousCommandMethod(name = "Characterize Swerve Steering Module 0")
+  @AutonomousCommandMethod(name = "[SYSID] Characterize Swerve Steering Module 0")
   public static Command forModule0(Subsystems subsystems) {
     return new CharacterizeSwerveSteering(subsystems, 0);
   }
@@ -41,7 +41,7 @@ public class CharacterizeSwerveSteering extends CommandBase {
    * @param subsystems The subsystems container.
    * @return a command to characterize swerve steering module 1.
    */
-  @AutonomousCommandMethod(name = "Characterize Swerve Steering Module 1")
+  @AutonomousCommandMethod(name = "[SYSID] Characterize Swerve Steering Module 1")
   public static Command forModule1(Subsystems subsystems) {
     return new CharacterizeSwerveSteering(subsystems, 1);
   }
@@ -52,7 +52,7 @@ public class CharacterizeSwerveSteering extends CommandBase {
    * @param subsystems The subsystems container.
    * @return a command to characterize swerve steering module 2.
    */
-  @AutonomousCommandMethod(name = "Characterize Swerve Steering Module 2")
+  @AutonomousCommandMethod(name = "[SYSID] Characterize Swerve Steering Module 2")
   public static Command forModule2(Subsystems subsystems) {
     return new CharacterizeSwerveSteering(subsystems, 2);
   }
@@ -63,7 +63,7 @@ public class CharacterizeSwerveSteering extends CommandBase {
    * @param subsystems The subsystems container.
    * @return a command to characterize swerve steering module 3.
    */
-  @AutonomousCommandMethod(name = "Characterize Swerve Steering Module 3")
+  @AutonomousCommandMethod(name = "[SYSID] Characterize Swerve Steering Module 3")
   public static Command forModule3(Subsystems subsystems) {
     return new CharacterizeSwerveSteering(subsystems, 3);
   }

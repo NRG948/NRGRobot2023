@@ -20,7 +20,7 @@ import frc.robot.sysid.SysIdGeneralMechanismLogger;
  * <p>
  * Use the SysId tool to characterize the swerve drive as a "Simple" mechanism.
  */
-@AutonomousCommand(name = "Characterize Swerve Drive")
+@AutonomousCommand(name = "[SYSID] Characterize Swerve Drive")
 public class CharacterizeSwerveDrive extends CommandBase {
   private final SwerveSubsystem drivetrain;
   private final SysIdGeneralMechanismLogger logger;
