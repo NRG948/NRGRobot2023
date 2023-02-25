@@ -16,7 +16,7 @@ public class DoNothing extends WaitUntilCommand {
 
   public DoNothing(Subsystems subsystems) {
     super(() -> !DriverStation.isAutonomousEnabled());
-    addRequirements(subsystems.drivetrain);
+    addRequirements(subsystems.all);
   }
 
 }
