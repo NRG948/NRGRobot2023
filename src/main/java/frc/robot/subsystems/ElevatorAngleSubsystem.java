@@ -8,8 +8,10 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants.CAN;
+import frc.robot.Constants.RobotConstants.DigitalIO;
 import frc.robot.parameters.MotorParameters;
 
 /**
@@ -30,7 +32,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
       this.angle = angle;
     }
 
-    /** Returns elevator angle in degrees.*/
+    /** Returns elevator angle in degrees. */
     private double getAngle() {
       return angle;
     }
@@ -46,11 +48,16 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR_ANGLE, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
+  private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
+  private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
+
   private double angleOffset; // record encoder's current position
   private ElevatorAngle goalAngle = ElevatorAngle.STOWED;
   private double motorPower = 0;
   private double currentAngle = ElevatorAngle.STOWED.getAngle(); // start as stowed
   private boolean isPeriodicControlEnabled = false;
+  private boolean currentAcquiringLimit;
+  private boolean currentScoringLimit;
 
   /** Creates a new ElevatorAngleSubsystem. */
   public ElevatorAngleSubsystem() {
@@ -86,7 +93,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    * @return True if the elevator is at the goal angle.
    */
   public boolean atGoalAngle() {
-    return motorPower > 0 ? currentAngle >= goalAngle.getAngle() : currentAngle <= goalAngle.getAngle();
+    return motorPower > 0
+        ? currentAngle >= goalAngle.getAngle() || atScoringLimit()
+        : currentAngle <= goalAngle.getAngle() || atAcquiringLimit();
   }
 
   /**
@@ -99,17 +108,38 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   }
 
   /** Enables periodic control. */
-  public void enablePeriodicControl(boolean isEnabled){
+  public void enablePeriodicControl(boolean isEnabled) {
     isPeriodicControlEnabled = isEnabled;
+  }
+
+  /**
+   * Returns if the elevator angle reaches the scoring limit.
+   * 
+   * @return True if the elevator angle reaches the scoring limit.
+   */
+  public boolean atScoringLimit() {
+    return currentScoringLimit;
+  }
+
+  /**
+   * Returns if the elevator angle reaches the acquiring limit.
+   * 
+   * @return True if the elevator angle reaches the acquiring limit.
+   */
+  public boolean atAcquiringLimit() {
+    return currentAcquiringLimit;
   }
 
   @Override
   public void periodic() {
+    currentAcquiringLimit = acquiringLimit.get();
+    currentScoringLimit = scoringLimit.get();
+    currentAngle = encoder.getPosition() - angleOffset;
+
     // This method will be called once per scheduler run
-    if (!isPeriodicControlEnabled){
+    if (!isPeriodicControlEnabled) {
       return;
     }
-    currentAngle = encoder.getPosition() - angleOffset;
 
     // Shut off motor if at the desired angle.
     if (atGoalAngle()) {

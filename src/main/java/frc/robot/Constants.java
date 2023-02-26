@@ -53,6 +53,16 @@ public final class Constants {
     }
 
     /**
+     * Digital I/O port numbers.
+     */
+    public static class DigitalIO {
+      public static final int ELEVATOR_ANGLE_ACQUIRE_LIMIT = 0;
+      public static final int ELEVATOR_ANGLE_SCORING_LIMIT = 1;
+      public static final int ELEVATOR_BOTTOM_LIMIT = 2;
+      public static final int ELEVATOR_TOP_LIMIT = 3;
+    }
+
+    /**
      * A transform from the camera to the center of the robot.
      * 
      * TODO: Determine location of camera on the competition robot.

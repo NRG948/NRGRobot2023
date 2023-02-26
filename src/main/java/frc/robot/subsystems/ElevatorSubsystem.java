@@ -11,10 +11,12 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
+import frc.robot.Constants.RobotConstants.DigitalIO;
 import frc.robot.parameters.MotorParameters;
 
 /**
@@ -51,6 +53,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final ProfiledPIDController pidController = new ProfiledPIDController(1.0, 0, 0, CONSTRAINTS);
   private final Timer timer = new Timer();
 
+  private final DigitalInput bottomLimit = new DigitalInput(DigitalIO.ELEVATOR_BOTTOM_LIMIT);
+  private final DigitalInput topLimit = new DigitalInput(DigitalIO.ELEVATOR_TOP_LIMIT);
+
   private boolean enabled = false;
   private GoalState goalState = GoalState.ACQUIRE;
   private TrapezoidProfile profile = new TrapezoidProfile(
@@ -58,6 +63,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double currentPosition;
   private double currentVelocity;
   private Rotation2d currentAngle;
+  private boolean currentBottomLimit;
+  private boolean currentTopLimit;
 
   /** Encapsulates various goal heights we want to raise the elevator to. */
   public enum GoalState { // TODO: get real values
@@ -124,6 +131,24 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns if the elevator reaches the bootom limit.
+   * 
+   * @return True if the elevator reaches the bottom limit.
+   */
+  public boolean atBottomLimit() {
+    return currentBottomLimit;
+  }
+
+  /**
+   * Returns if the elevator reaches the top limit.
+   * 
+   * @return True if the elevator reaches the top limit.
+   */
+  public boolean atTopLimit() {
+    return currentTopLimit;
+  }
+
+  /**
    * Sets the motor voltage.
    * 
    * @param voltage The desired voltage.
@@ -173,10 +198,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     currentPosition = encoder.getPosition();
     currentVelocity = encoder.getVelocity();
     currentAngle = angle.get();
+    currentBottomLimit = bottomLimit.get();
+    currentTopLimit = topLimit.get();
 
     if (enabled) {
       // If the elevator has been moved to the lowest position, stop the motor.
-      if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition()) {
+      if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit()) {
         motor.stopMotor();
         return;
       }
@@ -186,8 +213,11 @@ public class ElevatorSubsystem extends SubsystemBase {
       // voltage to apply to the motor.
       TrapezoidProfile.State state = profile.calculate(timer.get());
       double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
-      double feedforwardVolts = feedforward.calculate(currentVelocity, state.velocity)
-          + (Math.sin(currentAngle.getRadians()) * KG);
+      double feedforwardVolts = Math.sin(currentAngle.getRadians()) * KG;
+
+      if (goalState != GoalState.SCORE_HIGH || !atTopLimit()) {
+        feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
+      }
 
       motor.setVoltage(feedbackVolts + feedforwardVolts);
     }
