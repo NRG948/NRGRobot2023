@@ -1,7 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesLayout;
+import com.nrg948.preferences.RobotPreferencesValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
@@ -13,6 +18,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
@@ -23,7 +32,11 @@ import frc.robot.parameters.MotorParameters;
  * The elevator subsystem is responsible for setting the claw position for
  * acquiring or scoring game elements.
  */
+@RobotPreferencesLayout(groupName = "Elevator", row = 1, column = 4, height = 1, width = 2)
 public class ElevatorSubsystem extends SubsystemBase {
+  @RobotPreferencesValue
+  public static RobotPreferences.BooleanValue ENABLE_ELEVATOR_TAB = new RobotPreferences.BooleanValue("Elevator",
+      "Enable Elevator Tab", false);
 
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
@@ -98,6 +111,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
     encoder = motor.getAlternateEncoder(MOTOR.getPulsesPerRevolution());
     angle = angleSupplier;
+    currentAngle = angle.get();
   }
 
   /**
@@ -222,4 +236,36 @@ public class ElevatorSubsystem extends SubsystemBase {
       motor.setVoltage(feedbackVolts + feedforwardVolts);
     }
   }
+
+  /**
+   * Adds the Shuffleboard Tab for elevator debugging.
+   * 
+   * @param acquiringLimit Supplies the acquiring limit switch value.
+   * @param scoringLimit   Supplies the scoring limit switch value.
+   */
+  public void addShuffleBoardTab(BooleanSupplier acquiringLimit, BooleanSupplier scoringLimit) {
+    if (!ENABLE_ELEVATOR_TAB.getValue()) {
+      return;
+    }
+
+    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+    ShuffleboardLayout layout = tab.getLayout("Elevator", BuiltInLayouts.kGrid)
+        .withPosition(0, 0)
+        .withSize(3, 3)
+        .withProperties(Map.of("Number of columns", 2, "Number of rows", 1));
+    ShuffleboardLayout positionLayout = layout.getLayout("Position", BuiltInLayouts.kList)
+        .withPosition(0, 0);
+    
+    positionLayout.addNumber("Angle", currentAngle::getDegrees);
+    positionLayout.addNumber("Position", () -> currentPosition);
+    positionLayout.addNumber("Velocity", () -> currentVelocity);
+    
+    ShuffleboardLayout switchLayout = layout.getLayout("Limit Switches", BuiltInLayouts.kList)
+        .withPosition(1, 0);
+    switchLayout.addBoolean("Top Limit Switch", this::atTopLimit);
+    switchLayout.addBoolean("Bottom Limit Switch", this::atBottomLimit);
+    switchLayout.addBoolean("Acquiring Limit Switch", acquiringLimit);
+    switchLayout.addBoolean("Scoring Limit Switch", scoringLimit);
+  }
+
 }
