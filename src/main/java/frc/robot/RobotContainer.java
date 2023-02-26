@@ -33,7 +33,8 @@ import frc.robot.commands.DriveWithController;
 import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.TiltElevatorWithController;
-import frc.robot.subsystems.ClawSubsystem.Position;
+import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
+import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -117,13 +118,15 @@ public class RobotContainer {
     // this to call resetOrientation().
     driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 
-    manipulatorController.a().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN)));
-    manipulatorController.b().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CUBE)));
-    manipulatorController.x().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.GRAB_CONE)));
-    manipulatorController.rightBumper().whileTrue(Commands.sequence(
+    manipulatorController.x().onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
+    manipulatorController.b().onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.SCORING)));
+    manipulatorController.a().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.ACQUIRE)));
+    manipulatorController.y().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID)));
+    manipulatorController.rightBumper().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
+    // manipulatorController.rightTrigger().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
+    manipulatorController.leftBumper().whileTrue(Commands.sequence(
         Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));
-
   }
 
   /**
