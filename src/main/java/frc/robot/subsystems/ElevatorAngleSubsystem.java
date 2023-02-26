@@ -77,6 +77,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     // Acquiring to scoring -> Positive motor power
     // Scoring to acquiring -> Negative motor power
     this.motorPower = Math.signum(goalAngle.getAngle() - currentAngle) * MOTOR_POWER;
+    isPeriodicControlEnabled = true;
   }
 
   /**
@@ -113,6 +114,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     // Shut off motor if at the desired angle.
     if (atGoalAngle()) {
       motorPower = 0;
+      isPeriodicControlEnabled = false;
     }
     setMotor(motorPower);
   }
