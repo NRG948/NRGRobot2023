@@ -11,7 +11,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.sysid.SysIdGeneralMechanismLogger;
 
-@AutonomousCommand(name = "Characterize Elevator")
+@AutonomousCommand(name = "[SYSID] Characterize Elevator")
 public class CharacterizeElevator extends CommandBase {
   private ElevatorSubsystem elevator;
   private SysIdGeneralMechanismLogger logger;
