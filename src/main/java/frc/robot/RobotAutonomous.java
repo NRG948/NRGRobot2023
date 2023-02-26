@@ -1,16 +1,18 @@
 package frc.robot;
 
 import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.nrg948.autonomous.Autonomous;
 
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
@@ -18,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.Autos;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -70,8 +73,6 @@ public class RobotAutonomous {
   private final SendableChooser<ChooseAutoDelay> autoDelayChooser = new SendableChooser<>();
   private final SendableChooser<Integer> scoreCount = new SendableChooser<>();
 
-  private AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
-
   /**
    * Creates a new RobotAutonomous.
    * 
@@ -93,8 +94,11 @@ public class RobotAutonomous {
     scoreCount.addOption("2", 2);
     scoreCount.addOption("3", 3);
 
-    scoreCount.setDefaultOption("1", 1);
+    int numberOfGamePieces = Autos.getNumberOfGamePieces();
 
+    scoreCount.setDefaultOption(String.valueOf(numberOfGamePieces), numberOfGamePieces);
+
+    Autos.setNumberOfGamePieces(scoreCount.getSelected());
   }
 
   /**
@@ -130,36 +134,45 @@ public class RobotAutonomous {
   }
 
   /**
-   * Returns whether to balance on the charging station at the end of autonomous.
-   * 
-   * @return True if robot should balance on the charging station.
-.   */
-  public boolean shouldBalanceOnChargingStation() {
-    return balanceOnChargingStation.get();
-  }
-
-  /**
    * Adds the autonomous layout to the Shuffleboard tab.
    * 
    * @param layout The layout to add user interface elements.
    */
   public ShuffleboardLayout addShuffleboardLayout(ShuffleboardTab tab) {
+    // Add the Autonomous layout to the specified tab.
     ShuffleboardLayout autonomousLayout = tab.getLayout("Autonomous", BuiltInLayouts.kList);
 
     autonomousLayout.add("Routine", autonomousCommandChooser);
     autonomousLayout.add("Delay", autoDelayChooser);
-    autonomousLayout.add("Number of Game Pieces", scoreCount);
 
-    SimpleWidget balanceWidget = autonomousLayout.add("Balance on Charging Station", balanceOnChargingStation.get())
+    ComplexWidget numberOfGamePiecesWidget = autonomousLayout.add("Number of Game Pieces", scoreCount);
+    SimpleWidget balanceWidget = autonomousLayout
+        .add("Balance on Charging Station", Autos.getBalanceOnChargingStation())
         .withWidget(BuiltInWidgets.kToggleSwitch);
 
+    // Set up a listener to update the number of game pieces to score depending on
+    // the selected item in the chooser.
+    NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
+    NetworkTableEntry numberOfGamePiecesEntry = ntInstance
+        .getTable(Shuffleboard.kBaseTableName)
+        .getSubTable(tab.getTitle())
+        .getSubTable(autonomousLayout.getTitle())
+        .getSubTable(numberOfGamePiecesWidget.getTitle())
+        .getEntry("active");
+
+    ntInstance.addListener(
+        numberOfGamePiecesEntry,
+        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+        (event) -> Autos.setNumberOfGamePieces(Integer.parseInt(event.valueData.value.getString())));
+
+    // Set up a listener to update whether to balance on the charging station
+    // depending on the toggle switch.
     GenericEntry balanceEntry = balanceWidget.getEntry();
     BooleanTopic balanceTopic = new BooleanTopic(balanceEntry.getTopic());
-    NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
     ntInstance.addListener(
         balanceTopic,
         EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-        (event) -> balanceOnChargingStation.set(event.valueData.value.getBoolean()));
+        (event) -> Autos.setBalanceOnChargingStation(event.valueData.value.getBoolean()));
 
     return autonomousLayout;
   }

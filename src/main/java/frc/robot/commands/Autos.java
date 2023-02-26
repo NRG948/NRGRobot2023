@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.javatuples.LabelValue;
 
@@ -67,7 +69,46 @@ public final class Autos {
    */
   private static final double AUTO_SPEED_PERCENT = 0.8;
 
+  private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
+  private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
+
   private static Map<String, Command> pathplannerEventMap;
+
+  /**
+   * Returns whether to balance on the charging station at the end of autonomous.
+   * 
+   * @return Whether to balance on the charging station.
+   */
+  public static boolean getBalanceOnChargingStation() {
+    return balanceOnChargingStation.get();
+  }
+
+  /**
+   * Sets whether to balance on the charging station at the end of autonomous.
+   * 
+   * @param balance Whether to balance on the charging station.
+   */
+  public static void setBalanceOnChargingStation(boolean balance) {
+    balanceOnChargingStation.set(balance);
+  }
+
+  /**
+   * Returns the number of game pieces to score during autonomous.
+   * 
+   * @return The number of game pieces to score during autonomous.
+   */
+  public static int getNumberOfGamePieces() {
+    return numberOfGamePieces.get();
+  }
+
+  /**
+   * Sets the number of game pieces to score during autonomous.
+   * 
+   * @param number The number of game pieces to score during autonomous.
+   */
+  public static void setNumberOfGamePieces(int number) {
+    numberOfGamePieces.set(number);
+  }
 
   /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
@@ -195,20 +236,26 @@ public final class Autos {
     return Commands.sequence(
         // Create the pathplanner command to follow the trajectory.
         autoBuilder.fullAuto(pathGroup),
-        // Drive to the center of the correct alliance charging station and auto-balance.
-        Commands.select(
-          Map.of(
-            Alliance.Blue,
-            Commands.sequence(
-              new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
-              new AutoBalanceOnChargeStation(drivetrain)),
-            Alliance.Red,
-            Commands.sequence(
-              new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
-              new AutoBalanceOnChargeStation(drivetrain)),
-            Alliance.Invalid,
-            new PrintCommand("ERROR: Invalid alliance color!")),
-          DriverStation::getAlliance));
+        // Drive to the center of the correct alliance charging station and auto-balance
+        // if enabled. Otherwise, do nothing.
+        Commands.either(
+            Commands.select(
+                Map.of(
+                    Alliance.Blue,
+                    Commands.sequence(
+                        new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER,
+                            drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+                        new AutoBalanceOnChargeStation(drivetrain)),
+                    Alliance.Red,
+                    Commands.sequence(
+                        new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER,
+                            drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+                        new AutoBalanceOnChargeStation(drivetrain)),
+                    Alliance.Invalid,
+                    new PrintCommand("ERROR: Invalid alliance color!")),
+                DriverStation::getAlliance),
+            Commands.none(),
+            Autos::getBalanceOnChargingStation));
   }
 
   /**
