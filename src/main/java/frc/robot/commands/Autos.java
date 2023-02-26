@@ -111,6 +111,17 @@ public final class Autos {
   }
 
   /**
+   * Returns the speed to drive during autonomous.
+   * 
+   * @param drivetrain The swerve drive subsystem.
+   * 
+   * @return The speed to drive during autonomous.
+   */
+  private static double getAutoSpeed(SwerveSubsystem drivetrain) {
+    return drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT;
+  }
+
+  /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
    * position of the robot to (0, 0, 0°).
    * <p>
@@ -129,8 +140,7 @@ public final class Autos {
             subsystems.drivetrain,
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(new Translation2d(1, 1), new Translation2d(2, 1)),
-            new Pose2d(3, 0,
-                new Rotation2d(0))));
+            new Pose2d(3, 0, new Rotation2d(0))));
   }
 
   /**
@@ -221,7 +231,7 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
-        new PathConstraints(drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT, drivetrain.getMaxAcceleration()));
+        new PathConstraints(getAutoSpeed(drivetrain), drivetrain.getMaxAcceleration()));
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         drivetrain::getPosition,
         drivetrain::resetPosition,
@@ -243,13 +253,11 @@ public final class Autos {
                 Map.of(
                     Alliance.Blue,
                     Commands.sequence(
-                        new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER,
-                            drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+                        new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
                         new AutoBalanceOnChargeStation(drivetrain)),
                     Alliance.Red,
                     Commands.sequence(
-                        new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER,
-                            drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT),
+                        new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
                         new AutoBalanceOnChargeStation(drivetrain)),
                     Alliance.Invalid,
                     new PrintCommand("ERROR: Invalid alliance color!")),
