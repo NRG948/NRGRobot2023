@@ -7,12 +7,14 @@ package frc.robot.commands;
 import static frc.robot.util.FileUtil.withExtension;
 import static frc.robot.util.FilesystemUtil.getPathplannerDirectory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.javatuples.LabelValue;
 
@@ -33,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.FileUtil;
@@ -212,10 +215,44 @@ public final class Autos {
    */
   @AutonomousCommandGenerator
   public static Collection<LabelValue<String, Command>> getPathplannerCommands(Subsystems subsystems) {
-    return Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    var groupedCommands = Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
         .map(FileUtil::basenameOf)
+        .sorted()
         .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
-        .toList();
+        .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-")[0]));
+    ArrayList<LabelValue<String, Command>> commandSequences = new ArrayList<>();
+    groupedCommands.forEach((l, v) -> {
+      Command sequence = Commands.sequence(
+          v.get(0).getValue(),
+          Commands.select(
+            Map.of(
+              0, v.get(1).getValue(),
+              1, v.get(1).getValue(),
+              2, v.get(2).getValue(),
+              3, v.get(1).getValue()),
+            Autos::getNumberOfGamePieces),
+          // Drive to the center of the correct alliance charging station and auto-balance
+          // if enabled. Otherwise, do nothing.
+          Commands.either(
+              Commands.select(
+                  Map.of(
+                      Alliance.Blue,
+                      Commands.sequence(
+                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
+                          new AutoBalanceOnChargeStation(drivetrain)),
+                      Alliance.Red,
+                      Commands.sequence(
+                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
+                          new AutoBalanceOnChargeStation(drivetrain)),
+                      Alliance.Invalid,
+                      new PrintCommand("ERROR: Invalid alliance color!")),
+                  DriverStation::getAlliance),
+              Commands.none(),
+              Autos::getBalanceOnChargingStation));
+          commandSequences.add(new LabelValue<String,Command>(l, sequence));
+    });
+    return commandSequences;
   }
 
   /**
@@ -243,27 +280,7 @@ public final class Autos {
         true,
         drivetrain);
 
-    return Commands.sequence(
-        // Create the pathplanner command to follow the trajectory.
-        autoBuilder.fullAuto(pathGroup),
-        // Drive to the center of the correct alliance charging station and auto-balance
-        // if enabled. Otherwise, do nothing.
-        Commands.either(
-            Commands.select(
-                Map.of(
-                    Alliance.Blue,
-                    Commands.sequence(
-                        new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
-                        new AutoBalanceOnChargeStation(drivetrain)),
-                    Alliance.Red,
-                    Commands.sequence(
-                        new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
-                        new AutoBalanceOnChargeStation(drivetrain)),
-                    Alliance.Invalid,
-                    new PrintCommand("ERROR: Invalid alliance color!")),
-                DriverStation::getAlliance),
-            Commands.none(),
-            Autos::getBalanceOnChargingStation));
+    return autoBuilder.fullAuto(pathGroup);
   }
 
   /**
