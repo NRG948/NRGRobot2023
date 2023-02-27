@@ -207,6 +207,18 @@ public final class Autos {
    * Returns a {@link Collection} of {@link LabelValue} objects mapping a display
    * name to a {@link Command} to follow a path group stored in the PathPlanner
    * deployment directory.
+   * <p>
+   * Multiple pathplanner files with the naming convention "&lt;origin&gt;[-Score
+   * &lt;n&gt;]" will be combined into a single sequence. The path with name
+   * "&lt;origin&gt;" will be followed unconditionally. The path with name
+   * "&lt;origin&gt;-Score &lt;n&gt;" will be selected based on the number of game
+   * elements to score.
+   * <p>
+   * Files the do not conform to the naming convention described above will be
+   * treated as separate paths and unique sequences created for each.
+   * <p>
+   * After following the pathplanner paths, the sequence will optionally drive to
+   * the center of the charging station and auto-balance.
    * 
    * @param subsystems The subsystems container.
    * 
@@ -216,22 +228,34 @@ public final class Autos {
   @AutonomousCommandGenerator
   public static Collection<LabelValue<String, Command>> getPathplannerCommands(Subsystems subsystems) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
+    
+    // Generate path following commands for all pathplanner files, group them by
+    // origin and then create the autonomous command sequences.
     var groupedCommands = Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
-        .map(FileUtil::basenameOf)
-        .sorted()
-        .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
-        .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-")[0]));
+    .map(FileUtil::basenameOf)
+    .sorted()
+    .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
+    .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-Score")[0]));
     ArrayList<LabelValue<String, Command>> commandSequences = new ArrayList<>();
-    groupedCommands.forEach((l, v) -> {
-      Command sequence = Commands.sequence(
-          v.get(0).getValue(),
-          Commands.select(
-            Map.of(
-              0, v.get(1).getValue(),
-              1, v.get(1).getValue(),
-              2, v.get(2).getValue(),
-              3, v.get(1).getValue()),
-            Autos::getNumberOfGamePieces),
+
+    groupedCommands.forEach((origin, paths) -> {
+      Command sequence;
+
+      sequence = Commands.sequence(
+          // Follow the primary segment of the autonomous path.
+          paths.get(0).getValue(),
+          // Follow the second segment of the autonomous path based on the number of game
+          // elements to score.
+          new ProxyCommand(() -> {
+            if (getNumberOfGamePieces() <= 1) {
+              // The path at index 1 places the robot in position to auto-balance on the
+              // charging station.
+              return paths.size() >= 2 ? paths.get(1).getValue() : Commands.none();
+            }
+
+            // The path at index 2 scores a second game piece leaving the robot at the grid.
+            return paths.size() >= 3 ? paths.get(2).getValue() : Commands.none();
+          }),
           // Drive to the center of the correct alliance charging station and auto-balance
           // if enabled. Otherwise, do nothing.
           Commands.either(
@@ -250,7 +274,8 @@ public final class Autos {
                   DriverStation::getAlliance),
               Commands.none(),
               Autos::getBalanceOnChargingStation));
-          commandSequences.add(new LabelValue<String,Command>(l, sequence));
+
+      commandSequences.add(new LabelValue<String, Command>(origin, sequence));
     });
     return commandSequences;
   }
