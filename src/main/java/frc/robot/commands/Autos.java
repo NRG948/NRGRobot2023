@@ -208,8 +208,8 @@ public final class Autos {
    * name to a {@link Command} to follow a path group stored in the PathPlanner
    * deployment directory.
    * <p>
-   * Multiple pathplanner files with the naming convention "&lt;origin&gt;[-Score
-   * &lt;n&gt;]" will be combined into a single sequence. The path with name
+   * Multiple pathplanner files with the naming convention &quot;&lt;origin&gt;[-Score
+   * &lt;n&gt;]&quot; will be combined into a single sequence. The path with name
    * "&lt;origin&gt;" will be followed unconditionally. The path with name
    * "&lt;origin&gt;-Score &lt;n&gt;" will be selected based on the number of game
    * elements to score.
