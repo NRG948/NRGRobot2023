@@ -89,10 +89,9 @@ public class RobotAutonomous {
 
     autoDelayChooser.setDefaultOption(ChooseAutoDelay.NO_DELAY.toString(), ChooseAutoDelay.NO_DELAY);
 
-    scoreCount.addOption("0", 0);
-    scoreCount.addOption("1", 1);
-    scoreCount.addOption("2", 2);
-    scoreCount.addOption("3", 3);
+    for (int i = 0; i <= Autos.MAX_GAME_PIECES_TO_SCORE; i++) {
+      scoreCount.addOption(String.valueOf(i), 0);
+    }
 
     int numberOfGamePieces = Autos.getNumberOfGamePieces();
 
