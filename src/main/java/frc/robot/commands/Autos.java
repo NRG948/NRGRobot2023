@@ -210,10 +210,13 @@ public final class Autos {
    * name to a {@link Command} to follow a path group stored in the PathPlanner
    * deployment directory.
    * <p>
-   * Multiple pathplanner files with the naming convention &quot;&lt;_origin&gt;[-Score
+   * Multiple pathplanner files with the naming convention
+   * &quot;&lt;_origin&gt;[-Score
    * &lt;_n&gt;]&quot; will be combined into a single sequence. The path with name
-   * &quot;&lt;_origin&gt;&quot; will be followed unconditionally. The path with name
-   * &quot;&lt;_origin&gt;-Score &lt;_n&gt;&quot; will be selected based on the number of game
+   * &quot;&lt;_origin&gt;&quot; will be followed unconditionally. The path with
+   * name
+   * &quot;&lt;_origin&gt;-Score &lt;_n&gt;&quot; will be selected based on the
+   * number of game
    * elements to score.
    * <p>
    * Files the do not conform to the naming convention described above will be
@@ -230,14 +233,14 @@ public final class Autos {
   @AutonomousCommandGenerator
   public static Collection<LabelValue<String, Command>> getPathplannerCommands(Subsystems subsystems) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
-    
+
     // Generate path following commands for all pathplanner files, group them by
     // origin and then create the autonomous command sequences.
     var groupedCommands = Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
-    .map(FileUtil::basenameOf)
-    .sorted()
-    .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
-    .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-Score")[0]));
+        .map(FileUtil::basenameOf)
+        .sorted()
+        .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
+        .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-Score")[0]));
     ArrayList<LabelValue<String, Command>> commandSequences = new ArrayList<>();
 
     groupedCommands.forEach((origin, paths) -> {
@@ -248,16 +251,13 @@ public final class Autos {
           paths.get(0).getValue(),
           // Follow the second segment of the autonomous path based on the number of game
           // elements to score.
-          new ProxyCommand(() -> {
-            if (getNumberOfGamePieces() <= 1) {
+          Commands.either(
               // The path at index 1 places the robot in position to auto-balance on the
               // charging station.
-              return paths.size() >= 2 ? paths.get(1).getValue() : Commands.none();
-            }
-
-            // The path at index 2 scores a second game piece leaving the robot at the grid.
-            return paths.size() >= 3 ? paths.get(2).getValue() : Commands.none();
-          }),
+              paths.size() >= 2 ? paths.get(1).getValue() : Commands.none(),
+              // The path at index 2 scores a second game piece leaving the robot at the grid.
+              paths.size() >= 3 ? paths.get(2).getValue() : Commands.none(),
+              () -> getNumberOfGamePieces() <= 1),
           // Drive to the center of the correct alliance charging station and auto-balance
           // if enabled. Otherwise, do nothing.
           Commands.either(
