@@ -40,8 +40,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
-  private static final double GEAR_RATIO = 4; // TODO: Get real ratio
-  private static final double PULLEY_DIAMETER = Units.inchesToMeters(2); // TODO: Get real value
+  private static final double GEAR_RATIO = 9*6/5.0;
+  private static final double PULLEY_DIAMETER = Units.inchesToMeters(1.25);
   private static final double ELEVATOR_MASS = 1; // TODO: Get real mass
 
   // Trapezoidal profile constants.

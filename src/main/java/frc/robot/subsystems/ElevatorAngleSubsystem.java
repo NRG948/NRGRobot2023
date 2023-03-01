@@ -23,7 +23,6 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
     ACQUIRING(30),
-    STOWED(90),
     SCORING(120);
 
     private final double angle;
@@ -52,9 +51,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
 
   private double angleOffset; // record encoder's current position
-  private ElevatorAngle goalAngle = ElevatorAngle.STOWED;
+  private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
   private double motorPower = 0;
-  private double currentAngle = ElevatorAngle.STOWED.getAngle(); // start as stowed
+  private double currentAngle = ElevatorAngle.ACQUIRING.getAngle(); // start at acquiring
   private boolean isPeriodicControlEnabled = false;
   private boolean currentAcquiringLimit;
   private boolean currentScoringLimit;
@@ -63,7 +62,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   public ElevatorAngleSubsystem() {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
-    angleOffset = encoder.getPosition() - ElevatorAngle.STOWED.getAngle();
+    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getAngle();
   }
 
   public void setMotor(double power) {
