@@ -72,7 +72,8 @@ public final class Autos {
    * speed. We must use a value lower than maximum to allow headroom for course
    * corrections.
    */
-  private static final double AUTO_SPEED_PERCENT = 0.8;
+  private static final double OUTER_SPEED_PERCENT = 0.8;
+  private static final double COOP_SPEED_PERCENT = 0.5;
 
   private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
   private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
@@ -122,8 +123,8 @@ public final class Autos {
    * 
    * @return The speed to drive during autonomous.
    */
-  private static double getAutoSpeed(SwerveSubsystem drivetrain) {
-    return drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT;
+  private static double getAutoSpeed(SwerveSubsystem drivetrain, boolean isOuterPath) {
+    return (isOuterPath ? OUTER_SPEED_PERCENT : COOP_SPEED_PERCENT) * drivetrain.getMaxSpeed();
   }
   
   /**
@@ -275,11 +276,11 @@ public final class Autos {
                   Map.of(
                       Alliance.Blue,
                       Commands.sequence(
-                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
+                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
                           new AutoBalanceOnChargeStation(drivetrain)),
                       Alliance.Red,
                       Commands.sequence(
-                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain)),
+                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
                           new AutoBalanceOnChargeStation(drivetrain)),
                       Alliance.Invalid,
                       new PrintCommand("ERROR: Invalid alliance color!")),
@@ -303,9 +304,10 @@ public final class Autos {
    */
   public static Command getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
+    boolean isOuterPath = pathGroupName.startsWith("Outer");
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
-        new PathConstraints(getAutoSpeed(drivetrain), getAutoAcceleration(drivetrain)));
+        new PathConstraints(getAutoSpeed(drivetrain, isOuterPath), getAutoAcceleration(drivetrain)));
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         drivetrain::getPosition,
         drivetrain::resetPosition,
