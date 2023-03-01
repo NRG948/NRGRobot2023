@@ -125,6 +125,16 @@ public final class Autos {
   private static double getAutoSpeed(SwerveSubsystem drivetrain) {
     return drivetrain.getMaxSpeed() * AUTO_SPEED_PERCENT;
   }
+  
+  /**
+   * Returns the acceleration to drive during autonomous.
+   * 
+   * @param drivetrain The swerve drive subsystem.
+   * @return The acceleration to drive during autonomous.
+   */
+  private static double getAutoAcceleration(SwerveSubsystem drivetrain) {
+    return drivetrain.getMaxAcceleration()*0.8;
+  }
 
   /**
    * Creates a command sequence to follow an S-curve path. It sets the initial
@@ -295,7 +305,7 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
-        new PathConstraints(getAutoSpeed(drivetrain), drivetrain.getMaxAcceleration()));
+        new PathConstraints(getAutoSpeed(drivetrain), getAutoAcceleration(drivetrain)));
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         drivetrain::getPosition,
         drivetrain::resetPosition,
