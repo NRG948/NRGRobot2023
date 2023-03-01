@@ -97,7 +97,6 @@ public class RobotAutonomous {
 
     scoreCount.setDefaultOption(String.valueOf(numberOfGamePieces), numberOfGamePieces);
 
-    Autos.setNumberOfGamePieces(scoreCount.getSelected());
   }
 
   /**
@@ -161,7 +160,7 @@ public class RobotAutonomous {
 
     ntInstance.addListener(
         numberOfGamePiecesEntry,
-        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+        EnumSet.of(NetworkTableEvent.Kind.kValueAll, NetworkTableEvent.Kind.kImmediate),
         (event) -> Autos.setNumberOfGamePieces(Integer.parseInt(event.valueData.value.getString())));
 
     // Set up a listener to update whether to balance on the charging station
