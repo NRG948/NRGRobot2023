@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -63,6 +64,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
     angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getAngle();
+    motor.setIdleMode(IdleMode.kBrake);
   }
 
   public void setMotor(double power) {

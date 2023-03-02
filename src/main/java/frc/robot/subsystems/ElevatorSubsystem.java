@@ -10,6 +10,7 @@ import com.nrg948.preferences.RobotPreferencesValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -112,6 +113,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     encoder = motor.getAlternateEncoder(MOTOR.getPulsesPerRevolution());
     angle = angleSupplier;
     currentAngle = angle.get();
+    motor.setIdleMode(IdleMode.kBrake);
   }
 
   /**
