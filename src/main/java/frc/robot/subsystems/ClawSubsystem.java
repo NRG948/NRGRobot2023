@@ -9,36 +9,30 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants.PWMPort;
 
 /**
- * The claw subsystem is responsible for grabbing and holding onto the game
- * elements for delivery to the scoring grids.
+ * The claw subsystem is responsible for holding and releasing the game pieces
+ * for delivery to the scoring grids.
  */
 public class ClawSubsystem extends SubsystemBase {
 
-  /** An enumeration of possible claw positions. */
+  /** An enumeration of possible claw trapdoor positions. */
   public enum Position {
-    // three position instances for the claw
-    OPEN(90),
-    GRAB_CONE(60),
-    GRAB_CUBE(70);
+    OPEN(100),
+    CLOSED(60);
 
-    private final double angle;  // The servo angle (0-180 degree range)
+    private final double servoAngle;  // The servo angle (0-180 degree range)
 
     /**
      * Creates a Position instance.
      * 
-     * @param angle The servo motor angle.
+     * @param servoAngle The servo motor angle.
      */
-    private Position(double angle) {
-      this.angle = angle;
+    private Position(double servoAngle) {
+      this.servoAngle = servoAngle;
     }
 
-    /**
-     * Returns the servo motor angle in degrees (0-180).
-     * 
-     * @return
-     */
-    private double getAngle() {
-      return angle;
+    /** Returns the servo motor angle in degrees (0-180). */
+    private double getServoAngle() {
+      return servoAngle;
     }
   };
 
@@ -46,17 +40,17 @@ public class ClawSubsystem extends SubsystemBase {
 
   /** Creates a new ClawSubsystem. */
   public ClawSubsystem() {
-    set(Position.OPEN);
+    set(Position.CLOSED);
   }
 
   /**
-   * Sets the claw servo to a desired claw position.
+   * Sets the trapdoor servo to a desired position.
    * 
-   * @param position The claw position.
+   * @param position The desired servo position.
    */
   public void set(Position position) {
-    servo.setAngle(position.getAngle());
-    System.out.println("Servo Angle: " + position.getAngle());
+    servo.setAngle(position.getServoAngle());
+    System.out.println("Servo Angle: " + position.getServoAngle());
   }
 
   @Override
