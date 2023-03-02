@@ -46,6 +46,6 @@ public class CharacterizeElevator extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return logger.getMotorVoltage() > 0 ? elevator.atTopLimit() : elevator.atBottomLimit();
   }
 }
