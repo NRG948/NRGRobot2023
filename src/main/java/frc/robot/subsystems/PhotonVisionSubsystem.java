@@ -45,7 +45,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    result = camera.getLatestResult();
+    //result = camera.getLatestResult();
   }
 
   /**
