@@ -46,9 +46,9 @@ public final class Constants {
      */
     public static class CAN {
       public static class SparkMax {
-        public static final int INTAKE = 1;
-        public static final int ELEVATOR = 2;
-        public static final int ELEVATOR_ANGLE = 3;
+        public static final int INTAKE = 17;
+        public static final int ELEVATOR = 18;
+        public static final int ELEVATOR_ANGLE = 19;
       }
     }
 
@@ -56,10 +56,10 @@ public final class Constants {
      * Digital I/O port numbers.
      */
     public static class DigitalIO {
-      public static final int ELEVATOR_ANGLE_ACQUIRE_LIMIT = 0;
+      public static final int ELEVATOR_ANGLE_ACQUIRE_LIMIT = 3;
       public static final int ELEVATOR_ANGLE_SCORING_LIMIT = 1;
-      public static final int ELEVATOR_BOTTOM_LIMIT = 2;
-      public static final int ELEVATOR_TOP_LIMIT = 3;
+      public static final int ELEVATOR_BOTTOM_LIMIT = 0;
+      public static final int ELEVATOR_TOP_LIMIT = 2;
     }
 
     /**
