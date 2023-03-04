@@ -60,8 +60,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
 
-  private final CANSparkMax motor;
-  private final RelativeEncoder encoder;
+  private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
+  private final RelativeEncoder encoder = motor.getEncoder();
   private final Supplier<Rotation2d> angle;
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV, KA);
   private final ProfiledPIDController pidController = new ProfiledPIDController(1.0, 0, 0, CONSTRAINTS);
@@ -109,13 +109,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param angleSupplier Supplier that returns the current elevator angle.
    */
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
-    motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
-    motor.setSmartCurrentLimit(20);
-    encoder = motor.getEncoder();
+    motor.setIdleMode(IdleMode.kBrake);
+
     encoder.setPositionConversionFactor(1.0); //fix later
+
     angle = angleSupplier;
     currentAngle = angle.get();
-    motor.setIdleMode(IdleMode.kBrake);
   }
 
   /**
@@ -125,7 +124,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setGoal(GoalState goalState) {
     this.goalState = goalState;
+
     TrapezoidProfile.State state = new TrapezoidProfile.State(goalState.getPosition(), 0);
+
     profile = new TrapezoidProfile(CONSTRAINTS, state);
     pidController.setGoal(state);
     timer.reset();
