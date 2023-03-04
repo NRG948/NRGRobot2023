@@ -9,10 +9,17 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
 import frc.robot.Constants.RobotConstants.DigitalIO;
+import frc.robot.parameters.FeedforwardConstants;
 import frc.robot.parameters.MotorParameters;
 
 /**
@@ -33,28 +40,47 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     }
 
     /** Returns elevator angle in degrees. */
-    private double getAngle() {
+    private double getDegrees() {
       return angle;
+    }
+
+    /** Returns elevator angle in radians. */
+    private double getRadians() {
+      return Math.toRadians(angle);
     }
   }
 
   // CONSTANTS
-  private final double ANGLE_RANGE = 90;
-  private final double GEAR_RATIO = 120 / 1;
-  private final double MOTOR_POWER = 0.3;
+  private static final double ANGLE_RANGE = 90;
+  private static final double GEAR_RATIO = 120 / 1;
+  private static final double MOTOR_POWER = 0.3;
+  public static final double MASS = 9.97903; //TODO: update mass when claw change.
+  private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
 
   // Calculate degrees per pulse
-  private final double DEGREES_PER_REVOLUTION = ANGLE_RANGE / (GEAR_RATIO * 360);
+  private static final double DEGREES_PER_REVOLUTION = ANGLE_RANGE / (GEAR_RATIO * 360);
+
+  private static final double MAX_ANGULAR_SPEED = (MOTOR.getFreeSpeedRPM() * 2 * Math.PI) / (60 * GEAR_RATIO);
+  private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
+  private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
+  private static final double KS = 0.15;
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
+  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
+  private static final double KG = 9.81 * KA;
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR_ANGLE, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getEncoder();
   private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
+  private final ArmFeedforward feedforward = new ArmFeedforward(KS, KV, KA, KG);
+  private final ProfiledPIDController controller = new ProfiledPIDController(1.0, 0.0, 0.0, CONSTRAINTS);
+  private final Timer timer = new Timer();
 
   private double angleOffset; // record encoder's current position
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
-  private double motorPower = 0;
-  private double currentAngle = ElevatorAngle.ACQUIRING.getAngle(); // start at acquiring
+  private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS, new TrapezoidProfile.State(goalAngle.getDegrees(), 0));
+  private double currentAngle = ElevatorAngle.ACQUIRING.getRadians(); // start at acquiring
+  private double currentVelocity = 0;
   private boolean isPeriodicControlEnabled = false;
   private boolean currentAcquiringLimit;
   private boolean currentScoringLimit;
@@ -63,7 +89,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   public ElevatorAngleSubsystem() {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
-    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getAngle();
+    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
     motor.setIdleMode(IdleMode.kBrake);
   }
 
@@ -82,10 +108,12 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    */
   public void setGoalAngle(ElevatorAngle goalAngle) {
     this.goalAngle = goalAngle;
-    // Acquiring to scoring -> Positive motor power
-    // Scoring to acquiring -> Negative motor power
-    this.motorPower = Math.signum(goalAngle.getAngle() - currentAngle) * MOTOR_POWER;
-    isPeriodicControlEnabled = true;
+    TrapezoidProfile.State goalState = new TrapezoidProfile.State(goalAngle.getRadians(), 0);
+    profile = new TrapezoidProfile(CONSTRAINTS, goalState);
+    controller.setGoal(goalState);
+    timer.reset();
+    timer.start();
+    enablePeriodicControl(true);
   }
 
   /**
@@ -94,9 +122,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    * @return True if the elevator is at the goal angle.
    */
   public boolean atGoalAngle() {
-    return motorPower > 0
-        ? currentAngle >= goalAngle.getAngle() || atScoringLimit()
-        : currentAngle <= goalAngle.getAngle() || atAcquiringLimit();
+    return controller.atGoal() || (goalAngle == ElevatorAngle.ACQUIRING ? atAcquiringLimit() : atScoringLimit());
   }
 
   /**
@@ -111,6 +137,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   /** Enables periodic control. */
   public void enablePeriodicControl(boolean isEnabled) {
     isPeriodicControlEnabled = isEnabled;
+    if (!isPeriodicControlEnabled) {
+      motor.stopMotor();
+    }
   }
 
   /**
@@ -136,18 +165,22 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     currentAcquiringLimit = acquiringLimit.get();
     currentScoringLimit = scoringLimit.get();
     currentAngle = encoder.getPosition() - angleOffset;
+    currentVelocity = encoder.getVelocity();
 
-    // This method will be called once per scheduler run
     if (!isPeriodicControlEnabled) {
       return;
     }
 
-    // Shut off motor if at the desired angle.
     if (atGoalAngle()) {
-      motorPower = 0;
-      isPeriodicControlEnabled = false;
+      enablePeriodicControl(false);
+      return;
     }
-    setMotor(motorPower);
+
+    TrapezoidProfile.State state = profile.calculate(timer.get());
+    double feedbackVolts = controller.calculate(currentVelocity, state.velocity);
+    double feedforwardVolts = feedforward.calculate(currentAngle, currentVelocity);
+
+    motor.setVoltage(feedforwardVolts + feedbackVolts);
   }
 
 }
