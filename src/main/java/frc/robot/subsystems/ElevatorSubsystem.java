@@ -110,7 +110,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
     motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
-    encoder = motor.getAlternateEncoder(MOTOR.getPulsesPerRevolution());
+    motor.setSmartCurrentLimit(20);
+    encoder = motor.getEncoder();
+    encoder.setPositionConversionFactor(1.0); //fix later
     angle = angleSupplier;
     currentAngle = angle.get();
     motor.setIdleMode(IdleMode.kBrake);

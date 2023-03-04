@@ -28,7 +28,7 @@ public class IntakeByController extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = controller.getLeftY();
+    double speed = controller.getHID().getRightTriggerAxis() - controller.getHID().getLeftTriggerAxis();
     speed = MathUtil.applyDeadband(speed, DEADBAND);
     intakeSubsystem.runMotor(speed);
   }

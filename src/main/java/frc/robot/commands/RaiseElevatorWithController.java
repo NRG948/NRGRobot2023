@@ -18,7 +18,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class RaiseElevatorWithController extends CommandBase {
   private ElevatorSubsystem elevator;
   private CommandXboxController controller;
-  private static final double MAX_POWER = 0.5;
+  private static final double MAX_POWER = 1.0;
 
   /**
    * Creates a new ElevatorWithController.

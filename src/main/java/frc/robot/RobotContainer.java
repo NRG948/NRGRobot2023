@@ -30,6 +30,7 @@ import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.IntakeByController;
 import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.TiltElevatorWithController;
@@ -73,6 +74,8 @@ public class RobotContainer {
                 .setDefaultCommand(new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
         subsystems.elevatorAngle
                 .setDefaultCommand(new TiltElevatorWithController(subsystems.elevatorAngle, manipulatorController));
+        subsystems.intake
+                .setDefaultCommand(new IntakeByController(subsystems.intake, manipulatorController));
 
         initShuffleboard();
 

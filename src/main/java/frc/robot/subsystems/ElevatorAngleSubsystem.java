@@ -47,7 +47,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final double DEGREES_PER_REVOLUTION = ANGLE_RANGE / (GEAR_RATIO * 360);
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR_ANGLE, MotorType.kBrushless);
-  private final RelativeEncoder encoder = motor.getAlternateEncoder(MotorParameters.NeoV1_1.getPulsesPerRevolution());
+  private final RelativeEncoder encoder = motor.getEncoder();
   private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
 
