@@ -222,26 +222,28 @@ public class ElevatorSubsystem extends SubsystemBase {
     currentBottomLimit = bottomLimit.get();
     currentTopLimit = topLimit.get();
 
-    if (enabled) {
-      // If the elevator has been moved to the lowest position, stop the motor.
-      if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit()) {
-        motor.stopMotor();
-        return;
-      }
-
-      // Find the desired elevator state (position and velocity) using the trapezoid
-      // profile and use feedback (PID) and feedforward to calculate the required
-      // voltage to apply to the motor.
-      TrapezoidProfile.State state = profile.calculate(timer.get());
-      double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
-      double feedforwardVolts = Math.sin(currentAngle.getRadians()) * KG;
-
-      if (goalState != GoalState.SCORE_HIGH || !atTopLimit()) {
-        feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
-      }
-
-      motor.setVoltage(feedbackVolts + feedforwardVolts);
+    if (!enabled) {
+      return;
     }
+
+    // If the elevator has been moved to the lowest position, stop the motor.
+    if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit()) {
+      disableGoalSeeking();
+      return;
+    }
+
+    // Find the desired elevator state (position and velocity) using the trapezoid
+    // profile and use feedback (PID) and feedforward to calculate the required
+    // voltage to apply to the motor.
+    TrapezoidProfile.State state = profile.calculate(timer.get());
+    double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
+    double feedforwardVolts = Math.sin(currentAngle.getRadians()) * KG;
+
+    if (goalState != GoalState.SCORE_HIGH || !atTopLimit()) {
+      feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
+    }
+
+    motor.setVoltage(feedbackVolts + feedforwardVolts);
   }
 
   /**
