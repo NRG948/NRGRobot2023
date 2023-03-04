@@ -41,9 +41,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
-  private static final double GEAR_RATIO = 9*6/5.0;
+  private static final double GEAR_RATIO = 5/1.0;
   private static final double PULLEY_DIAMETER = Units.inchesToMeters(1.25);
-  private static final double ELEVATOR_MASS = 1; // TODO: Get real mass
+  private static final double ELEVATOR_MASS = 3.63; // 3.63 kilograms, including the cone, trapdoor system, and the carrige of the elevator
 
   // Trapezoidal profile constants.
   private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * PULLEY_DIAMETER * Math.PI)

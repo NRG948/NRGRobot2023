@@ -40,7 +40,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // CONSTANTS
   private final double ANGLE_RANGE = 90;
-  private final double GEAR_RATIO = 4 / 1;
+  private final double GEAR_RATIO = 120 / 1;
   private final double MOTOR_POWER = 0.3;
 
   // Calculate degrees per pulse
