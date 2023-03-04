@@ -125,7 +125,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setGoal(GoalState goalState) {
     this.goalState = goalState;
-    pidController.setGoal(new TrapezoidProfile.State(goalState.getPosition(), 0));
+    TrapezoidProfile.State state = new TrapezoidProfile.State(goalState.getPosition(), 0);
+    profile = new TrapezoidProfile(CONSTRAINTS, state);
+    pidController.setGoal(state);
     timer.reset();
     timer.start();
     enabled = true;
