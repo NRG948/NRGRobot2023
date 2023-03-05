@@ -50,7 +50,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // CONSTANTS
   private static final double ANGLE_RANGE = 90;
-  private static final double GEAR_RATIO = 120 / 1;
+  private static final double GEAR_RATIO = 100 / 1;
   private static final double MOTOR_POWER = 0.3;
   public static final double MASS = 9.97903; //TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
