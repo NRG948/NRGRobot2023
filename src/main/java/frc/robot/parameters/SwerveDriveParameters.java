@@ -57,7 +57,7 @@ public enum SwerveDriveParameters {
    * The 2023 practice robot using feedforward constants calculated from
    * theoretical maximums.
    */
-  Practice2023(
+  Competition2023(
       24.6, // TODO: Re-weigh the robot after each change is made.
       Units.inchesToMeters(24.5),
       Units.inchesToMeters(22.5),
