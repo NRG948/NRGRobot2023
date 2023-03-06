@@ -56,7 +56,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
 
   // Calculate degrees per pulse
-  private static final double DEGREES_PER_REVOLUTION = ANGLE_RANGE / (GEAR_RATIO * 360);
+  private static final double RADIANS_PER_REVOLUTION = 2 * Math.PI / (GEAR_RATIO);
 
   private static final double MAX_ANGULAR_SPEED = (MOTOR.getFreeSpeedRPM() * 2 * Math.PI) / (60 * GEAR_RATIO);
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
@@ -85,8 +85,11 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   /** Creates a new ElevatorAngleSubsystem. */
   public ElevatorAngleSubsystem() {
+    motor.setInverted(true);
     // convert encoder ticks to angle
-    encoder.setPositionConversionFactor(DEGREES_PER_REVOLUTION);
+    encoder.setPositionConversionFactor(RADIANS_PER_REVOLUTION);
+    encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION);
+    
     angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
     motor.setIdleMode(IdleMode.kBrake);
   }

@@ -41,7 +41,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
-  private static final double GEAR_RATIO = 5/1.0;
+  private static final double GEAR_RATIO = 5.0 * 42.0 / 48.0;
   private static final double PULLEY_DIAMETER = Units.inchesToMeters(1.25);
   private static final double ELEVATOR_MASS = 3.63; // 3.63 kilograms, including the cone, trapdoor system, and the carrige of the elevator
 
@@ -59,6 +59,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
+  private static final double METERS_PER_REVOLUTION = (Units.inchesToMeters (0.955) *Math.PI)/GEAR_RATIO;
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getEncoder();
@@ -111,7 +112,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
     motor.setIdleMode(IdleMode.kBrake);
 
-    encoder.setPositionConversionFactor(1.0); //fix later
+    encoder.setPositionConversionFactor(METERS_PER_REVOLUTION);
+    encoder.setVelocityConversionFactor(METERS_PER_REVOLUTION);
 
     angle = angleSupplier;
     currentAngle = angle.get();
@@ -265,7 +267,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     ShuffleboardLayout positionLayout = layout.getLayout("Position", BuiltInLayouts.kList)
         .withPosition(0, 0);
     
-    positionLayout.addNumber("Angle", currentAngle::getDegrees);
+    positionLayout.addNumber("Angle", () -> angle.get().getDegrees());
     positionLayout.addNumber("Position", () -> currentPosition);
     positionLayout.addNumber("Velocity", () -> currentVelocity);
     
