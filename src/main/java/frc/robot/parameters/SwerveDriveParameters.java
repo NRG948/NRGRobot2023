@@ -58,7 +58,7 @@ public enum SwerveDriveParameters {
    * theoretical maximums.
    */
   Competition2023(
-      24.6, // TODO: Re-weigh the robot after each change is made.
+      50, // TODO: Re-weigh the robot after each change is made.
       Units.inchesToMeters(24.5),
       Units.inchesToMeters(22.5),
       MK4Standard,
@@ -66,7 +66,22 @@ public enum SwerveDriveParameters {
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
       new int[] { 1, 2, 4, 3 },
       1.0,
-      1.0);
+      1.0),
+
+  /**
+   * The 2023 competition robot using feedforward constants characterized by the
+   * SysId tool.
+   */
+  Competition2023Characterized(
+      50,
+      Units.inchesToMeters(23.5),
+      Units.inchesToMeters(21.625),
+      MK4Standard,
+      Falcon500,
+      new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
+      new int[] { 1, 2, 4, 3 },
+      new FeedforwardConstants(0.18653, 4.4366, 0.3812),
+      new FeedforwardConstants(0.904885, 0.0373245, 0.0032705));
 
   public static class Constants {
     /**
