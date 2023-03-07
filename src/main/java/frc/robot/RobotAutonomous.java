@@ -169,7 +169,7 @@ public class RobotAutonomous {
     BooleanTopic balanceTopic = new BooleanTopic(balanceEntry.getTopic());
     ntInstance.addListener(
         balanceTopic,
-        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+        EnumSet.of(NetworkTableEvent.Kind.kValueAll, NetworkTableEvent.Kind.kImmediate),
         (event) -> Autos.setBalanceOnChargingStation(event.valueData.value.getBoolean()));
 
     return autonomousLayout;
