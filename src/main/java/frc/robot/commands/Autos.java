@@ -134,7 +134,7 @@ public final class Autos {
    * @return The acceleration to drive during autonomous.
    */
   private static double getAutoAcceleration(SwerveSubsystem drivetrain) {
-    return drivetrain.getMaxAcceleration()*0.8;
+    return drivetrain.getMaxAcceleration()*0.1;
   }
 
   /**
