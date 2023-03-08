@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
@@ -35,31 +36,34 @@ import frc.robot.parameters.MotorParameters;
  */
 @RobotPreferencesLayout(groupName = "Elevator", row = 1, column = 4, height = 1, width = 2)
 public class ElevatorSubsystem extends SubsystemBase {
+  
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_ELEVATOR_TAB = new RobotPreferences.BooleanValue("Elevator",
-      "Enable Elevator Tab", false);
-
+  "Enable Elevator Tab", false);
+  
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
   private static final double GEAR_RATIO = 5.0 * 42.0 / 48.0;
-  private static final double PULLEY_DIAMETER = Units.inchesToMeters(1.25);
-  private static final double ELEVATOR_MASS = 3.63; // 3.63 kilograms, including the cone, trapdoor system, and the carrige of the elevator
-
+  private static final double SPROCKET_DIAMETER = Units.inchesToMeters(1.432);
+  private static final double ELEVATOR_MASS = 3.63; // 3.63 kilograms, including the cone, trapdoor system, and the
+  // carrige of the elevator
+  
   // Trapezoidal profile constants.
-  private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * PULLEY_DIAMETER * Math.PI)
-      / (60 * GEAR_RATIO); // meters/sec
+  private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * SPROCKET_DIAMETER * Math.PI)
+  / (60 * GEAR_RATIO); // meters/sec
   private static final double MAX_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO)
-      / (PULLEY_DIAMETER * ELEVATOR_MASS);
-
+  / (SPROCKET_DIAMETER * ELEVATOR_MASS);
+  
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
-      MAX_SPEED, MAX_ACCELERATION);
-
-  // Feedfoward constants.
-  private static final double KS = 0.15;
-  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
-  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
+    MAX_SPEED * 0.01, MAX_ACCELERATION);
+    private static final double POSITION_TOLERANCE = 0.01;
+    
+    // Feedfoward constants.
+    private static final double KS = 0.15;
+    private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
+    private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
-  private static final double METERS_PER_REVOLUTION = (Units.inchesToMeters (0.955) *Math.PI)/GEAR_RATIO;
+  private static final double METERS_PER_REVOLUTION = (SPROCKET_DIAMETER * Math.PI) / GEAR_RATIO;
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getEncoder();
@@ -81,12 +85,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private boolean currentBottomLimit;
   private boolean currentTopLimit;
 
-  /** Encapsulates various goal heights we want to raise the elevator to. */
+  /** Encapsulates various goal heights (in meters) we want to raise the elevator to. */
   public enum GoalState { // TODO: get real values
     ACQUIRE(0),
-    SCORE_LOW(100),
-    SCORE_MID(200),
-    SCORE_HIGH(300);
+    SCORE_LOW(0.10),
+    SCORE_MID(0.50),
+    SCORE_HIGH(1.0);
 
     private final double position;
 
@@ -112,8 +116,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem(Supplier<Rotation2d> angleSupplier) {
     motor.setIdleMode(IdleMode.kBrake);
 
+    encoder.setPosition(0);
     encoder.setPositionConversionFactor(METERS_PER_REVOLUTION);
     encoder.setVelocityConversionFactor(METERS_PER_REVOLUTION);
+
+    pidController.setTolerance(POSITION_TOLERANCE);
 
     angle = angleSupplier;
     currentAngle = angle.get();
@@ -140,6 +147,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Disables autonomous goal seeking.
    */
   public void disableGoalSeeking() {
+    timer.stop();
     enabled = false;
     motor.stopMotor();
   }
@@ -177,7 +185,11 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param voltage The desired voltage.
    */
   public void setMotorVoltage(double voltage) {
-    motor.setVoltage(voltage);
+    if (voltage > 0 ? !atTopLimit() : !atBottomLimit()) {
+      motor.setVoltage(voltage);
+    } else {
+      stopMotor();
+    }
   }
 
   /**
@@ -203,7 +215,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @return True if the elevator is at the specified state.
    */
   public boolean atPosition(GoalState state) {
-    return Math.abs(currentPosition - state.getPosition()) <= 25; // TODO: determine tolerance with real units
+    return Math.abs(currentPosition - state.getPosition()) <= POSITION_TOLERANCE;
   }
 
   /**
@@ -229,7 +241,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     // If the elevator has been moved to the lowest position, stop the motor.
-    if (goalState == GoalState.ACQUIRE && currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit()) {
+    if (goalState == GoalState.ACQUIRE && (currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit())) {
       disableGoalSeeking();
       return;
     }
@@ -239,13 +251,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     // voltage to apply to the motor.
     TrapezoidProfile.State state = profile.calculate(timer.get());
     double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
-    double feedforwardVolts = Math.sin(currentAngle.getRadians()) * KG;
+    double feedforwardVolts = 0; //Math.sin(currentAngle.getRadians()) * KG;
 
-    if (goalState != GoalState.SCORE_HIGH || !atTopLimit()) {
-      feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
-    }
+    feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
 
-    motor.setVoltage(feedbackVolts + feedforwardVolts);
+    setMotorVoltage(feedbackVolts + feedforwardVolts);
   }
 
   /**
@@ -266,17 +276,25 @@ public class ElevatorSubsystem extends SubsystemBase {
         .withProperties(Map.of("Number of columns", 2, "Number of rows", 1));
     ShuffleboardLayout positionLayout = layout.getLayout("Position", BuiltInLayouts.kList)
         .withPosition(0, 0);
-    
+
     positionLayout.addNumber("Angle", () -> angle.get().getDegrees());
     positionLayout.addNumber("Position", () -> currentPosition);
     positionLayout.addNumber("Velocity", () -> currentVelocity);
-    
+
     ShuffleboardLayout switchLayout = layout.getLayout("Limit Switches", BuiltInLayouts.kList)
         .withPosition(1, 0);
     switchLayout.addBoolean("Top Limit Switch", this::atTopLimit);
     switchLayout.addBoolean("Bottom Limit Switch", this::atBottomLimit);
     switchLayout.addBoolean("Acquiring Limit Switch", acquiringLimit);
     switchLayout.addBoolean("Scoring Limit Switch", scoringLimit);
-  }
 
+    ShuffleboardLayout testLayout = tab.getLayout("Test", BuiltInLayouts.kList)
+        .withPosition(3, 0)
+        .withSize(2, 3);
+
+    testLayout.add("Acquiring Position", Commands.runOnce(() -> setGoal(GoalState.ACQUIRE), this));
+    testLayout.add("Score Low", Commands.runOnce(() -> setGoal(GoalState.SCORE_LOW), this));
+    testLayout.add("Score Mid", Commands.runOnce(() -> setGoal(GoalState.SCORE_MID), this));
+    testLayout.add("Score High", Commands.runOnce(() -> setGoal(GoalState.SCORE_HIGH), this));
+  }
 }
