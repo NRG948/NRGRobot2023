@@ -70,8 +70,8 @@ public class RobotContainer {
 
         subsystems.drivetrain.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
         // Manual commands for elevator testing. Not to be used by drivers.
-        subsystems.elevator
-                .setDefaultCommand(new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
+      //  subsystems.elevator
+       //         .setDefaultCommand(new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
         subsystems.elevatorAngle
                 .setDefaultCommand(new TiltElevatorWithController(subsystems.elevatorAngle, manipulatorController));
         subsystems.intake
@@ -197,7 +197,7 @@ public class RobotContainer {
         // default.
         subsystems.drivetrain.addShuffleboardTab();
         subsystems.photonVision.addShuffleboardTab();
-        subsystems.elevator.addShuffleBoardTab(
+        subsystems.elevator.addShuffleBoardTab( 
                 subsystems.elevatorAngle::atAcquiringLimit,
                 subsystems.elevatorAngle::atScoringLimit);
     }
