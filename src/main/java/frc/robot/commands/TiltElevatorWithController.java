@@ -44,6 +44,15 @@ public class TiltElevatorWithController extends CommandBase {
   public void execute() {
     double speed = controller.getRightX();
     speed = MathUtil.applyDeadband(speed, 0.05) * MAX_POWER;
+    // Stop the motors if the elevator is at either limit switches.
+    // if (speed < 0 && elevatorAngle.atAcquiringLimit()
+    //     || speed > 0 && elevatorAngle.atScoringLimit()) {
+    //   elevatorAngle.setMotor(0);
+    // } else {
+    //   elevatorAngle.setMotor(speed);
+    // }
+
+    // TODO: remove this line and un-comment the previous section ONCE the elevator angle limit switches are functional.
     elevatorAngle.setMotor(speed);
   }
 
