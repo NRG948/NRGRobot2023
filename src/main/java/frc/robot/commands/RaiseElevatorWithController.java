@@ -51,13 +51,7 @@ public class RaiseElevatorWithController extends CommandBase {
   public void execute() {
     double speed = -controller.getLeftY();
     speed = MathUtil.applyDeadband(speed, 0.05) * MAX_POWER;
-    // Stops the motors if the elevator is at the top or bottom limit.
-    if (speed < 0 && elevator.atBottomLimit()
-        || speed > 0 && elevator.atTopLimit()) {
-      elevator.stopMotor();
-    } else {
-      elevator.setMotorVoltage(speed * RobotConstants.MAX_BATTERY_VOLTAGE);
-    }
+    elevator.setMotorVoltage(speed * RobotConstants.MAX_BATTERY_VOLTAGE);
   }
 
   // Called once the command ends or is interrupted.
