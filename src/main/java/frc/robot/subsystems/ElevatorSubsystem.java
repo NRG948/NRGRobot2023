@@ -17,6 +17,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -55,7 +57,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   / (SPROCKET_DIAMETER * ELEVATOR_MASS);
   
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
-    MAX_SPEED * 0.01, MAX_ACCELERATION);
+    MAX_SPEED * 0.3, MAX_ACCELERATION);
     private static final double POSITION_TOLERANCE = 0.01;
     
     // Feedfoward constants.
@@ -69,7 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder encoder = motor.getEncoder();
   private final Supplier<Rotation2d> angle;
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV, KA);
-  private final ProfiledPIDController pidController = new ProfiledPIDController(1.0, 0, 0, CONSTRAINTS);
+  private final ProfiledPIDController pidController = new ProfiledPIDController(10.0, 0, 0, CONSTRAINTS);
   private final Timer timer = new Timer();
 
   private final DigitalInput bottomLimit = new DigitalInput(DigitalIO.ELEVATOR_BOTTOM_LIMIT);
@@ -84,6 +86,18 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Rotation2d currentAngle;
   private boolean currentBottomLimit;
   private boolean currentTopLimit;
+  
+  private DoubleLogEntry positionLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Position");
+  private DoubleLogEntry velocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Velocity");
+  private DoubleLogEntry statePositionLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/StatePosition");
+  private DoubleLogEntry stateVelocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/StateVelocity");
+  private DoubleLogEntry motorVoltageLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/MotorVoltage");
+  private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Feedback");
+  private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Feedforward");
+
+
+
+
 
   /** Encapsulates various goal heights (in meters) we want to raise the elevator to. */
   public enum GoalState { // TODO: get real values
@@ -250,12 +264,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     // profile and use feedback (PID) and feedforward to calculate the required
     // voltage to apply to the motor.
     TrapezoidProfile.State state = profile.calculate(timer.get());
-    double feedbackVolts = pidController.calculate(currentVelocity, state.velocity);
+    double feedbackVolts = pidController.calculate(currentPosition, state.position);
     double feedforwardVolts = 0; //Math.sin(currentAngle.getRadians()) * KG;
 
-    feedforwardVolts += feedforward.calculate(currentVelocity, state.velocity);
+    feedforwardVolts += feedforward.calculate(state.velocity);
 
     setMotorVoltage(feedbackVolts + feedforwardVolts);
+
+    positionLogger.append(currentPosition);
+    velocityLogger.append(currentVelocity);
+    statePositionLogger.append(state.position);
+    stateVelocityLogger.append(state.velocity);
+    motorVoltageLogger.append(feedbackVolts + feedforwardVolts);
+    feedbackLogger.append(feedbackVolts);
+    feedfowardLogger.append(feedforwardVolts);
   }
 
   /**
