@@ -61,6 +61,7 @@ public class RobotContainer {
             XboxControllerPort.MANIPULATOR);
 
     private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
+    private boolean elevatorEnableManualControl = false;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -68,12 +69,9 @@ public class RobotContainer {
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
 
-        subsystems.drivetrain.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-        // Manual commands for elevator testing. Not to be used by drivers.
-      //  subsystems.elevator
-       //         .setDefaultCommand(new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
-        subsystems.elevatorAngle
-                .setDefaultCommand(new TiltElevatorWithController(subsystems.elevatorAngle, manipulatorController));
+        subsystems.drivetrain
+                .setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
+
         subsystems.intake
                 .setDefaultCommand(new IntakeByController(subsystems.intake, manipulatorController));
 
@@ -137,6 +135,21 @@ public class RobotContainer {
         manipulatorController.leftBumper().whileTrue(Commands.sequence(
                 Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
                 new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));
+        manipulatorController.start().onTrue(
+                Commands.either(
+                        Commands.runOnce(() -> {
+                            subsystems.elevator.setDefaultCommand(
+                                    new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
+                            subsystems.elevatorAngle.setDefaultCommand(
+                                    new TiltElevatorWithController(subsystems.elevatorAngle, manipulatorController));
+                            System.out.println("ENABLE MANUAL ELEVATOR CONTROL");
+                        }),
+                        Commands.runOnce(() -> {
+                            subsystems.elevator.removeDefaultCommand();
+                            subsystems.elevatorAngle.removeDefaultCommand();
+                            System.out.println("DISABLE MANUAL ELEVATOR CONTROL");
+                        }, subsystems.elevator, subsystems.elevatorAngle),
+                        () -> elevatorEnableManualControl = !elevatorEnableManualControl));
     }
 
     /**
@@ -197,7 +210,7 @@ public class RobotContainer {
         // default.
         subsystems.drivetrain.addShuffleboardTab();
         subsystems.photonVision.addShuffleboardTab();
-        subsystems.elevator.addShuffleBoardTab( 
+        subsystems.elevator.addShuffleBoardTab(
                 subsystems.elevatorAngle::atAcquiringLimit,
                 subsystems.elevatorAngle::atScoringLimit);
     }
