@@ -88,7 +88,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     motor.setInverted(true);
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(RADIANS_PER_REVOLUTION);
-    encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION);
+    encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION / 60);
     
     angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
     motor.setIdleMode(IdleMode.kBrake);
@@ -127,12 +127,20 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   }
 
   /**
-   * Gets the current elevator angle in degrees.
+   * Gets the current elevator angle in radians.
    * 
    * @return the current elevator angle.
    */
   public double getAngle() {
     return currentAngle;
+  }
+
+  /**
+   * Gets the current elevator angular velocity in radians per second.
+   * @return the current velocity 
+   */
+  public double getVelocity() {
+    return currentVelocity;
   }
 
   /** Enables periodic control. */
@@ -178,10 +186,26 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     }
 
     TrapezoidProfile.State state = profile.calculate(timer.get());
-    double feedbackVolts = controller.calculate(currentVelocity, state.velocity);
-    double feedforwardVolts = feedforward.calculate(currentAngle, currentVelocity);
+    double feedbackVolts = controller.calculate(currentAngle, state.position);
+    double feedforwardVolts = feedforward.calculate(state.position, state.velocity);
 
-    motor.setVoltage(feedforwardVolts + feedbackVolts);
+    setMotorVoltage(feedbackVolts + feedforwardVolts);
+  }
+
+  /**
+   * Sets the motor voltage.
+   * 
+   * @param voltage The motor voltage.
+    */ 
+  public void setMotorVoltage(double voltage) {
+    motor.setVoltage(voltage);
+  }
+
+  /**
+   * Stops the motor.
+   */
+  public void stopMotor() {
+    motor.stopMotor();
   }
 
 }
