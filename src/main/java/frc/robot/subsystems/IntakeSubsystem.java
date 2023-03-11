@@ -28,11 +28,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    /*if (isEnabled) {
+    if (isEnabled) {
       motor.set(INTAKE_POWER);
-    } else {
-      motor.stopMotor();
-    }*/
+    }
   }
 
   public void runMotor(double power) {
@@ -55,5 +53,6 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void disable() {
     isEnabled = false;
+    stopMotor();
   }
 }
