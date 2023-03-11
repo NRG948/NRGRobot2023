@@ -55,18 +55,13 @@ public class DriveWithController extends CommandBase {
     double xSpeed = -driveController.getLeftY();
     double ySpeed = -driveController.getLeftX();
     double rSpeed = -driveController.getRightX();
-    double inputScalar = driveController.getRightTriggerAxis() + 1;
+    double inputScalar = Math.min(1-driveController.getRightTriggerAxis(), 0.15);
 
     // Applies deadbands to x, y, and rotation joystick values and multiples all
-    // values with max speed.
-    xSpeed = MathUtil.applyDeadband(xSpeed, DEADBAND);
-    ySpeed = MathUtil.applyDeadband(ySpeed, DEADBAND);
-    rSpeed = MathUtil.applyDeadband(rSpeed, DEADBAND);
-    if (inputScalar > 1) {
-      xSpeed = Math.pow(xSpeed, inputScalar);
-      ySpeed = Math.pow(ySpeed, inputScalar);
-      rSpeed = Math.pow(rSpeed, inputScalar);
-    }
+    // values with inputScalar which allows finer driving control.
+    xSpeed = MathUtil.applyDeadband(xSpeed, DEADBAND) * inputScalar;
+    ySpeed = MathUtil.applyDeadband(ySpeed, DEADBAND) * inputScalar;
+    rSpeed = MathUtil.applyDeadband(rSpeed, DEADBAND) * inputScalar;
 
     swerveDrive.drive(
         xSpeed,
