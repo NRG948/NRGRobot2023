@@ -101,6 +101,12 @@
       "names": [
         "event"
       ]
+    },
+    {
+      "position": 0.6,
+      "names": [
+        "IntakeGamePiece"
+      ]
     }
   ]
 }

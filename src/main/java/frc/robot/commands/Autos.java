@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.FileUtil;
@@ -332,7 +333,11 @@ public final class Autos {
    */
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
     if (pathplannerEventMap == null) {
-      pathplannerEventMap = Map.of();
+      IntakeSubsystem intake = subsystems.intake;
+      pathplannerEventMap = Map.of(
+        "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2)
+      );
+
     }
     return pathplannerEventMap;
   }

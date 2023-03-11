@@ -70,5 +70,12 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.6957117582973172,
+      "names": [
+        "IntakeGamePiece"
+      ]
+    }
+  ]
 }
