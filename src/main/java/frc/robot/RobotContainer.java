@@ -121,6 +121,7 @@ public class RobotContainer {
     // TODO: Once we're done with testing the autonomous motion commands, change
     // this to call resetOrientation().
     driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
+    driveController.back().onTrue(Scoring.prepForMatch(subsystems));
 
     manipulatorController.x()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));

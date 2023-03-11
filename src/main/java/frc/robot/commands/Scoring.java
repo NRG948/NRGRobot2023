@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,6 +19,7 @@ import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.SwerveSubsystem;
 
 /**
  * A class of static methods used to create command sequences to score game
@@ -155,6 +157,30 @@ public final class Scoring {
         Commands.runOnce(() -> claw.set(Position.CLOSED), claw),
         Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator),
         Commands.waitUntil(() -> elevator.atGoal()));
+  }
+
+  /**
+   * Returns a command to prep the robot for a match.
+   * 
+   * @param subsystems The subsystems container.
+   * @return A command to prep the robot for a match.
+   */
+  public static Command prepForMatch(Subsystems subsystems) {
+    ClawSubsystem claw = subsystems.claw;
+    ElevatorSubsystem elevator = subsystems.elevator;
+    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    SwerveModuleState intialState = new SwerveModuleState();
+
+    return Commands.sequence(
+        Commands.runEnd(() -> elevatorAngle.setMotorVoltage(-1), () -> elevatorAngle.stopMotor(), elevatorAngle)
+            .until(elevatorAngle::atAcquiringLimit),
+        Commands.runEnd(() -> elevator.setMotorVoltage(-1), () -> elevator.stopMotor(), elevator)
+            .until(elevator::atBottomLimit),
+        Commands.runOnce(() -> claw.set(Position.CLOSED)),
+        Commands.runOnce(() -> drivetrain.setModuleStates(new SwerveModuleState[] {
+            intialState, intialState, intialState, intialState
+        }), drivetrain));
   }
 
   private Scoring() {
