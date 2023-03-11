@@ -145,13 +145,16 @@ public final class Scoring {
                 .andThen(Commands.waitUntil(() -> elevator.atGoal())),
             Commands.none(),
             () -> elevator.atPosition(GoalState.SCORE_HIGH)),
-        // Ensure the claw is open, and set the elevator angle and position to acquire
-        // new game pieces.
+        // Set the elevator angle to aquiring and set the elevator carriage to low
+        // scoring position to avoid coliding with the intake as the claw flips over.
         Commands.parallel(
-            Commands.runOnce(() -> claw.set(Position.OPEN), claw),
             Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
-            Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator)),
-        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()));
+            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator)),
+        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
+        // Close the claw and lower the carriage to aquiring position.
+        Commands.runOnce(() -> claw.set(Position.CLOSED), claw),
+        Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator),
+        Commands.waitUntil(() -> elevator.atGoal()));
   }
 
   private Scoring() {
