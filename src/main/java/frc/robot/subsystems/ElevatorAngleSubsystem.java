@@ -74,7 +74,6 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final ProfiledPIDController controller = new ProfiledPIDController(1.0, 0.0, 0.0, CONSTRAINTS);
   private final Timer timer = new Timer();
 
-  private double angleOffset; // record encoder's current position
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
   private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS,
       new TrapezoidProfile.State(goalAngle.getDegrees(), 0));
@@ -91,7 +90,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     encoder.setPositionConversionFactor(RADIANS_PER_REVOLUTION);
     encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION / 60);
 
-    angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
+    encoder.setPosition(ElevatorAngle.ACQUIRING.getRadians());
     motor.setIdleMode(IdleMode.kBrake);
   }
 
@@ -165,9 +164,14 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    currentScoringLimit = !scoringLimit.get();
     currentAcquiringLimit = acquiringLimit.get();
-    currentScoringLimit = scoringLimit.get();
-    currentAngle = encoder.getPosition() - angleOffset;
+
+    if (currentAcquiringLimit) {
+      encoder.setPosition(ElevatorAngle.ACQUIRING.getRadians());
+    }
+
+    currentAngle = encoder.getPosition();
     currentVelocity = encoder.getVelocity();
 
     if (!isPeriodicControlEnabled) {
