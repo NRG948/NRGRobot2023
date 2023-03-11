@@ -49,7 +49,6 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   }
 
   // CONSTANTS
-  private static final double ANGLE_RANGE = 90;
   private static final double GEAR_RATIO = 100 / 1;
   private static final double MOTOR_POWER = 0.3;
   public static final double MASS = 9.97903; // TODO: update mass when claw change.
@@ -95,7 +94,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
     motor.setIdleMode(IdleMode.kBrake);
   }
-  
+
   /**
    * Sets the goal elevator angle.
    * 
@@ -123,7 +122,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   /**
    * Gets the current elevator angle in radians.
    * 
-   * @return the current elevator angle.
+   * @return the current elevator angle in radians.
    */
   public double getAngle() {
     return currentAngle;
@@ -138,7 +137,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     return currentVelocity;
   }
 
-  /** Enables periodic control. */
+  /** Enables pr disables periodic control. */
   public void enablePeriodicControl(boolean isEnabled) {
     isPeriodicControlEnabled = isEnabled;
     if (!isPeriodicControlEnabled) {
