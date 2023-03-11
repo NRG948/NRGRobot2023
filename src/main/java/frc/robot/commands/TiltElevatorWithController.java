@@ -35,6 +35,7 @@ public class TiltElevatorWithController extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    elevatorAngle.enablePeriodicControl(false);
   }
 
   /**
