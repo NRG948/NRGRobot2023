@@ -38,32 +38,32 @@ import frc.robot.parameters.MotorParameters;
  */
 @RobotPreferencesLayout(groupName = "Elevator", row = 1, column = 4, height = 1, width = 2)
 public class ElevatorSubsystem extends SubsystemBase {
-  
+
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_ELEVATOR_TAB = new RobotPreferences.BooleanValue("Elevator",
-  "Enable Elevator Tab", false);
-  
+      "Enable Elevator Tab", false);
+
   // Constants representing the physical parameters of the elevator.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
   private static final double GEAR_RATIO = 5.0 * 42.0 / 48.0;
   private static final double SPROCKET_DIAMETER = Units.inchesToMeters(1.432);
   private static final double ELEVATOR_MASS = 3.63; // 3.63 kilograms, including the cone, trapdoor system, and the
   // carrige of the elevator
-  
+
   // Trapezoidal profile constants.
   private static final double MAX_SPEED = (MOTOR.getFreeSpeedRPM() * SPROCKET_DIAMETER * Math.PI)
-  / (60 * GEAR_RATIO); // meters/sec
+      / (60 * GEAR_RATIO); // meters/sec
   private static final double MAX_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO)
-  / (SPROCKET_DIAMETER * ELEVATOR_MASS);
-  
+      / (SPROCKET_DIAMETER * ELEVATOR_MASS);
+
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
-    MAX_SPEED * 0.3, MAX_ACCELERATION);
-    private static final double POSITION_TOLERANCE = 0.01;
-    
-    // Feedfoward constants.
-    private static final double KS = 0.15;
-    private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
-    private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
+      MAX_SPEED * 0.3, MAX_ACCELERATION);
+  private static final double POSITION_TOLERANCE = 0.01;
+
+  // Feedfoward constants.
+  private static final double KS = 0.15;
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
+  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
   private static final double METERS_PER_REVOLUTION = (SPROCKET_DIAMETER * Math.PI) / GEAR_RATIO;
 
@@ -86,7 +86,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Rotation2d currentAngle;
   private boolean currentBottomLimit;
   private boolean currentTopLimit;
-  
+
   private DoubleLogEntry positionLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Position");
   private DoubleLogEntry velocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Velocity");
   private DoubleLogEntry statePositionLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/StatePosition");
@@ -95,13 +95,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Feedback");
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Feedforward");
 
-
-
-
-
-  /** Encapsulates various goal heights (in meters) we want to raise the elevator to. */
+  /**
+   * Encapsulates various goal heights (in meters) we want to raise the elevator
+   * to.
+   */
   public enum GoalState { // TODO: get real values
-    ACQUIRE(0),
+    ACQUIRE(0.01),
     SCORE_LOW(0.10),
     SCORE_MID(0.50),
     SCORE_HIGH(1.0);
@@ -244,18 +243,23 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the sensor state.
+    currentTopLimit = topLimit.get();
+    currentBottomLimit = bottomLimit.get();
+
+    if (currentBottomLimit) {
+      encoder.setPosition(0);
+    }
+
     currentPosition = encoder.getPosition();
     currentVelocity = encoder.getVelocity();
     currentAngle = angle.get();
-    currentBottomLimit = bottomLimit.get();
-    currentTopLimit = topLimit.get();
 
     if (!enabled) {
       return;
     }
 
     // If the elevator has been moved to the lowest position, stop the motor.
-    if (goalState == GoalState.ACQUIRE && (currentPosition <= GoalState.ACQUIRE.getPosition() || atBottomLimit())) {
+    if (goalState == GoalState.ACQUIRE && (currentPosition <= GoalState.ACQUIRE.getPosition() || currentBottomLimit)) {
       disableGoalSeeking();
       return;
     }
@@ -265,7 +269,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     // voltage to apply to the motor.
     TrapezoidProfile.State state = profile.calculate(timer.get());
     double feedbackVolts = pidController.calculate(currentPosition, state.position);
-    double feedforwardVolts = 0; //Math.sin(currentAngle.getRadians()) * KG;
+    double feedforwardVolts = 0; // Math.sin(currentAngle.getRadians()) * KG;
 
     feedforwardVolts += feedforward.calculate(state.velocity);
 
