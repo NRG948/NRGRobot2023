@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.ElevatorAngleSubsystem;
 
 public class TiltElevatorWithController extends CommandBase {
@@ -44,22 +45,13 @@ public class TiltElevatorWithController extends CommandBase {
   public void execute() {
     double speed = controller.getRightX();
     speed = MathUtil.applyDeadband(speed, 0.05) * MAX_POWER;
-    // Stop the motors if the elevator is at either limit switches.
-    // if (speed < 0 && elevatorAngle.atAcquiringLimit()
-    //     || speed > 0 && elevatorAngle.atScoringLimit()) {
-    //   elevatorAngle.setMotor(0);
-    // } else {
-    //   elevatorAngle.setMotor(speed);
-    // }
-
-    // TODO: remove this line and un-comment the previous section ONCE the elevator angle limit switches are functional.
-    elevatorAngle.setMotor(speed);
+    elevatorAngle.setMotorVoltage(speed * RobotConstants.MAX_BATTERY_VOLTAGE);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elevatorAngle.setMotor(0);
+    elevatorAngle.stopMotor();
   }
 
   // Returns true when the command should end.

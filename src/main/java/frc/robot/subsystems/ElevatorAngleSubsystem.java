@@ -28,8 +28,8 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
-    ACQUIRING(30),
-    SCORING(120);
+    ACQUIRING(70),
+    SCORING(134.6);
 
     private final double angle;
 
@@ -52,7 +52,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final double ANGLE_RANGE = 90;
   private static final double GEAR_RATIO = 100 / 1;
   private static final double MOTOR_POWER = 0.3;
-  public static final double MASS = 9.97903; //TODO: update mass when claw change.
+  public static final double MASS = 9.97903; // TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
 
   // Calculate degrees per pulse
@@ -60,7 +60,8 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   private static final double MAX_ANGULAR_SPEED = (MOTOR.getFreeSpeedRPM() * 2 * Math.PI) / (60 * GEAR_RATIO);
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
-  private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
+  private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
+      MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
   private static final double KS = 0.15;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
@@ -76,7 +77,8 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   private double angleOffset; // record encoder's current position
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
-  private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS, new TrapezoidProfile.State(goalAngle.getDegrees(), 0));
+  private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS,
+      new TrapezoidProfile.State(goalAngle.getDegrees(), 0));
   private double currentAngle = ElevatorAngle.ACQUIRING.getRadians(); // start at acquiring
   private double currentVelocity = 0;
   private boolean isPeriodicControlEnabled = false;
@@ -89,19 +91,11 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     // convert encoder ticks to angle
     encoder.setPositionConversionFactor(RADIANS_PER_REVOLUTION);
     encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION / 60);
-    
+
     angleOffset = encoder.getPosition() - ElevatorAngle.ACQUIRING.getRadians();
     motor.setIdleMode(IdleMode.kBrake);
   }
-
-  public void setMotor(double power) {
-    if (power == 0) {
-      motor.stopMotor();
-    } else {
-      motor.set(power);
-    }
-  }
-
+  
   /**
    * Sets the goal elevator angle.
    * 
@@ -137,7 +131,8 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   /**
    * Gets the current elevator angular velocity in radians per second.
-   * @return the current velocity 
+   * 
+   * @return the current velocity
    */
   public double getVelocity() {
     return currentVelocity;
@@ -196,9 +191,13 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    * Sets the motor voltage.
    * 
    * @param voltage The motor voltage.
-    */ 
+   */
   public void setMotorVoltage(double voltage) {
-    motor.setVoltage(voltage);
+    if (voltage > 0 ? !atScoringLimit() : !atAcquiringLimit()) {
+      motor.setVoltage(voltage);
+    } else {
+      motor.stopMotor();
+    }
   }
 
   /**
