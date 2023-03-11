@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.util.FileUtil;
 
 /**
@@ -335,7 +336,9 @@ public final class Autos {
     if (pathplannerEventMap == null) {
       IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
-        "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2)
+        "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
+        "ScoreHigh", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
+        "ScoreMid", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID)
       );
 
     }
