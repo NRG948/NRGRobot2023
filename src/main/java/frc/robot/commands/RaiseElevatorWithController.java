@@ -41,6 +41,7 @@ public class RaiseElevatorWithController extends CommandBase {
   @Override
   public void initialize() {
     elevator.disableGoalSeeking();
+    System.out.println("BEGIN RaiseElevatorWithController");
   }
 
   /**
@@ -58,6 +59,7 @@ public class RaiseElevatorWithController extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     elevator.stopMotor();
+    System.out.println("END RaiseElevatorWithController");
   }
 
   // Returns true when the command should end.

@@ -55,7 +55,7 @@ public class DriveWithController extends CommandBase {
     double xSpeed = -driveController.getLeftY();
     double ySpeed = -driveController.getLeftX();
     double rSpeed = -driveController.getRightX();
-    double inputScalar = Math.min(1-driveController.getRightTriggerAxis(), 0.15);
+    double inputScalar = Math.max(1-driveController.getRightTriggerAxis(), 0.15);
 
     // Applies deadbands to x, y, and rotation joystick values and multiples all
     // values with inputScalar which allows finer driving control.
