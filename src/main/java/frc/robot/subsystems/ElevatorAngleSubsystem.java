@@ -12,6 +12,8 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,7 +31,8 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
     ACQUIRING(70),
-    SCORING(134.6);
+    // SCORING(134.6);
+    SCORING(96); // temporary value based on bad sensor
 
     private final double angle;
 
@@ -47,7 +50,14 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
       return Math.toRadians(angle);
     }
   }
-
+  // Loggers for sensor data, current state, calculated feedback & feedforward voltages
+  private DoubleLogEntry angleLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Angle");
+  private DoubleLogEntry velocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Velocity");
+  private DoubleLogEntry statePositionLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/StatePosition");
+  private DoubleLogEntry stateVelocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/StateVelocity");
+  private DoubleLogEntry motorVoltageLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/MotorVoltage");
+  private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedback");
+  private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
   // CONSTANTS
   private static final double GEAR_RATIO = 100 / 1;
   private static final double MOTOR_POWER = 0.3;
@@ -188,6 +198,14 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     double feedforwardVolts = feedforward.calculate(state.position, state.velocity);
 
     setMotorVoltage(feedbackVolts + feedforwardVolts);
+    angleLogger.append(currentAngle);
+    velocityLogger.append(currentVelocity);
+    statePositionLogger.append(state.position);
+    stateVelocityLogger.append(state.velocity);
+    motorVoltageLogger.append(feedbackVolts + feedforwardVolts);
+    feedbackLogger.append(feedbackVolts);
+    feedfowardLogger.append(feedforwardVolts);
+
   }
 
   /**
