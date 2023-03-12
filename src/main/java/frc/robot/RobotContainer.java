@@ -37,6 +37,7 @@ import frc.robot.commands.TiltElevatorWithController;
 import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
 import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.ClawSubsystem.Position;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -122,7 +123,10 @@ public class RobotContainer {
     // this to call resetOrientation().
     driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
     driveController.back().onTrue(Scoring.prepForMatch(subsystems));
-
+    driveController.leftBumper().whileTrue(Commands.sequence(
+        Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
+        new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
+    
     manipulatorController.x()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
     manipulatorController.b()
@@ -133,9 +137,6 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
     // manipulatorController.rightTrigger().onTrue(Commands.runOnce(() ->
     // subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
-    manipulatorController.leftBumper().whileTrue(Commands.sequence(
-        Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
-        new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, manipulatorController.getHID()))));
     manipulatorController.start().onTrue(
         Commands.either(
             Commands.runOnce(() -> {
@@ -151,6 +152,8 @@ public class RobotContainer {
               System.out.println("DISABLE MANUAL ELEVATOR CONTROL");
             }, subsystems.elevator, subsystems.elevatorAngle),
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
+    manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
+    manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
   }
 
   /**

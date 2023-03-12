@@ -36,8 +36,8 @@ public final class Constants {
      */
     public static class PWMPort {
 
-      public static final int SERVO = 1;
-      public static final int LED = 2;
+      public static final int SERVO = 0;
+      public static final int LED = 1;
 
     }
 
