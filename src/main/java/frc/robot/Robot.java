@@ -4,6 +4,8 @@
 // Test commit :)
 package frc.robot;
 
+import java.io.File;
+
 import com.nrg948.preferences.RobotPreferences;
 
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -36,8 +38,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // Initialize data log manager and logs data to RoboRIO
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog());
+    File[] storageDevices = new File("/media").listFiles();
+    if (storageDevices != null) {
+      if (storageDevices.length != 0) {
+        DataLogManager.start(storageDevices[0].getAbsolutePath());
+        DriverStation.startDataLog(DataLogManager.getLog());
+      }
+    }
 
     // Initialize the RobotPreferences before creating the RobotContainer so that
     // values are correct
