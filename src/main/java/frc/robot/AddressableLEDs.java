@@ -10,11 +10,9 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class AddressableLEDs {
   // private static final int NUMBER_OF_LEDS = 10; // number of LED's on the Strip
-  public static final Color8Bit PURPLE = new Color8Bit(152, 16, 201);
-  public static final Color8Bit YELLOW = new Color8Bit(255, 255, 0);
   private AddressableLED led; // Creates the new object, on port 0
   private final AddressableLEDBuffer ledBuffer;
-  private boolean isYellow = false;
+
 
   /** Creates a new AddressableLED. */
   public AddressableLEDs(int port, int numberOfLEDs) {
@@ -40,17 +38,19 @@ public class AddressableLEDs {
     for (var i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setRGB(i, color.red, color.green, color.blue);
     }
+  }
+  
+  public void setColor(Color8Bit color, int index) {
+    ledBuffer.setRGB(index, color.red, color.green, color.blue);
+  }
+
+  public void commitColor() {
     led.setData(ledBuffer);
   }
 
-  public void setGamePieceColor() {
-    if (isYellow) {
-      setColor(PURPLE);
-    } else {
-      setColor(YELLOW);
-    }
-    isYellow = !isYellow;
-  }
+ 
+
+
   /*
    * WIP Alternating Color method
    * public void alternateColor(Color8Bit color1, Color8Bit color2) {

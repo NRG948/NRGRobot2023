@@ -54,8 +54,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Subsystems subsystems = new Subsystems();
 
-  private static AddressableLEDs leds = new AddressableLEDs(PWMPort.LED, 51);
-
   // Operator Xbox controllers.
   private final CommandXboxController driveController = new CommandXboxController(XboxControllerPort.DRIVER);
   private final CommandXboxController manipulatorController = new CommandXboxController(
@@ -80,8 +78,6 @@ public class RobotContainer {
 
     configureCommandBindings();
 
-    leds.start();
-    leds.setColor(new Color8Bit(255, 0, 0));
   }
 
   /**
@@ -103,20 +99,15 @@ public class RobotContainer {
     driveController.a().onTrue(
         new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
+            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
+            .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
     driveController.b().onTrue(
         new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain)));
-    driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain));
-
-    driveController.y().onTrue(Commands.runOnce(() -> {
-      int red = (int) (255 * Math.random());
-      int green = (int) (255 * Math.random());
-      int blue = (int) (255 * Math.random());
-      leds.setColor(new Color8Bit(red, green, blue));
-    }));
-
+            .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
+            .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
+    driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
+        .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
 
     driveController.rightBumper().whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain));
 
@@ -127,7 +118,7 @@ public class RobotContainer {
     driveController.leftBumper().whileTrue(Commands.sequence(
         Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
-    
+
     manipulatorController.x()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
     manipulatorController.b()
@@ -155,8 +146,8 @@ public class RobotContainer {
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
     manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
     manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
-    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> leds.setGamePieceColor()));
-}
+    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor()));
+  }
 
   /**
    * Returns the autonomous command selected in the chooser.
@@ -208,11 +199,10 @@ public class RobotContainer {
     gridLayout.addBoolean("Right Low", () -> manipulatorController.getHID().getPOV() == 135)
         .withPosition(2, 2);
 
-
     ShuffleboardLayout indicatorLayout = operatorTab.getLayout("Indicators", BuiltInLayouts.kList)
         .withPosition(8, 0)
         .withSize(1, 3);
-    indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl);    
+    indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl);
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
     RobotPreferences.addShuffleBoardTab();

@@ -16,6 +16,7 @@ public class Subsystems {
   public final ElevatorAngleSubsystem elevatorAngle = new ElevatorAngleSubsystem();
   public final ElevatorSubsystem elevator = new ElevatorSubsystem(() -> new Rotation2d (elevatorAngle.getAngle()));
   public final IntakeSubsystem intake = new IntakeSubsystem();
+  public final AdressableLEDSubsystem leds = new AdressableLEDSubsystem();
 
   public final Subsystem[] all = new Subsystem[] {
     drivetrain,
@@ -25,5 +26,6 @@ public class Subsystems {
     elevatorAngle,
     elevator,
     intake,
+    leds
   };
 }

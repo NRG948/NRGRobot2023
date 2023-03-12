@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -109,5 +110,15 @@ public final class Constants {
       public static final int MANIPULATOR = 1;
 
     }
+  }
+
+  public static class ColorConstants {
+    public static final Color8Bit RED = new Color8Bit(204, 0, 0);
+    public static final Color8Bit ORANGE = new Color8Bit(204, 84, 0);
+    public static final Color8Bit YELLOW = new Color8Bit(204, 204, 0);
+    public static final Color8Bit GREEN = new Color8Bit(0, 204, 0);
+    public static final Color8Bit BLUE = new Color8Bit(0, 0, 204);
+    public static final Color8Bit PURPLE = new Color8Bit(152, 16, 201);
+    public static final Color8Bit COLORS[] = { RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE };
   }
 }
