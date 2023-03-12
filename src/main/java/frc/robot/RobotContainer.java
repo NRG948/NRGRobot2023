@@ -182,7 +182,7 @@ public class RobotContainer {
 
     ShuffleboardLayout gridLayout = operatorTab.getLayout("Grid", BuiltInLayouts.kGrid)
         .withPosition(6, 0)
-        .withSize(3, 3);
+        .withSize(2, 3);
 
     gridLayout.addBoolean("Left High", () -> manipulatorController.getHID().getPOV() == 315)
         .withPosition(0, 0);
@@ -203,6 +203,11 @@ public class RobotContainer {
     gridLayout.addBoolean("Right Low", () -> manipulatorController.getHID().getPOV() == 135)
         .withPosition(2, 2);
 
+
+    ShuffleboardLayout indicatorLayout = operatorTab.getLayout("Indicators", BuiltInLayouts.kList)
+        .withPosition(8, 0)
+        .withSize(1, 3);
+    indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl);    
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
     RobotPreferences.addShuffleBoardTab();
