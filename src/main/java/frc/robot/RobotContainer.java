@@ -117,6 +117,7 @@ public class RobotContainer {
       leds.setColor(new Color8Bit(red, green, blue));
     }));
 
+
     driveController.rightBumper().whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain));
 
     // TODO: Once we're done with testing the autonomous motion commands, change
@@ -154,7 +155,8 @@ public class RobotContainer {
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
     manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
     manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
-  }
+    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> leds.setGamePieceColor()));
+}
 
   /**
    * Returns the autonomous command selected in the chooser.
