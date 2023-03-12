@@ -100,7 +100,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * to.
    */
   public enum GoalState { // TODO: get real values
-    ACQUIRE(0.01),
+    ACQUIRE(0.0025),
     SCORE_LOW(0.10),
     SCORE_MID(0.50),
     SCORE_HIGH(1.0);
@@ -154,6 +154,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.reset();
     timer.start();
     enabled = true;
+    System.out.println("GOAL STATE: " + goalState);
   }
 
   /**
