@@ -123,12 +123,21 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
     manipulatorController.b()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.SCORING)));
-    manipulatorController.a().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.ACQUIRE)));
-    manipulatorController.y().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID)));
-    manipulatorController.rightBumper()
-        .onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
-    // manipulatorController.rightTrigger().onTrue(Commands.runOnce(() ->
-    // subsystems.elevator.setGoal(GoalState.SCORE_HIGH)));
+    manipulatorController.a().onTrue(
+        Commands.either(
+            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.ACQUIRE)),
+            Scoring.prepareToAcquire(subsystems),
+            () -> !manipulatorController.getHID().getLeftBumper()));
+    manipulatorController.y().onTrue(
+        Commands.either(
+            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID)),
+            Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID),
+            () -> !manipulatorController.getHID().getLeftBumper()));
+    manipulatorController.rightBumper().onTrue(
+        Commands.either(
+            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)),
+            Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
+            () -> !manipulatorController.getHID().getLeftBumper()));
     manipulatorController.start().onTrue(
         Commands.either(
             Commands.runOnce(() -> {
@@ -146,7 +155,8 @@ public class RobotContainer {
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
     manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
     manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
-    manipulatorController.povRight().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
+    manipulatorController.povRight()
+        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
     // There is no left dpad button binding
     manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor()));
   }

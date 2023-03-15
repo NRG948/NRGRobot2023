@@ -113,17 +113,14 @@ public final class Scoring {
         // Set the elevator angle to scoring position and begins raising the elevator to
         // at least the low scoring position so the claw arm will flip over but clear
         // the upper crossbar.
-        Commands.parallel(
-            Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
-            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator)),
-        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
+        Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator),
+        Commands.waitUntil(elevator::atGoal),
+        Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
+        Commands.waitUntil(elevatorAngle::atGoalAngle),
         // Raise the elevator to the desired scoring elevation.
         Commands.runOnce(() -> elevator.setGoal(target), elevator),
-        Commands.waitUntil(() -> elevator.atGoal()),
-        // Open the claw and wait for the game piece to fall out.
-        Commands.runOnce(() -> claw.set(Position.OPEN), claw),
-        // TODO: Use color sensor to detect when game piece is no longer present.
-        Commands.waitSeconds(1));
+        Commands.waitUntil(elevator::atGoal)
+       );
   }
 
   /**
@@ -143,20 +140,19 @@ public final class Scoring {
         // middle scoring position so that the claw arm can clear the upper crossbar
         // when it flips over to the acquiring position.
         Commands.either(
-            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_MID), elevator)
-                .andThen(Commands.waitUntil(() -> elevator.atGoal())),
+            Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator)
+                .andThen(Commands.waitUntil(elevator::atGoal)),
             Commands.none(),
-            () -> elevator.atPosition(GoalState.SCORE_HIGH)),
+            () -> !elevator.atPosition(GoalState.SCORE_LOW)),
         // Set the elevator angle to aquiring and set the elevator carriage to low
         // scoring position to avoid coliding with the intake as the claw flips over.
-        Commands.parallel(
+        
             Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
-            Commands.runOnce(() -> elevator.setGoal(GoalState.SCORE_LOW), elevator)),
-        Commands.waitUntil(() -> elevatorAngle.atGoalAngle() && elevator.atGoal()),
+            Commands.waitUntil(elevatorAngle::atGoalAngle),
         // Close the claw and lower the carriage to aquiring position.
-        Commands.runOnce(() -> claw.set(Position.CLOSED), claw),
         Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator),
-        Commands.waitUntil(() -> elevator.atGoal()));
+        Commands.waitUntil(elevator::atGoal),
+        Commands.runOnce(() -> claw.set(Position.CLOSED), claw));
   }
 
   /**
