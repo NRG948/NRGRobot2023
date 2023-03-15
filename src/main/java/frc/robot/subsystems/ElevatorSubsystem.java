@@ -66,6 +66,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
   private static final double KG = 9.81 * KA;
   private static final double METERS_PER_REVOLUTION = (SPROCKET_DIAMETER * Math.PI) / GEAR_RATIO;
+  private static final double UPPER_STOP_LIMIT = 1.05;
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR, MotorType.kBrushless);
   private final RelativeEncoder encoder = motor.getEncoder();
@@ -102,7 +103,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public enum GoalState { // TODO: get real values
     ACQUIRE(0.0025),
     SCORE_LOW(0.10),
-    SCORE_MID(0.50),
+    FLIP(0.5),
+    SCORE_MID(0.57),
     SCORE_HIGH(1.0);
 
     private final double position;
@@ -244,21 +246,23 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the sensor state.
-    currentTopLimit = topLimit.get();
-    currentBottomLimit = bottomLimit.get();
-
-    if (currentBottomLimit) {
-      encoder.setPosition(0);
+   // currentTopLimit = topLimit.get();
+   currentBottomLimit = bottomLimit.get();
+   
+   if (currentBottomLimit) {
+     encoder.setPosition(0);
     }
-
+    
     currentPosition = encoder.getPosition();
     currentVelocity = encoder.getVelocity();
     currentAngle = angle.get();
+    
+    currentTopLimit = currentPosition >= UPPER_STOP_LIMIT;
 
     if (!enabled) {
       return;
     }
-
+    
     // If the elevator has been moved to the lowest position, stop the motor.
     if (goalState == GoalState.ACQUIRE && (currentPosition <= GoalState.ACQUIRE.getPosition() || currentBottomLimit)) {
       disableGoalSeeking();
