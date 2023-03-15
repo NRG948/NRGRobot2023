@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -15,6 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -30,9 +30,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
-    ACQUIRING(70),
+    ACQUIRING(58),
     // SCORING(134.6);
-    SCORING(96); // temporary value based on bad sensor
+    SCORING(123);
 
     private final double angle;
 
@@ -50,11 +50,15 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
       return Math.toRadians(angle);
     }
   }
-  // Loggers for sensor data, current state, calculated feedback & feedforward voltages
+
+  // Loggers for sensor data, current state, calculated feedback & feedforward
+  // voltages
   private DoubleLogEntry angleLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Angle");
   private DoubleLogEntry velocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Velocity");
-  private DoubleLogEntry statePositionLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/StatePosition");
-  private DoubleLogEntry stateVelocityLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/StateVelocity");
+  private DoubleLogEntry statePositionLogger = new DoubleLogEntry(DataLogManager.getLog(),
+      "ElevatorAngle/StatePosition");
+  private DoubleLogEntry stateVelocityLogger = new DoubleLogEntry(DataLogManager.getLog(),
+      "ElevatorAngle/StateVelocity");
   private DoubleLogEntry motorVoltageLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/MotorVoltage");
   private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedback");
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
@@ -76,8 +80,12 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
   private static final double KG = 9.81 * KA;
 
+  private static final double ENCODER_MINIMUM_DUTY_CYCLE = 1.0 / 1025.0;
+  private static final double ENCODER_MAXIMUM_DUTY_CYCLE = 1024.0 / 1025.0;
+  private static final double ENCODER_DISTANCE_PER_ROTATION = 2.0 * Math.PI;
+
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.ELEVATOR_ANGLE, MotorType.kBrushless);
-  private final RelativeEncoder encoder = motor.getEncoder();
+  private final DutyCycleEncoder encoder = new DutyCycleEncoder(DigitalIO.ELEVATOR_ANGLE_ENCODER);
   private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
   private final ArmFeedforward feedforward = new ArmFeedforward(KS, KV, KA, KG);
@@ -88,7 +96,11 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private TrapezoidProfile profile = new TrapezoidProfile(CONSTRAINTS,
       new TrapezoidProfile.State(goalAngle.getDegrees(), 0));
   private double currentAngle = ElevatorAngle.ACQUIRING.getRadians(); // start at acquiring
+  private double angleOffset;
+  private boolean angleOffsetInitialize = false;
   private double currentVelocity = 0;
+  private double lastAngleTime;
+  private double lastAngle;
   private boolean isPeriodicControlEnabled = false;
   private boolean currentAcquiringLimit;
   private boolean currentScoringLimit;
@@ -96,12 +108,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   /** Creates a new ElevatorAngleSubsystem. */
   public ElevatorAngleSubsystem() {
     motor.setInverted(true);
-    // convert encoder ticks to angle
-    encoder.setPositionConversionFactor(RADIANS_PER_REVOLUTION);
-    encoder.setVelocityConversionFactor(RADIANS_PER_REVOLUTION / 60);
-
-    encoder.setPosition(ElevatorAngle.ACQUIRING.getRadians());
     motor.setIdleMode(IdleMode.kBrake);
+    encoder.setDistancePerRotation(ENCODER_DISTANCE_PER_ROTATION);
+    encoder.setDutyCycleRange(ENCODER_MINIMUM_DUTY_CYCLE, ENCODER_MAXIMUM_DUTY_CYCLE);
   }
 
   /**
@@ -117,6 +126,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     timer.reset();
     timer.start();
     enablePeriodicControl(true);
+    System.out.println("GOAL ANGLE: " + goalAngle);
   }
 
   /**
@@ -174,15 +184,25 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    currentScoringLimit = !scoringLimit.get();
+    currentScoringLimit = !scoringLimit.get(); // Negate the sensor because it's a hall effect sensor
     currentAcquiringLimit = acquiringLimit.get();
 
-    if (currentAcquiringLimit) {
-      encoder.setPosition(ElevatorAngle.ACQUIRING.getRadians());
+    if (!angleOffsetInitialize){
+      angleOffset = encoder.getAbsolutePosition();
+      angleOffsetInitialize = true;
     }
 
-    currentAngle = encoder.getPosition();
-    currentVelocity = encoder.getVelocity();
+    currentAngle = (((1.0 - encoder.getAbsolutePosition() + angleOffset) % 1.0) * ENCODER_DISTANCE_PER_ROTATION 
+        + ElevatorAngle.ACQUIRING.getRadians()) % (2 * Math.PI);
+    
+    double currentTime = Timer.getFPGATimestamp();
+    
+    if (lastAngleTime != 0) {
+      currentVelocity = (currentAngle - lastAngle) / (currentTime - lastAngleTime);
+    }
+    
+    lastAngleTime = currentTime;
+    lastAngle = currentAngle;
 
     if (!isPeriodicControlEnabled) {
       return;
@@ -199,8 +219,6 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     double voltage = feedbackVolts + feedforwardVolts;
 
     setMotorVoltage(voltage);
-    // setMotorVoltage(0);
-    System.out.println("ELEVATOR TILT VOLTAGE: " + voltage);
     angleLogger.append(currentAngle);
     velocityLogger.append(currentVelocity);
     statePositionLogger.append(state.position);

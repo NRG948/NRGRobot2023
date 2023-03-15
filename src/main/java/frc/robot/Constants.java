@@ -61,6 +61,7 @@ public final class Constants {
       public static final int ELEVATOR_ANGLE_SCORING_LIMIT = 8;
       public static final int ELEVATOR_BOTTOM_LIMIT = 1;
       public static final int ELEVATOR_TOP_LIMIT = 0;
+      public static final int ELEVATOR_ANGLE_ENCODER = 2;
     }
 
     /**
