@@ -17,7 +17,8 @@ public class ClawSubsystem extends SubsystemBase {
   /** An enumeration of possible claw trapdoor positions. */
   public enum Position {
     OPEN(142),
-    CLOSED(42);
+    TRAP(80),
+    CLOSED(44);
 
     private final double servoAngle;  // The servo angle (0-180 degree range)
 

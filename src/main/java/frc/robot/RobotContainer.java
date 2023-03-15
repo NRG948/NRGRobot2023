@@ -146,6 +146,8 @@ public class RobotContainer {
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
     manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
     manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
+    manipulatorController.povRight().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
+    // There is no left dpad button binding
     manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor()));
   }
 
