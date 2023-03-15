@@ -13,7 +13,7 @@ import frc.robot.subsystems.ElevatorAngleSubsystem;
 public class TiltElevatorWithController extends CommandBase {
   private ElevatorAngleSubsystem elevatorAngle;
   private CommandXboxController controller;
-  private static final double MAX_POWER = 1.0;
+  private static final double MAX_POWER = 0.7;
 
   /**
    * Creates a new TiltElevatorWithController.

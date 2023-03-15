@@ -60,18 +60,18 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
   // CONSTANTS
   private static final double GEAR_RATIO = 100 / 1;
-  private static final double MOTOR_POWER = 0.3;
+  private static final double MOTOR_POWER = 0.7;
   public static final double MASS = 9.97903; // TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
 
   // Calculate degrees per pulse
   private static final double RADIANS_PER_REVOLUTION = 2 * Math.PI / (GEAR_RATIO);
 
-  private static final double MAX_ANGULAR_SPEED = (MOTOR.getFreeSpeedRPM() * 2 * Math.PI) / (60 * GEAR_RATIO);
+  private static final double MAX_ANGULAR_SPEED = MOTOR.getFreeSpeedRPM() * RADIANS_PER_REVOLUTION / 60;
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
-  private static final double KS = 0.15;
+  private static final double KS = 5.0;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
   private static final double KG = 9.81 * KA;
@@ -81,7 +81,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
   private final ArmFeedforward feedforward = new ArmFeedforward(KS, KV, KA, KG);
-  private final ProfiledPIDController controller = new ProfiledPIDController(1.0, 0.0, 0.0, CONSTRAINTS);
+  private final ProfiledPIDController controller = new ProfiledPIDController(5.0, 0.0, 0.0, CONSTRAINTS);
   private final Timer timer = new Timer();
 
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
@@ -196,8 +196,11 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     TrapezoidProfile.State state = profile.calculate(timer.get());
     double feedbackVolts = controller.calculate(currentAngle, state.position);
     double feedforwardVolts = feedforward.calculate(state.position, state.velocity);
+    double voltage = feedbackVolts + feedforwardVolts;
 
-    setMotorVoltage(feedbackVolts + feedforwardVolts);
+    setMotorVoltage(voltage);
+    // setMotorVoltage(0);
+    System.out.println("ELEVATOR TILT VOLTAGE: " + voltage);
     angleLogger.append(currentAngle);
     velocityLogger.append(currentVelocity);
     statePositionLogger.append(state.position);
