@@ -30,6 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     if (isEnabled) {
       motor.set(INTAKE_POWER);
+      System.out.println("INTAKE POWER: " + INTAKE_POWER);
     }
   }
 

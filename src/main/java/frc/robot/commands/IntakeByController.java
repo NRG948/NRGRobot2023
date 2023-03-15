@@ -33,6 +33,7 @@ public class IntakeByController extends CommandBase {
     double speed = controller.getHID().getRightTriggerAxis() - controller.getHID().getLeftTriggerAxis();
     speed = MathUtil.applyDeadband(speed, DEADBAND);
     intakeSubsystem.runMotor(speed);
+    System.out.println("INTAKE SPEED: " + speed);
   }
 
   // Called once the command ends or is interrupted.
