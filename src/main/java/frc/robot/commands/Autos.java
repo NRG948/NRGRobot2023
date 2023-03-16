@@ -26,6 +26,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -35,10 +36,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.util.FileUtil;
 
@@ -48,7 +49,7 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
-  public static int MAX_GAME_PIECES_TO_SCORE = 2;
+  public static int MAX_GAME_PIECES_TO_SCORE = 1;
 
   private static final double FIELD_WIDTH_METERS = 8.02; // meters
 
@@ -128,7 +129,7 @@ public final class Autos {
   private static double getAutoSpeed(SwerveSubsystem drivetrain, boolean isOuterPath) {
     return (isOuterPath ? OUTER_SPEED_PERCENT : COOP_SPEED_PERCENT) * drivetrain.getMaxSpeed();
   }
-  
+
   /**
    * Returns the acceleration to drive during autonomous.
    * 
@@ -136,7 +137,7 @@ public final class Autos {
    * @return The acceleration to drive during autonomous.
    */
   private static double getAutoAcceleration(SwerveSubsystem drivetrain) {
-    return drivetrain.getMaxAcceleration()*0.1;
+    return drivetrain.getMaxAcceleration() * 0.1;
   }
 
   /**
@@ -252,24 +253,32 @@ public final class Autos {
     var groupedCommands = Arrays.stream(getPathplannerDirectory().listFiles(withExtension(".path")))
         .map(FileUtil::basenameOf)
         .sorted()
-        .map(n -> new LabelValue<String, Command>(n, getPathplannerCommand(subsystems, n)))
+        .map(n -> new LabelValue<String, Pair<Command, Pose2d>>(n, getPathplannerCommand(subsystems, n)))
         .collect(Collectors.groupingBy((lv) -> lv.getLabel().split("-Score")[0]));
     ArrayList<LabelValue<String, Command>> commandSequences = new ArrayList<>();
 
     groupedCommands.forEach((origin, paths) -> {
       Command sequence;
+      Pose2d startPose2d = paths.get(0).getValue().getSecond();
 
       sequence = Commands.sequence(
+          Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
+          Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID),
+          new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
+          Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
+          Commands.waitSeconds(0.5),
+          new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)),
+          Scoring.prepareToAcquire(subsystems),
           // Follow the primary segment of the autonomous path.
-          paths.get(0).getValue(),
+          paths.get(0).getValue().getFirst(),
           // Follow the second segment of the autonomous path based on the number of game
           // elements to score.
           Commands.either(
               // The path at index 1 places the robot in position to auto-balance on the
               // charging station.
-              paths.size() >= 2 ? paths.get(1).getValue() : Commands.none(),
+              paths.size() >= 2 ? paths.get(1).getValue().getFirst() : Commands.none(),
               // The path at index 2 scores a second game piece leaving the robot at the grid.
-              paths.size() >= 3 ? paths.get(2).getValue() : Commands.none(),
+              paths.size() >= 3 ? paths.get(2).getValue().getFirst() : Commands.none(),
               () -> getNumberOfGamePieces() <= 1),
           // Drive to the center of the correct alliance charging station and auto-balance
           // if enabled. Otherwise, do nothing.
@@ -304,7 +313,7 @@ public final class Autos {
    * 
    * @return A {@link Command} to follow a PathPlanner path group.
    */
-  public static Command getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
+  public static Pair<Command, Pose2d> getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     boolean isOuterPath = pathGroupName.startsWith("Outer");
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
@@ -321,7 +330,10 @@ public final class Autos {
         true,
         drivetrain);
 
-    return autoBuilder.fullAuto(pathGroup);
+    Command pathCommand = autoBuilder.fullAuto(pathGroup);
+    Pose2d startPose2d = pathGroup.get(0).getInitialHolonomicPose();
+
+    return new Pair<Command, Pose2d>(pathCommand, startPose2d);
   }
 
   /**
@@ -336,10 +348,9 @@ public final class Autos {
     if (pathplannerEventMap == null) {
       IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
-        "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
-        "ScoreHigh", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
-        "ScoreMid", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID)
-      );
+          "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
+          "ScoreHigh", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
+          "ScoreMid", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID));
 
     }
     return pathplannerEventMap;
