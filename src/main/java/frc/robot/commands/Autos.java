@@ -288,11 +288,13 @@ public final class Autos {
                       Alliance.Blue,
                       Commands.sequence(
                           new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
-                          new AutoBalanceOnChargeStation(drivetrain)),
+                          new AutoBalanceOnChargeStation(drivetrain),
+                          new RainbowCycle(subsystems.leds)),
                       Alliance.Red,
                       Commands.sequence(
                           new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
-                          new AutoBalanceOnChargeStation(drivetrain)),
+                          new AutoBalanceOnChargeStation(drivetrain),
+                          new RainbowCycle(subsystems.leds)),
                       Alliance.Invalid,
                       new PrintCommand("ERROR: Invalid alliance color!")),
                   DriverStation::getAlliance),

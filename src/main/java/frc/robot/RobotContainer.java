@@ -31,6 +31,7 @@ import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.IntakeByController;
+import frc.robot.commands.RainbowCycle;
 import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.TiltElevatorWithController;
@@ -100,14 +101,14 @@ public class RobotContainer {
         new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
-            .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
+            .andThen(new RainbowCycle(subsystems.leds)));
     driveController.b().onTrue(
         new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
-            .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
+            .andThen(new RainbowCycle(subsystems.leds)));
     driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
-        .andThen(Commands.runOnce(() -> subsystems.leds.setRainbow())));
+        .andThen(new RainbowCycle(subsystems.leds)));
 
     driveController.rightBumper().whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain));
 
@@ -153,12 +154,14 @@ public class RobotContainer {
               System.out.println("DISABLE MANUAL ELEVATOR CONTROL");
             }, subsystems.elevator, subsystems.elevatorAngle),
             () -> elevatorEnableManualControl = !elevatorEnableManualControl));
-    manipulatorController.povUp().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
-    manipulatorController.povDown().onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
+    manipulatorController.povUp()
+        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
+    manipulatorController.povDown()
+        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
     manipulatorController.povRight()
         .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
     // There is no left dpad button binding
-    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor()));
+    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
   }
 
   /**

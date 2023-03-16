@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.ColorConstants.*;
 
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.AddressableLEDs;
 import frc.robot.Constants.RobotConstants.PWMPort;
@@ -30,13 +31,18 @@ public class AdressableLEDSubsystem extends SubsystemBase {
     leds.commitColor();
   }
 
-  public void setRainbow() {
-    for (var i = 0; i < 51; i++) {
-      leds.setColor(COLORS[i % 6],i);
-    }
+  public void setColor(Color8Bit color, int index) {
+    leds.setColor(color, index);
+  }
+
+  public void commitColor() {
     leds.commitColor();
   }
-  
+
+  public void fillColor(Color8Bit color) {
+    leds.setColor(color);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
