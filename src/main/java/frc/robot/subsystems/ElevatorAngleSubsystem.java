@@ -75,9 +75,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
-  private static final double KS = 5.0; //Change to 2.5
-  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
-  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
+  private static final double KS = 0.21654; // 5.0
+  private static final double KV = 0.25197; // (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
+  private static final double KA = 0.065149; // (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
   private static final double KG = 9.81 * KA;
 
   private static final double ENCODER_MINIMUM_DUTY_CYCLE = 1.0 / 1025.0;
