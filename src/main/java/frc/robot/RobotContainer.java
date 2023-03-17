@@ -119,6 +119,7 @@ public class RobotContainer {
     driveController.leftBumper().whileTrue(Commands.sequence(
         Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
+    driveController.leftStick().onTrue(Commands.runOnce(() -> new RainbowCycle(subsystems.leds)));
 
     manipulatorController.x()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
