@@ -63,7 +63,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedback");
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
   // CONSTANTS
-  private static final double GEAR_RATIO = 100 / 1;
+  private static final double GEAR_RATIO = (100 * 32) / 12;
   private static final double MOTOR_POWER = 0.7;
   public static final double MASS = 9.97903; // TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
