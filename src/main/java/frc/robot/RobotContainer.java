@@ -163,7 +163,10 @@ public class RobotContainer {
     // There is no left dpad button binding
     manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
     manipulatorController.rightStick().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.FLIP), subsystems.elevator));
-  }
+    // Trigger to detect the elevator in the acquiring position, which closes the servo automatically
+    new Trigger(subsystems.elevator::atBottomLimit).onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED)));
+    new Trigger(subsystems.elevator::atGoal).onFalse(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
+    }
 
   /**
    * Returns the autonomous command selected in the chooser.
