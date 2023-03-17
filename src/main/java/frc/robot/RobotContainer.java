@@ -226,6 +226,8 @@ public class RobotContainer {
         .withPosition(0, 0);
     indicatorLayout.addBoolean("Automatic Scoring Mode", () -> driveController.getHID().getLeftBumper())
         .withPosition(0, 1);
+    indicatorLayout.addBoolean("Is Purple?", () -> subsystems.leds.isYellow())
+        .withPosition(0, 2);
         
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.

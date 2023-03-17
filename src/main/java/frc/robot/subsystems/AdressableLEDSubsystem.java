@@ -31,6 +31,10 @@ public class AdressableLEDSubsystem extends SubsystemBase {
     leds.commitColor();
   }
 
+  public boolean isYellow() {
+    return isYellow;
+  }
+
   public void setColor(Color8Bit color, int index) {
     leds.setColor(color, index);
   }
