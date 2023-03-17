@@ -30,7 +30,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
 
   // AQUIRING and SCORING are out of the frame perimeter
   public enum ElevatorAngle {
-    ACQUIRING(58),
+    ACQUIRING(58), // TO-DO: Change this angle so the carriage aligns with the intake
     // SCORING(134.6);
     SCORING(123);
 
@@ -63,7 +63,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedback");
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
   // CONSTANTS
-  private static final double GEAR_RATIO = (100 * 32) / 12;
+  private static final double GEAR_RATIO = (100 * 32) / 12; //Change to compensate for new sprocket
   private static final double MOTOR_POWER = 0.7;
   public static final double MASS = 9.97903; // TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
@@ -75,7 +75,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
-  private static final double KS = 5.0;
+  private static final double KS = 5.0; //Change to 2.5
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
   private static final double KG = 9.81 * KA;
