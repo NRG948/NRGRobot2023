@@ -41,11 +41,12 @@ public class CharacterizeElevatorAngle extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     elevatorAngle.stopMotor();
+    logger.sendData();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return logger.getMotorVoltage() > 0 ? elevatorAngle.atScoringLimit() : elevatorAngle.atAcquiringLimit();
+    return false; //logger.getMotorVoltage() >= 0 ? elevatorAngle.atScoringLimit() : elevatorAngle.atAcquiringLimit();
   }
 }
