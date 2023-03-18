@@ -119,6 +119,7 @@ public class RobotContainer {
     driveController.leftBumper().whileTrue(Commands.sequence(
         Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
+    driveController.leftStick().onTrue(Commands.runOnce(() -> new RainbowCycle(subsystems.leds)));
 
     manipulatorController.x()
         .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
@@ -162,7 +163,11 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
     // There is no left dpad button binding
     manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
-  }
+    manipulatorController.rightStick().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.FLIP), subsystems.elevator));
+    // Trigger to detect the elevator in the acquiring position, which closes the servo automatically
+    new Trigger(subsystems.elevator::atBottomLimit).onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED)));
+    new Trigger(subsystems.elevator::atGoal).onFalse(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
+    }
 
   /**
    * Returns the autonomous command selected in the chooser.
@@ -195,23 +200,23 @@ public class RobotContainer {
         .withPosition(6, 0)
         .withSize(2, 3);
 
-    gridLayout.addBoolean("Left High", () -> manipulatorController.getHID().getPOV() == 315)
+    gridLayout.addBoolean("Left High", () -> driveController.getHID().getPOV() == 315)
         .withPosition(0, 0);
-    gridLayout.addBoolean("Left Mid", () -> manipulatorController.getHID().getPOV() == 270)
+    gridLayout.addBoolean("Left Mid", () -> driveController.getHID().getPOV() == 270)
         .withPosition(0, 1);
-    gridLayout.addBoolean("Left Low", () -> manipulatorController.getHID().getPOV() == 225)
+    gridLayout.addBoolean("Left Low", () -> driveController.getHID().getPOV() == 225)
         .withPosition(0, 2);
-    gridLayout.addBoolean("Center High", () -> manipulatorController.getHID().getPOV() == 0)
+    gridLayout.addBoolean("Center High", () -> driveController.getHID().getPOV() == 0)
         .withPosition(1, 0);
-    gridLayout.addBoolean("Center Mid", () -> manipulatorController.getHID().getPOV() == -1)
+    gridLayout.addBoolean("Center Mid", () -> driveController.getHID().getPOV() == -1)
         .withPosition(1, 1);
-    gridLayout.addBoolean("Center Low", () -> manipulatorController.getHID().getPOV() == 180)
+    gridLayout.addBoolean("Center Low", () -> driveController.getHID().getPOV() == 180)
         .withPosition(1, 2);
-    gridLayout.addBoolean("Right High", () -> manipulatorController.getHID().getPOV() == 45)
+    gridLayout.addBoolean("Right High", () -> driveController.getHID().getPOV() == 45)
         .withPosition(2, 0);
-    gridLayout.addBoolean("Right Mid", () -> manipulatorController.getHID().getPOV() == 90)
+    gridLayout.addBoolean("Right Mid", () -> driveController.getHID().getPOV() == 90)
         .withPosition(2, 1);
-    gridLayout.addBoolean("Right Low", () -> manipulatorController.getHID().getPOV() == 135)
+    gridLayout.addBoolean("Right Low", () -> driveController.getHID().getPOV() == 135)
         .withPosition(2, 2);
 
     ShuffleboardLayout indicatorLayout = operatorTab.getLayout("Indicators", BuiltInLayouts.kGrid)
@@ -219,8 +224,10 @@ public class RobotContainer {
         .withSize(1, 3);
     indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl)
         .withPosition(0, 0);
-    indicatorLayout.addBoolean("Automatic Scoring Mode", () -> manipulatorController.getHID().getLeftBumper())
+    indicatorLayout.addBoolean("Automatic Scoring Mode", () -> driveController.getHID().getLeftBumper())
         .withPosition(0, 1);
+    indicatorLayout.addBoolean("Is Purple?", () -> subsystems.leds.isYellow())
+        .withPosition(0, 2);
         
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.

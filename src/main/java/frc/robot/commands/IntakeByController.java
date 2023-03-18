@@ -14,6 +14,7 @@ public class IntakeByController extends CommandBase {
  private IntakeSubsystem intakeSubsystem;
 
   private static final double DEADBAND = 0.1;
+  private static final double INTAKE_SPEED = 0.85;
 
   public IntakeByController(IntakeSubsystem intakeSubsystem, CommandXboxController controller) {
     this.controller = controller;
@@ -31,7 +32,7 @@ public class IntakeByController extends CommandBase {
   @Override
   public void execute() {
     double speed = controller.getHID().getRightTriggerAxis() - controller.getHID().getLeftTriggerAxis();
-    speed = MathUtil.applyDeadband(speed, DEADBAND);
+    speed = MathUtil.applyDeadband(speed * INTAKE_SPEED, DEADBAND);
     intakeSubsystem.runMotor(speed);
   }
 

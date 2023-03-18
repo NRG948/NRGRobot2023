@@ -61,9 +61,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double POSITION_TOLERANCE = 0.01;
 
   // Feedfoward constants.
-  private static final double KS = 0.15;
-  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED;
-  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION;
+  private static final double KS = 0.15; // 0.29477;
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED; // 0.081366
+  private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION; // 0.0059788; 
   private static final double KG = 9.81 * KA;
   private static final double METERS_PER_REVOLUTION = (SPROCKET_DIAMETER * Math.PI) / GEAR_RATIO;
   private static final double UPPER_STOP_LIMIT = 1.05;
@@ -103,7 +103,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public enum GoalState { // TODO: get real values
     ACQUIRE(0.0025),
     SCORE_LOW(0.10),
-    FLIP(0.5),
+    FLIP(0.4),
     SCORE_MID(0.57),
     SCORE_HIGH(1.0);
 
