@@ -115,16 +115,16 @@ public final class Scoring {
         // the upper crossbar.
         Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator),
         Commands.runOnce(() -> System.out.println("GO TO FLIP")),
-        Commands.waitUntil(elevator::atGoal),
+        Commands.waitUntil(elevator::atGoal).withTimeout(2),
         Commands.runOnce(() -> System.out.println("Elevator at flip position")),
         Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
         Commands.runOnce(() -> System.out.println("Set elevator angle position to scoring level")),
-        Commands.waitUntil(elevatorAngle::atGoalAngle),
+        Commands.waitUntil(elevatorAngle::atGoalAngle).withTimeout(2),
         Commands.runOnce(() -> System.out.println("Elevator angle is at scoring level")),
         // Raise the elevator to the desired scoring elevation.
         Commands.runOnce(() -> elevator.setGoal(target), elevator),
         Commands.runOnce(() -> System.out.println("Set carrige to scoring level")),
-        Commands.waitUntil(elevator::atGoal),
+        Commands.waitUntil(elevator::atGoal).withTimeout(2),
         Commands.runOnce(() -> System.out.println("Elevator carrige arrived at scoring level")));
   }
 
@@ -155,12 +155,12 @@ public final class Scoring {
 
         Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
         Commands.runOnce(() -> System.out.println("Set the elevator angle to acquiring")),
-        Commands.waitUntil(elevatorAngle::atGoalAngle),
+        Commands.waitUntil(elevatorAngle::atGoalAngle).withTimeout(2),
         Commands.runOnce(() -> System.out.println("Elevator angle arrived acquiring")),
         // Close the claw and lower the carriage to aquiring position.
         Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator),
         Commands.runOnce(() -> System.out.println("Set the carrige goal state to aquire")),
-        Commands.waitUntil(elevator::atGoal),
+        Commands.waitUntil(elevator::atGoal).withTimeout(2),
         Commands.runOnce(() -> System.out.println("Wait for the elevator carrige to reach its goalstate"))
         // Commands.runOnce(() -> claw.set(Position.CLOSED), claw), // we don't need this anymore
         // Commands.runOnce(() -> System.out.println("Set the servo to closed"))
