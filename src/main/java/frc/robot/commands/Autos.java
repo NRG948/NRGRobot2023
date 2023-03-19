@@ -262,13 +262,13 @@ public final class Autos {
       Pose2d startPose2d = paths.get(0).getValue().getSecond();
 
       sequence = Commands.sequence(
+          // Set the initial position of the robot.
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
-          Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
-          new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
-          Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
-          Commands.waitSeconds(0.5),
-          new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)),
-          Scoring.prepareToAcquire(subsystems),
+          // If we're scoring at least one game piece, run the intial scoring sequence.
+          Commands.either(
+            getInitialScoringSequence(subsystems, startPose2d),
+            Commands.none(),
+            () -> getNumberOfGamePieces() != 0),
           // Follow the primary segment of the autonomous path.
           paths.get(0).getValue().getFirst(),
           // Follow the second segment of the autonomous path based on the number of game
@@ -318,7 +318,7 @@ public final class Autos {
    */
   public static Pair<Command, Pose2d> getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
-    boolean isOuterPath = pathGroupName.startsWith("Outer");
+    boolean isOuterPath = pathGroupName.contains("Outer");
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
         new PathConstraints(getAutoSpeed(drivetrain, isOuterPath), getAutoAcceleration(drivetrain)));
@@ -357,6 +357,26 @@ public final class Autos {
 
     }
     return pathplannerEventMap;
+  }
+
+  /**
+   * Returns the initial scoring command sequence.
+   * 
+   * @param subsystems  The subsystems container.
+   * @param startPose2d The starting pose of the robot.
+   * 
+   * @return The initial scoring command sequence.
+   */
+  private static Command getInitialScoringSequence(Subsystems subsystems, Pose2d startPose2d) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+
+    return Commands.sequence(
+        Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
+        new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
+        Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
+        Commands.waitSeconds(0.5),
+        new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)),
+        Scoring.prepareToAcquire(subsystems));
   }
 
   private Autos() {
