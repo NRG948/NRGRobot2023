@@ -26,6 +26,7 @@ public class DriveStraight extends CommandBase {
   private final Supplier<Translation2d> translationSupplier;
   private final double maxSpeed;
   private final Supplier<Rotation2d> orientationSupplier;
+  private final double goalSpeed;
   private final Timer timer = new Timer();
   private Pose2d initialPose;
   private double distance;
@@ -44,7 +45,7 @@ public class DriveStraight extends CommandBase {
    *                    position.
    */
   public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation) {
-    this(drivetrain, () -> translation, drivetrain.getMaxSpeed(), () -> drivetrain.getPosition().getRotation());
+    this(drivetrain, () -> translation, drivetrain.getMaxSpeed(), () -> drivetrain.getPosition().getRotation(), 0);
   }
 
   /**
@@ -59,7 +60,23 @@ public class DriveStraight extends CommandBase {
    * @param maxSpeed    The maximum speed at which to travel.
    */
   public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed) {
-    this(drivetrain, () -> translation, maxSpeed, () -> drivetrain.getPosition().getRotation());
+    this(drivetrain, () -> translation, maxSpeed, () -> drivetrain.getPosition().getRotation(), 0);
+  }
+
+  /**
+   * Creates a new DriveStraight that drives robot along the specified vector and
+   * speed while maintaining the current orientation of the robot.
+   * 
+   * @param drivetrain  The {@link SwerveSubsystem} representing the robot
+   *                    drivetrain.
+   * @param translation A {@link Translation2d} instance describing the line on
+   *                    which to travel. This is a vector relative to the current
+   *                    position.
+   * @param maxSpeed    The maximum speed at which to travel.
+   * @param goalSpeed   The speed at the goal position.
+   */
+  public DriveStraight(SwerveSubsystem drivetrain, Translation2d translation, double maxSpeed, double goalSpeed) {
+    this(drivetrain, () -> translation, maxSpeed, () -> drivetrain.getPosition().getRotation(), goalSpeed);
   }
 
   /**
@@ -79,7 +96,7 @@ public class DriveStraight extends CommandBase {
       Translation2d translation,
       double maxSpeed,
       Rotation2d orientation) {
-    this(drivetrain, () -> translation, maxSpeed, () -> orientation);
+    this(drivetrain, () -> translation, maxSpeed, () -> orientation, 0);
   }
 
   /**
@@ -97,7 +114,8 @@ public class DriveStraight extends CommandBase {
         drivetrain,
         () -> position.getTranslation().minus(drivetrain.getPosition().getTranslation()),
         maxSpeed,
-        () -> position.getRotation());
+        () -> position.getRotation(),
+        0);
   }
 
   /**
@@ -111,38 +129,41 @@ public class DriveStraight extends CommandBase {
    * @param maxSpeed            The maximum speed at which to travel.
    * @param orientationSupplier Supplies the desired orientation at the end of the
    *                            command.
+   * @param goalSpeed           The speed at the goal position.
    */
   private DriveStraight(
       SwerveSubsystem drivetrain,
       Supplier<Translation2d> translationSupplier,
       double maxSpeed,
-      Supplier<Rotation2d> orientationSupplier) {
+      Supplier<Rotation2d> orientationSupplier,
+      double goalSpeed) {
     this.drivetrain = drivetrain;
     this.translationSupplier = translationSupplier;
     this.controller = drivetrain.createDriveController();
     this.maxSpeed = maxSpeed;
     this.orientationSupplier = orientationSupplier;
-    
+    this.goalSpeed = goalSpeed;
+
     addRequirements(drivetrain);
   }
-  
+
   @Override
   public void initialize() {
     initialPose = drivetrain.getPosition();
-    
+
     Translation2d translation = translationSupplier.get();
     distance = translation.getNorm();
     heading = translation.getAngle();
     orientation = orientationSupplier.get();
     profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(maxSpeed, drivetrain.getMaxAcceleration()),
-        new TrapezoidProfile.State(distance, 0));
-    
+        new TrapezoidProfile.State(distance, goalSpeed));
+
     System.out.println(
-      "BEGIN ProfiledDriveStraight intitialPose = " + initialPose +
-      ", orientation = " + orientation +
-      ", distance = " + distance +
-      ", heading = " + heading);
+        "BEGIN ProfiledDriveStraight intitialPose = " + initialPose +
+            ", orientation = " + orientation +
+            ", distance = " + distance +
+            ", heading = " + heading);
 
     timer.reset();
     timer.start();
