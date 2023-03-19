@@ -20,14 +20,12 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
-import frc.robot.Constants.RobotConstants.PWMPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
@@ -37,10 +35,10 @@ import frc.robot.commands.RainbowCycle;
 import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.TiltElevatorWithController;
+import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
 import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
-import frc.robot.subsystems.ClawSubsystem.Position;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
