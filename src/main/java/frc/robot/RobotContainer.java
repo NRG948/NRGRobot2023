@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
+import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
@@ -98,12 +99,12 @@ public class RobotContainer {
   private void configureCommandBindings() {
 
     driveController.a().onTrue(
-        new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), 1.0)
+        new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)), Autos.getAutoSpeed(subsystems.drivetrain, true))
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
             .andThen(new RainbowCycle(subsystems.leds)));
     driveController.b().onTrue(
-        new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), 1.0)
+        new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)), Autos.getAutoSpeed(subsystems.drivetrain, true))
             .until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
             .andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
             .andThen(new RainbowCycle(subsystems.leds)));
