@@ -108,7 +108,12 @@ public class RobotAutonomous {
     // Use ProxyCommand to run the autonomous routine. This allow multiple runs of
     // the same command with potentially different initial delays. It is mainly
     // useful for debugging.
-    return getSelectedDelayCommand().andThen(new ProxyCommand(autonomousCommandChooser.getSelected()));
+    Command autoCommand = autonomousCommandChooser.getSelected();
+    System.out.println(
+      "AUTO ROUTINE: " + autoCommand.getName() +
+      ", NO. GAME PIECES: " + Autos.getNumberOfGamePieces() +
+      ", BALANCE: " + Autos.getBalanceOnChargingStation());
+    return getSelectedDelayCommand().andThen(new ProxyCommand(autoCommand));
   }
 
   /**

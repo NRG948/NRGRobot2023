@@ -300,6 +300,7 @@ public final class Autos {
                   DriverStation::getAlliance),
               Commands.none(),
               Autos::getBalanceOnChargingStation));
+      sequence.setName(origin);
 
       commandSequences.add(new LabelValue<String, Command>(origin, sequence));
     });
