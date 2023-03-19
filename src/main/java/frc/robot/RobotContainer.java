@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
@@ -221,13 +223,16 @@ public class RobotContainer {
 
     ShuffleboardLayout indicatorLayout = operatorTab.getLayout("Indicators", BuiltInLayouts.kGrid)
         .withPosition(8, 0)
-        .withSize(1, 3);
+        .withSize(1, 3)
+        .withProperties(Map.of("Number of Columns", 1, "Number of Rows", 4));
     indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl)
         .withPosition(0, 0);
     indicatorLayout.addBoolean("Automatic Scoring Mode", () -> driveController.getHID().getLeftBumper())
         .withPosition(0, 1);
     indicatorLayout.addBoolean("Is Purple?", () -> subsystems.leds.isYellow())
         .withPosition(0, 2);
+    indicatorLayout.addBoolean("Servo Open?", () -> subsystems.claw.atPosition(Position.OPEN))
+        .withPosition(0, 3);
         
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
