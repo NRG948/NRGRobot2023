@@ -263,7 +263,7 @@ public final class Autos {
 
       sequence = Commands.sequence(
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
-          Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID),
+          Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
           new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
           Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
           Commands.waitSeconds(0.5),
@@ -352,8 +352,8 @@ public final class Autos {
       IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
           "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
-          "ScoreHigh", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
-          "ScoreMid", Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID));
+          "ScoreHigh", Scoring.prepareToScore(subsystems, GoalState.SCORE_HIGH),
+          "ScoreMid", Scoring.prepareToScore(subsystems, GoalState.SCORE_MID));
 
     }
     return pathplannerEventMap;

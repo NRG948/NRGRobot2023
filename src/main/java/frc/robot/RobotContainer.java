@@ -135,12 +135,12 @@ public class RobotContainer {
     manipulatorController.y().onTrue(
         Commands.either(
             Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID)),
-            Scoring.scoreGamePiece(subsystems, GoalState.SCORE_MID),
+            Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
             () -> !manipulatorController.getHID().getLeftBumper()));
     manipulatorController.rightBumper().onTrue(
         Commands.either(
             Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)),
-            Scoring.scoreGamePiece(subsystems, GoalState.SCORE_HIGH),
+            Scoring.prepareToScore(subsystems, GoalState.SCORE_HIGH),
             () -> !manipulatorController.getHID().getLeftBumper()));
     manipulatorController.start().onTrue(
         Commands.either(

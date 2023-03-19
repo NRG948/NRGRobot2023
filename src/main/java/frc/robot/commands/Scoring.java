@@ -92,7 +92,7 @@ public final class Scoring {
 
     return Commands.sequence(
         new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
-        scoreGamePiece(subsystems, targetState),
+        prepareToScore(subsystems, targetState),
         prepareToAcquire(subsystems));
   }
 
@@ -104,8 +104,7 @@ public final class Scoring {
    * 
    * @return A command sequence to automate scoring the game piece.
    */
-  public static Command scoreGamePiece(Subsystems subsystems, GoalState target) {
-    ClawSubsystem claw = subsystems.claw;
+  public static Command prepareToScore(Subsystems subsystems, GoalState target) {
     ElevatorSubsystem elevator = subsystems.elevator;
     ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
 
@@ -136,7 +135,6 @@ public final class Scoring {
    *         position.
    */
   public static Command prepareToAcquire(Subsystems subsystems) {
-    ClawSubsystem claw = subsystems.claw;
     ElevatorSubsystem elevator = subsystems.elevator;
     ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
 
