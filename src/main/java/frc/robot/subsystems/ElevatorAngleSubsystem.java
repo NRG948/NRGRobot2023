@@ -63,7 +63,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private DoubleLogEntry feedbackLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedback");
   private DoubleLogEntry feedfowardLogger = new DoubleLogEntry(DataLogManager.getLog(), "ElevatorAngle/Feedforward");
   // CONSTANTS
-  private static final double GEAR_RATIO = (100 * 32) / 12; //Change to compensate for new sprocket
+  private static final double GEAR_RATIO = (100 * 32) / 12; // Change to compensate for new sprocket
   private static final double MOTOR_POWER = 0.7;
   public static final double MASS = 9.97903; // TODO: update mass when claw change.
   private static final MotorParameters MOTOR = MotorParameters.NeoV1_1;
@@ -75,9 +75,9 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION = (2 * MOTOR.getStallTorque() * GEAR_RATIO) / MASS;
   private static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_ANGULAR_SPEED * MOTOR_POWER, MAX_ANGULAR_ACCELERATION);
-  private static final double KS = 0.21654; // 5.0
-  private static final double KV = 0.25197; // (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
-  private static final double KA = 0.065149; // (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
+  private static final double KS = 5.0; // 0.21654; // 5.0
+  private static final double KV = /* 0.25197; */ (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_SPEED;
+  private static final double KA = /* 0.065149; */ (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ANGULAR_ACCELERATION;
   private static final double KG = 9.81 * KA;
 
   private static final double ENCODER_MINIMUM_DUTY_CYCLE = 1.0 / 1025.0;
@@ -89,7 +89,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
   private final DigitalInput acquiringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_ACQUIRE_LIMIT);
   private final DigitalInput scoringLimit = new DigitalInput(DigitalIO.ELEVATOR_ANGLE_SCORING_LIMIT);
   private final ArmFeedforward feedforward = new ArmFeedforward(KS, KV, KA, KG);
-  private final ProfiledPIDController controller = new ProfiledPIDController(5.0, 0.0, 0.0, CONSTRAINTS);
+  private ProfiledPIDController controller;
   private final Timer timer = new Timer();
 
   private ElevatorAngle goalAngle = ElevatorAngle.ACQUIRING;
@@ -120,13 +120,18 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    */
   public void setGoalAngle(ElevatorAngle goalAngle) {
     this.goalAngle = goalAngle;
+    TrapezoidProfile.State initialState = new TrapezoidProfile.State(currentAngle, 0);
     TrapezoidProfile.State goalState = new TrapezoidProfile.State(goalAngle.getRadians(), 0);
-    profile = new TrapezoidProfile(CONSTRAINTS, goalState);
+    profile = new TrapezoidProfile(CONSTRAINTS, goalState, initialState);
+    controller = new ProfiledPIDController(3.25, 0.0, 0.0, CONSTRAINTS);
+    controller.setTolerance(Math.toRadians(2.5));
     controller.setGoal(goalState);
     timer.reset();
     timer.start();
     enablePeriodicControl(true);
     System.out.println("GOAL ANGLE: " + goalAngle);
+    lastAngleTime = 0;
+    lastAngle = 0;
   }
 
   /**
@@ -135,7 +140,7 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
    * @return True if the elevator is at the goal angle.
    */
   public boolean atGoalAngle() {
-    return controller.atGoal() || (goalAngle == ElevatorAngle.ACQUIRING ? atAcquiringLimit() : atScoringLimit());
+    return controller != null && (controller.atGoal() || (goalAngle == ElevatorAngle.ACQUIRING ? atAcquiringLimit() : atScoringLimit()));
   }
 
   /**
@@ -187,20 +192,20 @@ public class ElevatorAngleSubsystem extends SubsystemBase {
     currentScoringLimit = !scoringLimit.get(); // Negate the sensor because it's a hall effect sensor
     currentAcquiringLimit = acquiringLimit.get();
 
-    if (!angleOffsetInitialize){
+    if (!angleOffsetInitialize) {
       angleOffset = encoder.getAbsolutePosition();
       angleOffsetInitialize = true;
     }
 
-    currentAngle = (((1.0 - encoder.getAbsolutePosition() + angleOffset) % 1.0) * ENCODER_DISTANCE_PER_ROTATION 
+    currentAngle = (((1.0 - encoder.getAbsolutePosition() + angleOffset) % 1.0) * ENCODER_DISTANCE_PER_ROTATION
         + ElevatorAngle.ACQUIRING.getRadians()) % (2 * Math.PI);
-    
+
     double currentTime = Timer.getFPGATimestamp();
-    
+
     if (lastAngleTime != 0) {
       currentVelocity = (currentAngle - lastAngle) / (currentTime - lastAngleTime);
     }
-    
+
     lastAngleTime = currentTime;
     lastAngle = currentAngle;
 

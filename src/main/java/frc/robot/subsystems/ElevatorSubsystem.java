@@ -61,7 +61,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double POSITION_TOLERANCE = 0.01;
 
   // Feedfoward constants.
-  private static final double KS = 0.15; // 0.29477;
+  private static final double KS = 0.30; // 0.29477;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_SPEED; // 0.081366
   private static final double KA = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MAX_ACCELERATION; // 0.0059788; 
   private static final double KG = 9.81 * KA;
@@ -72,7 +72,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder encoder = motor.getEncoder();
   private final Supplier<Rotation2d> angle;
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV, KA);
-  private final ProfiledPIDController pidController = new ProfiledPIDController(10.0, 0, 0, CONSTRAINTS);
+  private ProfiledPIDController pidController;
   private final Timer timer = new Timer();
 
   private final DigitalInput bottomLimit = new DigitalInput(DigitalIO.ELEVATOR_BOTTOM_LIMIT);
@@ -135,12 +135,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     encoder.setPositionConversionFactor(METERS_PER_REVOLUTION);
     encoder.setVelocityConversionFactor(METERS_PER_REVOLUTION);
 
-    pidController.setTolerance(POSITION_TOLERANCE);
-
+    
     angle = angleSupplier;
     currentAngle = angle.get();
   }
-
+  
   /**
    * Sets the desired claw position.
    * 
@@ -148,10 +147,13 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setGoal(GoalState goalState) {
     this.goalState = goalState;
-
+    
+    TrapezoidProfile.State initialState = new TrapezoidProfile.State(currentPosition, 0);
     TrapezoidProfile.State state = new TrapezoidProfile.State(goalState.getPosition(), 0);
-
-    profile = new TrapezoidProfile(CONSTRAINTS, state);
+    
+    profile = new TrapezoidProfile(CONSTRAINTS, state, initialState);
+    pidController = new ProfiledPIDController(10.0, 0, 0, CONSTRAINTS);
+    pidController.setTolerance(POSITION_TOLERANCE);
     pidController.setGoal(state);
     timer.reset();
     timer.start();
@@ -174,7 +176,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @return true if the elevator is at the goal state.
    */
   public boolean atGoal() {
-    return pidController.atGoal();
+    return pidController != null && pidController.atGoal();
   }
 
   /**
@@ -274,7 +276,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     // voltage to apply to the motor.
     TrapezoidProfile.State state = profile.calculate(timer.get());
     double feedbackVolts = pidController.calculate(currentPosition, state.position);
-    double feedforwardVolts = 0; // Math.sin(currentAngle.getRadians()) * KG;
+    double feedforwardVolts = (Math.sin(currentAngle.getRadians()) * KG) * 0.5;
 
     feedforwardVolts += feedforward.calculate(state.velocity);
 
