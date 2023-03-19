@@ -146,7 +146,7 @@ public final class Scoring {
         // when it flips over to the acquiring position.
         Commands.either(
             Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator)
-                .andThen(Commands.waitUntil(elevator::atGoal)),
+                .andThen(Commands.waitUntil(elevator::atGoal).withTimeout(2)),
             Commands.none(),
             () -> !elevator.atPosition(GoalState.SCORE_LOW)),
         Commands.runOnce(() -> System.out.println("GO TO FLIP (if not at low)")),
