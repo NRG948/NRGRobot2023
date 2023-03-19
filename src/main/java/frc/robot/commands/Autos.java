@@ -126,7 +126,7 @@ public final class Autos {
    * 
    * @return The speed to drive during autonomous.
    */
-  private static double getAutoSpeed(SwerveSubsystem drivetrain, boolean isOuterPath) {
+  public static double getAutoSpeed(SwerveSubsystem drivetrain, boolean isOuterPath) {
     return (isOuterPath ? OUTER_SPEED_PERCENT : COOP_SPEED_PERCENT) * drivetrain.getMaxSpeed();
   }
 
@@ -379,6 +379,16 @@ public final class Autos {
         Scoring.prepareToAcquire(subsystems));
   }
 
+  @AutonomousCommandMethod(name="Score Cube")
+  public static Command scoreCube(Subsystems subsystems) {
+    return Commands.sequence(
+      Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
+      Commands.runEnd(() -> subsystems.intake.runMotor(-0.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
+      new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
+      new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90)),
+      new DriveStraight(subsystems.drivetrain, new Translation2d(3,0),getAutoSpeed(subsystems.drivetrain, false), new Rotation2d(0))
+    );
+  }
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
