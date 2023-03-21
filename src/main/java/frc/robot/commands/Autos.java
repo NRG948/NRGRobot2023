@@ -385,7 +385,7 @@ public final class Autos {
   public static Command scoreCube(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
+      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(1.5),
       new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(3,0),getAutoSpeed(subsystems.drivetrain, false), new Rotation2d(0))
@@ -396,7 +396,7 @@ public final class Autos {
   public static Command scoreCubeTwo(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
+      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(1.5),
       new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90))
     );
