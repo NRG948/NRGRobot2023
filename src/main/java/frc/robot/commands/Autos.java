@@ -7,6 +7,7 @@ package frc.robot.commands;
 import static frc.robot.util.FileUtil.withExtension;
 import static frc.robot.util.FilesystemUtil.getPathplannerDirectory;
 
+import java.lang.invoke.TypeDescriptor.OfMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.javatuples.LabelValue;
 
 import com.nrg948.autonomous.AutonomousCommandGenerator;
@@ -383,7 +385,7 @@ public final class Autos {
   public static Command scoreCube(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-0.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
+      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
       new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(3,0),getAutoSpeed(subsystems.drivetrain, false), new Rotation2d(0))
@@ -394,11 +396,21 @@ public final class Autos {
   public static Command scoreCubeTwo(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-0.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
+      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(0.5),
       new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90))
     );
   }
+  
+  @AutonomousCommandMethod(name = "Bumper score and drive out")
+  public static Command BumperScore(Subsystems subsystems) {
+    return Commands.sequence(
+      Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
+      new DriveStraight(subsystems.drivetrain, new Translation2d(-0.3,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
+      new DriveStraight(subsystems.drivetrain, new Translation2d(3.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90))
+    );
+  }
+  
 
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
