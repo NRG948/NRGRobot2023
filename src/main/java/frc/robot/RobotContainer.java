@@ -33,12 +33,8 @@ import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.IntakeByController;
 import frc.robot.commands.RainbowCycle;
-import frc.robot.commands.RaiseElevatorWithController;
+// import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
-import frc.robot.commands.TiltElevatorWithController;
-import frc.robot.subsystems.ClawSubsystem.Position;
-import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
-import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -62,7 +58,7 @@ public class RobotContainer {
       XboxControllerPort.MANIPULATOR);
 
   private final RobotAutonomous autonomous = new RobotAutonomous(subsystems);
-  private boolean elevatorEnableManualControl = false;
+  private boolean enableManualControl = false;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -122,52 +118,23 @@ public class RobotContainer {
         new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
     driveController.leftStick().onTrue(Commands.runOnce(() -> new RainbowCycle(subsystems.leds)));
 
-    manipulatorController.x()
-        .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING)));
-    manipulatorController.b()
-        .onTrue(Commands.runOnce(() -> subsystems.elevatorAngle.setGoalAngle(ElevatorAngle.SCORING)));
-    manipulatorController.a().onTrue(
-        Commands.either(
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.ACQUIRE)),
-            Scoring.prepareToAcquire(subsystems),
-            () -> !manipulatorController.getHID().getLeftBumper()));
-    manipulatorController.y().onTrue(
-        Commands.either(
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_MID)),
-            Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
-            () -> !manipulatorController.getHID().getLeftBumper()));
-    manipulatorController.rightBumper().onTrue(
-        Commands.either(
-            Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.SCORE_HIGH)),
-            Scoring.prepareToScore(subsystems, GoalState.SCORE_HIGH),
-            () -> !manipulatorController.getHID().getLeftBumper()));
+    //manipulatorController.b();
+    //manipulatorController.a().onTrue();
+    //manipulatorController.y().onTrue();
+
     manipulatorController.start().onTrue(
         Commands.either(
             Commands.runOnce(() -> {
-              subsystems.elevator.setDefaultCommand(
-                  new RaiseElevatorWithController(subsystems.elevator, manipulatorController));
-              subsystems.elevatorAngle.setDefaultCommand(
-                  new TiltElevatorWithController(subsystems.elevatorAngle, manipulatorController));
-              System.out.println("ENABLE MANUAL ELEVATOR CONTROL");
+              System.out.println("ENABLE MANUAL CONTROL");
             }),
             Commands.runOnce(() -> {
-              subsystems.elevator.removeDefaultCommand();
-              subsystems.elevatorAngle.removeDefaultCommand();
-              System.out.println("DISABLE MANUAL ELEVATOR CONTROL");
-            }, subsystems.elevator, subsystems.elevatorAngle),
-            () -> elevatorEnableManualControl = !elevatorEnableManualControl));
-    manipulatorController.povUp()
-        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED), subsystems.claw));
-    manipulatorController.povDown()
-        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw));
-    manipulatorController.povRight()
-        .onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
-    // There is no left dpad button binding
-    manipulatorController.leftStick().onTrue(Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
-    manipulatorController.rightStick().onTrue(Commands.runOnce(() -> subsystems.elevator.setGoal(GoalState.FLIP), subsystems.elevator));
-    // Trigger to detect the elevator in the acquiring position, which closes the servo automatically
-    new Trigger(subsystems.elevator::atBottomLimit).onTrue(Commands.runOnce(() -> subsystems.claw.set(Position.CLOSED)));
-    new Trigger(subsystems.elevator::atGoal).onFalse(Commands.runOnce(() -> subsystems.claw.set(Position.TRAP), subsystems.claw));
+              subsystems.indexer.removeDefaultCommand();
+              subsystems.shooter.removeDefaultCommand();
+              System.out.println("DISABLE MANUAL CONTROL");
+            }, subsystems.indexer, subsystems.shooter),
+            () -> enableManualControl = !enableManualControl));
+    manipulatorController.leftStick().onTrue(
+        Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
     }
 
   /**
@@ -224,14 +191,12 @@ public class RobotContainer {
         .withPosition(8, 0)
         .withSize(1, 3)
         .withProperties(Map.of("Number of Columns", 1, "Number of Rows", 4));
-    indicatorLayout.addBoolean("Manual Elevator Mode", () -> elevatorEnableManualControl)
+    indicatorLayout.addBoolean("Manual ] Mode", () -> enableManualControl)
         .withPosition(0, 0);
     indicatorLayout.addBoolean("Automatic Scoring Mode", () -> driveController.getHID().getLeftBumper())
         .withPosition(0, 1);
     indicatorLayout.addBoolean("Is Purple?", () -> subsystems.leds.isYellow())
         .withPosition(0, 2);
-    indicatorLayout.addBoolean("Servo Open?", () -> subsystems.claw.atPosition(Position.OPEN))
-        .withPosition(0, 3);
         
     // The "Preferences" tab UI elements that enable configuring robot-specific
     // settings.
@@ -241,8 +206,6 @@ public class RobotContainer {
     // default.
     subsystems.drivetrain.addShuffleboardTab();
     subsystems.photonVision.addShuffleboardTab();
-    subsystems.elevator.addShuffleBoardTab(
-        subsystems.elevatorAngle::atAcquiringLimit,
-        subsystems.elevatorAngle::atScoringLimit);
+    subsystems.shooter.addShuffleBoardTab();
   }
 }
