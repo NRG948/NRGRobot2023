@@ -13,8 +13,6 @@ public class Subsystems {
   public final ClawSubsystem claw = new ClawSubsystem();
   public final PhotonVisionSubsystem photonVision = new PhotonVisionSubsystem();
   public final ColorSensorSubsystem colorSensor = new ColorSensorSubsystem();
-  //public final ElevatorAngleSubsystem elevatorAngle = new ElevatorAngleSubsystem();
-  //public final ElevatorSubsystem elevator = new ElevatorSubsystem(() -> new Rotation2d (elevatorAngle.getAngle()));
   public final IntakeSubsystem intake = new IntakeSubsystem();
   public final AdressableLEDSubsystem leds = new AdressableLEDSubsystem();
   public final ShooterSubsystem shooter = new ShooterSubsystem();
@@ -25,8 +23,6 @@ public class Subsystems {
     claw,
     photonVision,
     colorSensor,
-    // elevatorAngle,
-    // elevator,
     shooter,
     indexer,
     intake,
