@@ -7,7 +7,6 @@ package frc.robot.commands;
 import static frc.robot.util.FileUtil.withExtension;
 import static frc.robot.util.FilesystemUtil.getPathplannerDirectory;
 
-import java.lang.invoke.TypeDescriptor.OfMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.javatuples.LabelValue;
 
 import com.nrg948.autonomous.AutonomousCommandGenerator;
@@ -38,11 +36,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.ClawSubsystem.Position;
-import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.util.FileUtil;
 
 /**
@@ -354,8 +351,8 @@ public final class Autos {
       IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
           "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
-          "ScoreHigh", Scoring.prepareToScore(subsystems, GoalState.SCORE_HIGH),
-          "ScoreMid", Scoring.prepareToScore(subsystems, GoalState.SCORE_MID));
+          "ScoreHigh", Scoring.prepareToScore(subsystems/*, GoalState.SCORE_HIGH*/),
+          "ScoreMid", Scoring.prepareToScore(subsystems/*, GoalState.SCORE_MID*/));
 
     }
     return pathplannerEventMap;
@@ -373,12 +370,11 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
 
     return Commands.sequence(
-        Scoring.prepareToScore(subsystems, GoalState.SCORE_MID),
+        Scoring.prepareToScore(subsystems/* GoalState.SCORE_MID*/),
         new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
         Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
         Commands.waitSeconds(0.5),
-        new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)),
-        Scoring.prepareToAcquire(subsystems));
+        new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)));
   }
 
   @AutonomousCommandMethod(name="Score Cube And Drive Out Of Community")
