@@ -37,7 +37,7 @@ public final class Constants {
      */
     public static class PWMPort {
 
-      public static final int SERVO = 0;
+      
       public static final int LED = 1;
 
     }
@@ -48,11 +48,9 @@ public final class Constants {
     public static class CAN {
       public static class SparkMax {
         public static final int INTAKE = 17;
-        public static final int ELEVATOR = 18;
-        public static final int ELEVATOR_ANGLE = 19;
-        public static final int INDEXER = 20;
-        public static final int TOP_SHOOTER = 21;
-        public static final int BOTTOM_SHOOTER = 22;
+        public static final int INDEXER = 4;
+        public static final int TOP_SHOOTER = 3;
+        public static final int BOTTOM_SHOOTER = 2;
       }
     }
 
@@ -60,12 +58,7 @@ public final class Constants {
      * Digital I/O port numbers.
      */
     public static class DigitalIO {
-      // public static final int ELEVATOR_ANGLE_ACQUIRE_LIMIT = 8;
-      // public static final int ELEVATOR_ANGLE_SCORING_LIMIT = 9;
-      // public static final int ELEVATOR_BOTTOM_LIMIT = 1;
-      // public static final int ELEVATOR_TOP_LIMIT = 0;
-      // public static final int ELEVATOR_ANGLE_ENCODER = 2;
-      public static final int INDEXER_BEAM_BREAK = 3;
+      public static final int INDEXER_BEAM_BREAK = 3; //check with systems if beam break is applicable
     }
 
     /**
