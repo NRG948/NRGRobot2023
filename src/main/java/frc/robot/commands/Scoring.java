@@ -14,10 +14,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.ClawSubsystem.Position;
-import frc.robot.subsystems.ElevatorAngleSubsystem;
-import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem.GoalState;
+// import frc.robot.subsystems.ElevatorAngleSubsystem;
+// import frc.robot.subsystems.ElevatorAngleSubsystem.ElevatorAngle;
+// import frc.robot.subsystems.ElevatorSubsystem;
+// import frc.robot.subsystems.ElevatorSubsystem.GoalState;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -80,20 +80,19 @@ public final class Scoring {
 
     System.out.println("GOAL POSE = " + goalPose);
 
-    // Determine the grid scoring level.
-    GoalState targetState = GoalState.SCORE_MID;
-    if (pov != -1) {
-      if (pov <= 45 || pov >= 315) {
-        targetState = GoalState.SCORE_LOW;
-      } else if (pov >= 135 && pov <= 225) {
-        targetState = GoalState.SCORE_HIGH;
-      }
-    }
+    // // Determine the grid scoring level.
+    // GoalState targetState = GoalState.SCORE_MID;
+    // if (pov != -1) {
+    //   if (pov <= 45 || pov >= 315) {
+    //     targetState = GoalState.SCORE_LOW;
+    //   } else if (pov >= 135 && pov <= 225) {
+    //     targetState = GoalState.SCORE_HIGH;
+    //   }
+    // }
 
     return Commands.sequence(
         new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
-        prepareToScore(subsystems, targetState),
-        prepareToAcquire(subsystems));
+        prepareToScore(subsystems));
   }
 
   /**
@@ -104,66 +103,7 @@ public final class Scoring {
    * 
    * @return A command sequence to automate scoring the game piece.
    */
-  public static Command prepareToScore(Subsystems subsystems, GoalState target) {
-    ElevatorSubsystem elevator = subsystems.elevator;
-    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
-
-    return Commands.sequence(
-        // Set the elevator angle to scoring position and begins raising the elevator to
-        // at least the low scoring position so the claw arm will flip over but clear
-        // the upper crossbar.
-        Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator),
-        Commands.runOnce(() -> System.out.println("GO TO FLIP")),
-        Commands.waitUntil(elevator::atGoal).withTimeout(2),
-        Commands.runOnce(() -> System.out.println("Elevator at flip position")),
-        Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.SCORING), elevatorAngle),
-        Commands.runOnce(() -> System.out.println("Set elevator angle position to scoring level")),
-        Commands.waitUntil(elevatorAngle::atGoalAngle).withTimeout(2),
-        Commands.runOnce(() -> System.out.println("Elevator angle is at scoring level")),
-        // Raise the elevator to the desired scoring elevation.
-        Commands.runOnce(() -> elevator.setGoal(target), elevator),
-        Commands.runOnce(() -> System.out.println("Set carrige to scoring level")),
-        Commands.waitUntil(elevator::atGoal).withTimeout(2),
-        Commands.runOnce(() -> System.out.println("Elevator carrige arrived at scoring level")));
-  }
-
-  /**
-   * Set the elevator and claw to acquiring position.
-   * 
-   * @param subsystems The Subsytems container.
-   * @return A command sequence to set the elevator and claw to acquiring
-   *         position.
-   */
-  public static Command prepareToAcquire(Subsystems subsystems) {
-    ElevatorSubsystem elevator = subsystems.elevator;
-    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
-
-    return Commands.sequence(
-        // If the elevator is currently at the high scoring position, lower it to the
-        // middle scoring position so that the claw arm can clear the upper crossbar
-        // when it flips over to the acquiring position.
-        Commands.either(
-            Commands.runOnce(() -> elevator.setGoal(GoalState.FLIP), elevator)
-                .andThen(Commands.waitUntil(elevator::atGoal).withTimeout(2)),
-            Commands.none(),
-            () -> !elevator.atPosition(GoalState.SCORE_LOW)),
-        Commands.runOnce(() -> System.out.println("GO TO FLIP (if not at low)")),
-        // Set the elevator angle to aquiring and set the elevator carriage to low
-        // scoring position to avoid coliding with the intake as the claw flips over.
-
-        Commands.runOnce(() -> elevatorAngle.setGoalAngle(ElevatorAngle.ACQUIRING), elevatorAngle),
-        Commands.runOnce(() -> System.out.println("Set the elevator angle to acquiring")),
-        Commands.waitUntil(elevatorAngle::atGoalAngle).withTimeout(2),
-        Commands.runOnce(() -> System.out.println("Elevator angle arrived acquiring")),
-        // Close the claw and lower the carriage to aquiring position.
-        Commands.runOnce(() -> elevator.setGoal(GoalState.ACQUIRE), elevator),
-        Commands.runOnce(() -> System.out.println("Set the carrige goal state to aquire")),
-        Commands.waitUntil(elevator::atGoal).withTimeout(2),
-        Commands.runOnce(() -> System.out.println("Wait for the elevator carrige to reach its goalstate"))
-        // Commands.runOnce(() -> claw.set(Position.CLOSED), claw), // we don't need this anymore
-        // Commands.runOnce(() -> System.out.println("Set the servo to closed"))
-        );
-  }
+  public static Command prepareToScore(Subsystems subsystems) {return null;}  //Change later
 
   /**
    * Returns a command to prep the robot for a match.
@@ -172,18 +112,10 @@ public final class Scoring {
    * @return A command to prep the robot for a match.
    */
   public static Command prepForMatch(Subsystems subsystems) {
-    ClawSubsystem claw = subsystems.claw;
-    ElevatorSubsystem elevator = subsystems.elevator;
-    ElevatorAngleSubsystem elevatorAngle = subsystems.elevatorAngle;
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     SwerveModuleState intialState = new SwerveModuleState();
 
     return Commands.sequence(
-        Commands.runEnd(() -> elevatorAngle.setMotorVoltage(-1), () -> elevatorAngle.stopMotor(), elevatorAngle)
-            .until(elevatorAngle::atAcquiringLimit),
-        Commands.runEnd(() -> elevator.setMotorVoltage(-1), () -> elevator.stopMotor(), elevator)
-            .until(elevator::atBottomLimit),
-        Commands.runOnce(() -> claw.set(Position.CLOSED)),
         Commands.runOnce(() -> drivetrain.setModuleStates(new SwerveModuleState[] {
             intialState, intialState, intialState, intialState
         }), drivetrain));
