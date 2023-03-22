@@ -50,19 +50,22 @@ public final class Constants {
         public static final int INTAKE = 17;
         public static final int ELEVATOR = 18;
         public static final int ELEVATOR_ANGLE = 19;
+        public static final int INDEXER = 20;
+        public static final int TOP_SHOOTER = 21;
+        public static final int BOTTOM_SHOOTER = 22;
       }
     }
 
     /**
      * Digital I/O port numbers.
      */
-    public static class DigitalIO {
+    /*public static class DigitalIO {
       public static final int ELEVATOR_ANGLE_ACQUIRE_LIMIT = 8;
       public static final int ELEVATOR_ANGLE_SCORING_LIMIT = 9;
       public static final int ELEVATOR_BOTTOM_LIMIT = 1;
       public static final int ELEVATOR_TOP_LIMIT = 0;
       public static final int ELEVATOR_ANGLE_ENCODER = 2;
-    }
+    }*/
 
     /**
      * A transform from the camera to the center of the robot.
