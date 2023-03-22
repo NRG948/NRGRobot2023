@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import frc.robot.subsystems.ClawSubsystem.Position;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -372,7 +371,6 @@ public final class Autos {
     return Commands.sequence(
         Scoring.prepareToScore(subsystems/* GoalState.SCORE_MID*/),
         new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
-        Commands.runOnce(() -> subsystems.claw.set(Position.OPEN), subsystems.claw),
         Commands.waitSeconds(0.5),
         new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)));
   }
