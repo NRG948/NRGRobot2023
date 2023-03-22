@@ -4,18 +4,28 @@
 
 package frc.robot.subsystems;
 
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants.CAN;
 
 public class ShooterSubsystem extends SubsystemBase {
+  @RobotPreferencesValue
+  public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
+    "Enable Shooter Tab", false);
 
   private static final double MAX_RPM = 5880.0; // change name if reed doesnt like it
-  private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could be useful.
+  private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could
+                                                    // be useful.
   private static final double KS = 1.0; // guess
 
   private static final double BACKSPIN_FACTOR = 0.9; // TODO: determine real backspin factor
@@ -43,13 +53,16 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  private static CANSparkMax topShooterMotor = new CANSparkMax(CAN.SparkMax.TOP_SHOOTER, MotorType.kBrushless);
-  private static CANSparkMax bottomShooterMotor = new CANSparkMax(CAN.SparkMax.BOTTOM_SHOOTER, MotorType.kBrushless);
-  private static RelativeEncoder encoder = topShooterMotor.getEncoder();
+  private final CANSparkMax topShooterMotor = new CANSparkMax(CAN.SparkMax.TOP_SHOOTER, MotorType.kBrushless);
+  private final CANSparkMax bottomShooterMotor = new CANSparkMax(CAN.SparkMax.BOTTOM_SHOOTER, MotorType.kBrushless);
+  private final RelativeEncoder topEncoder = topShooterMotor.getEncoder();
+  private final RelativeEncoder bottomEncoder = bottomShooterMotor.getEncoder();
 
   private GoalShooterRPM currentGoalRPM = GoalShooterRPM.STOP;
-  
-  private double currentRPM;
+
+  private double currentTopRPM;
+  private double currentBottomRPM;
+  private double currentVoltage;
   private boolean isEnabled = false;
 
   /** Creates a new ShooterSubsystem. */
@@ -57,7 +70,7 @@ public class ShooterSubsystem extends SubsystemBase {
     topShooterMotor.setIdleMode(IdleMode.kCoast);
     bottomShooterMotor.setIdleMode(IdleMode.kCoast);
   }
-  
+
   /**
    * Sets the goal RPM of the shooter.
    * 
@@ -66,7 +79,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setGoalRPM(GoalShooterRPM goalRPM) {
     currentGoalRPM = goalRPM;
   }
-  
+
   /**
    * Sets the motor speed for the shooter motors.
    * 
@@ -76,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
     bottomShooterMotor.setVoltage(voltage);
     topShooterMotor.setVoltage(voltage * BACKSPIN_FACTOR); // spin bottom motor slower to create backspin
   }
-  
+
   /**
    * Enables the shooter.
    * 
@@ -86,7 +99,7 @@ public class ShooterSubsystem extends SubsystemBase {
     isEnabled = true;
     setGoalRPM(goalShooterRPM);
   }
-  
+
   /**
    * Calculates the motor voltage needed for a given RPM.
    * 
@@ -96,15 +109,15 @@ public class ShooterSubsystem extends SubsystemBase {
   public double calculateMotorVoltage(GoalShooterRPM goalShooterRPM) {
     return goalShooterRPM.getRPM() / RPM_PER_VOLT + KS; // not sure
   }
-  
+
   /**
    * Stops the motors.
    */
-  public static void stopMotor() {
+  public void stopMotor() {
     topShooterMotor.stopMotor();
     bottomShooterMotor.stopMotor();
   }
-  
+
   /**
    * Disable the shooter.
    */
@@ -118,10 +131,10 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @return the current RPM.
    */
-  public double getCurrentRPM() {
-    return currentRPM;
+  public double getCurrentTopRPM() {
+    return currentTopRPM;
   }
-  
+
   /**
    * Returns the current goal RPM.
    * 
@@ -141,11 +154,33 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    currentRPM = encoder.getVelocity();
+    currentTopRPM = topEncoder.getVelocity();
+    currentBottomRPM = bottomEncoder.getVelocity();
 
     if (isEnabled) {
-      setMotorVoltage(calculateMotorVoltage(currentGoalRPM));
+      currentVoltage = calculateMotorVoltage(currentGoalRPM);
+      setMotorVoltage(currentVoltage);
     }
   }
 
+  /**
+   * Adds the Shuffleboard Tab for elevator debugging.
+   * 
+   * @param acquiringLimit Supplies the acquiring limit switch value.
+   * @param scoringLimit   Supplies the scoring limit switch value.
+   */
+  public void addShuffleBoardTab() {
+    if (!ENABLE_SHOOTER_TAB.getValue()) {
+      return;
+    }
+
+    ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
+    ShuffleboardLayout layout = tab.getLayout("Shooter", BuiltInLayouts.kList)
+        .withPosition(0, 0)
+        .withSize(1, 3);
+    
+    layout.addNumber("Current top RPM", () -> currentTopRPM);
+    layout.addNumber("Current bottom RPM", () -> currentBottomRPM);
+    layout.addNumber("Current goal RPM", () -> currentGoalRPM.getRPM());
+  }
 }
