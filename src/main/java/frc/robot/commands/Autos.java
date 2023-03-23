@@ -348,11 +348,10 @@ public final class Autos {
    */
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
     if (pathplannerEventMap == null) {
-      IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
           "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
-          "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_RPM).withTimeout(3),
-          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID_RPM).withTimeout(3));
+          "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
+          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3));
 
     }
     return pathplannerEventMap;
@@ -370,7 +369,7 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
 
     return Commands.sequence(
-        Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH_RPM),
+        Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
         new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
         Commands.waitSeconds(0.5),
         new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)));
