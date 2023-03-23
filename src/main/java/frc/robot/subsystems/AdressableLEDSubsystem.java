@@ -21,6 +21,7 @@ public class AdressableLEDSubsystem extends SubsystemBase {
     leds.setColor(RED);
     leds.commitColor();
   }
+  
   public void setGamePieceColor() {
     if (isYellow) {
       leds.setColor(PURPLE);

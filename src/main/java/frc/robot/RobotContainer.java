@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.ColorConstants;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
@@ -121,6 +122,10 @@ public class RobotContainer {
     //manipulatorController.b();
     //manipulatorController.a().onTrue();
     //manipulatorController.y().onTrue();
+
+    new Trigger(()-> subsystems.indexer.isCubeDetected()).onTrue(Commands.runOnce(() -> subsystems.leds.fillColor(ColorConstants.GREEN)));
+    new Trigger(()-> subsystems.indexer.isCubeDetected()).onFalse(Commands.runOnce(() -> subsystems.leds.fillColor(ColorConstants.RED)));
+
 
     manipulatorController.start().onTrue(
         Commands.either(
