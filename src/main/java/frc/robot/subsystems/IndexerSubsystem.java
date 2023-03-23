@@ -47,7 +47,6 @@ public class IndexerSubsystem extends SubsystemBase {
     isEnabled = true;
     goalRPM = INDEXER_SHOOT_RPM;
   }
-
   public void setIntakeRPM() {
     isEnabled = true;
     goalRPM = INDEXER_INTAKE_RPM;

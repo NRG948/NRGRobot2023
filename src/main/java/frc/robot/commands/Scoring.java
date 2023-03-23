@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -77,16 +80,61 @@ public final class Scoring {
     // // Determine the grid scoring level.
     // GoalState targetState = GoalState.SCORE_MID;
     // if (pov != -1) {
-    //   if (pov <= 45 || pov >= 315) {
-    //     targetState = GoalState.SCORE_LOW;
-    //   } else if (pov >= 135 && pov <= 225) {
-    //     targetState = GoalState.SCORE_HIGH;
-    //   }
+    // if (pov <= 45 || pov >= 315) {
+    // targetState = GoalState.SCORE_LOW;
+    // } else if (pov >= 135 && pov <= 225) {
+    // targetState = GoalState.SCORE_HIGH;
+    // }
     // }
 
     return Commands.sequence(
         new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
         prepareToScore(subsystems));
+  }
+
+  /**
+   * Returns a command sequence to intake a game piece.
+   * 
+   * @param subsystems The susystems container.
+   * @return A command sequence to intake a game piece.
+   */
+  public static Command intakeGamePiece(Subsystems subsystems) {
+    IntakeSubsystem intake = subsystems.intake;
+    IndexerSubsystem indexer = subsystems.indexer;
+
+    return Commands.sequence(
+        Commands.parallel(
+            Commands.runEnd(() -> indexer.setIntakeRPM(),
+                () -> indexer.stopMotor(),
+                indexer),
+            Commands.runEnd(() -> intake.enable(),
+                () -> intake.disable(),
+                intake)),
+        Commands.waitUntil(() -> indexer.isCubeDetected()));
+  }
+
+  /**
+   * Returns a command to shoot the cube into the specified target.
+   * 
+   * @param subsystems The subsystems container.
+   * @param target     The target
+   * @return A command to shoot the cube into the specified target
+   */
+  public static Command shootToTarget(Subsystems subsystems, ShooterSubsystem.GoalShooterRPM target) {
+    ShooterSubsystem shooter = subsystems.shooter;
+    IndexerSubsystem indexer = subsystems.indexer;
+    return Commands.parallel(
+        Commands.sequence(
+            Commands.runOnce(() -> shooter.setGoalRPM(target),
+                shooter),
+            Commands.waitUntil(() -> !indexer.isCubeDetected()),
+            Commands.waitSeconds(0.5),
+            Commands.runOnce(() -> shooter.disable(), shooter)),
+        Commands.sequence(
+            Commands.waitSeconds(0.5),
+            Commands.runOnce(() -> indexer.setShootRPM(), indexer),
+            Commands.waitUntil(() -> !indexer.isCubeDetected()),
+            Commands.runOnce(() -> indexer.disable(), indexer)));
   }
 
   /**
@@ -97,7 +145,9 @@ public final class Scoring {
    * 
    * @return A command sequence to automate scoring the game piece.
    */
-  public static Command prepareToScore(Subsystems subsystems) {return null;}  //Change later
+  public static Command prepareToScore(Subsystems subsystems) {
+    return null;
+  } // Change later
 
   /**
    * Returns a command to prep the robot for a match.
