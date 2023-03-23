@@ -20,6 +20,7 @@ public class IndexerSubsystem extends SubsystemBase {
   private static final double INDEXER_SHOOT_RPM = 1000.0; //Estimates
   private static final double INDEXER_INTAKE_RPM = 200.0;
   private static final double KS = 0.5;
+  private static final double GEAR_RATIO = 0.0;
 
   private double goalRPM = 0;
   private boolean isEnabled = false;
@@ -38,7 +39,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * @return whether the cube is detected by the beam break.
    */
   public boolean isCubeDetected() {
-    return ! beamBreak.get();
+    return !beamBreak.get();
   }
   
   /** Sets the goal RPM of the indexer */
@@ -60,6 +61,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public void stopMotor() {
     indexerMotor.stopMotor();
+  }
+
+  public void runMotor(double power) {
+    indexerMotor.set(-power);
   }
 
   @Override
