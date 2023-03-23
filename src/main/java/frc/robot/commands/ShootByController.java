@@ -12,15 +12,15 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShootByController extends CommandBase {
  private CommandXboxController controller;
- private IntakeSubsystem shooterSubsystem;
+ private ShooterSubsystem shooterSubsystem;
 
   private static final double DEADBAND = 0.1;
-  private static final double SHOOTER_SPEED = 0.85; //TO-DO: Find constant shooter speed based on the manual
+  private static final double SHOOTER_SPEED = 1.0; //TO-DO: Find constant shooter speed based on the manual
 
-  public ShootByController(IntakeSubsystem intakeSubsystem, CommandXboxController controller) {
+  public ShootByController(ShooterSubsystem shooterSubsystem, CommandXboxController controller) {
     this.controller = controller;
     this.shooterSubsystem = shooterSubsystem;
-    addRequirements(intakeSubsystem);
+    addRequirements(shooterSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -32,7 +32,7 @@ public class ShootByController extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = controller.getHID().getRightTriggerAxis();// Change for shooter NEOs
+    double speed = controller.getHID().getLeftY();// Change for shooter NEOs
     speed = MathUtil.applyDeadband(speed * SHOOTER_SPEED, DEADBAND);
     shooterSubsystem.runMotor(speed);
   }
