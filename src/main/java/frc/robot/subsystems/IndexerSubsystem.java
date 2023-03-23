@@ -37,6 +37,7 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates a new IndexerSubsystem. */
   public IndexerSubsystem() {
     indexerMotor.setIdleMode(IdleMode.kBrake);
+    indexerMotor.setInverted(true);
   }
 
   /**
@@ -53,7 +54,7 @@ public class IndexerSubsystem extends SubsystemBase {
     isEnabled = true;
     goalRPM = INDEXER_SHOOT_RPM.getValue();
   }
-  
+
   public void setIntakeRPM() {
     isEnabled = true;
     goalRPM = INDEXER_INTAKE_RPM.getValue();
@@ -70,7 +71,7 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void runMotor(double power) {
-    indexerMotor.set(-power);
+    indexerMotor.set(power);
   }
 
   @Override

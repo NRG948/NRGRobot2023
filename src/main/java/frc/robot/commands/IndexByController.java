@@ -31,7 +31,7 @@ public class IndexByController extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = controller.getHID().getRightY();
+    double speed = -controller.getHID().getRightY();
     speed = MathUtil.applyDeadband(speed * INDEX_SPEED, DEADBAND);
     indexSubsystem.runMotor(speed);
   }

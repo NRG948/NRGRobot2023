@@ -39,8 +39,8 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1500);
 
-
-  private static final double BACKSPIN_FACTOR = 0.9; // TODO: determine real backspin factor
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Backspin constant", 0.66); // TODO: determine real backspin factor
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
@@ -81,6 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     topShooterMotor.setIdleMode(IdleMode.kCoast);
     bottomShooterMotor.setIdleMode(IdleMode.kCoast);
+    bottomShooterMotor.setInverted(true);
   }
 
   /**
@@ -125,17 +126,9 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param speed The desired motor speed.
    */
-  public void runMotor(double power) {
-    topShooterMotor.set(power * BACKSPIN_FACTOR);
-    bottomShooterMotor.set(-power);
-  }
-
-  /*
-   * Runs each motor with seperate power.
-   */
-  public void runMotorSeperate(double powerUpper, double powerLower) {
-    topShooterMotor.set(powerUpper);
-    bottomShooterMotor.set(-powerLower);
+  public void setMotorVoltage(double voltage) {
+    topShooterMotor.setVoltage(voltage * BACKSPIN_FACTOR.getValue());
+    bottomShooterMotor.setVoltage(voltage);
   }
 
   /**
@@ -179,7 +172,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     if (isEnabled) {
       currentVoltage = calculateMotorVoltage(currentGoalRPM);
-      runMotor(currentVoltage);
+      setMotorVoltage(currentVoltage);
     }
   }
 

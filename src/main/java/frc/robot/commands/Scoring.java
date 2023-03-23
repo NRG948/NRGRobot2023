@@ -103,13 +103,16 @@ public final class Scoring {
 
     return Commands.sequence(
         Commands.parallel(
-            Commands.runEnd(() -> indexer.setIntakeRPM(),
-                () -> indexer.stopMotor(),
+            Commands.runOnce(() -> indexer.setIntakeRPM(),
                 indexer),
-            Commands.runEnd(() -> intake.enable(),
-                () -> intake.disable(),
+            Commands.runOnce(() -> intake.enable(),
                 intake)),
-        Commands.waitUntil(() -> indexer.isCubeDetected()));
+        Commands.waitUntil(() -> indexer.isCubeDetected()),
+        Commands.parallel(
+            Commands.runOnce(() -> indexer.disable(),
+                indexer),
+            Commands.runOnce(() -> intake.disable(),
+                intake)));
   }
 
   /**
@@ -124,7 +127,7 @@ public final class Scoring {
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
         Commands.sequence(
-            Commands.runOnce(() -> shooter.setGoalRPM(target),
+            Commands.runOnce(() -> shooter.enable(target),
                 shooter),
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
             Commands.waitSeconds(0.5),
@@ -134,6 +137,27 @@ public final class Scoring {
             Commands.runOnce(() -> indexer.setShootRPM(), indexer),
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
             Commands.runOnce(() -> indexer.disable(), indexer)));
+  }
+
+  /**
+   * Returns a command to shoot the cube into the specified target.
+   * 
+   * @param subsystems The subsystems container.
+   * @param target     The target
+   * @return A command to shoot the cube into the specified target
+   */
+  public static Command manualShootToTarget(Subsystems subsystems, ShooterSubsystem.GoalShooterRPM target) {
+    ShooterSubsystem shooter = subsystems.shooter;
+    IndexerSubsystem indexer = subsystems.indexer;
+    return Commands.parallel(
+        Commands.startEnd(() -> shooter.enable(target),
+            () -> shooter.disable(),
+            shooter),
+        Commands.sequence(
+            Commands.waitSeconds(0.5),
+            Commands.startEnd(() -> indexer.setShootRPM(),
+                () -> indexer.disable(),
+                indexer)));
   }
 
   /**

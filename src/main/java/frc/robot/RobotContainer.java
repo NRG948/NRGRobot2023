@@ -39,6 +39,7 @@ import frc.robot.commands.RainbowCycle;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.ShootByController;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -71,9 +72,6 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-
-		subsystems.intake
-				.setDefaultCommand(new IntakeByController(subsystems.intake, manipulatorController));
 
 		initShuffleboard();
 
@@ -139,16 +137,24 @@ public class RobotContainer {
 									new IndexByController(subsystems.indexer, manipulatorController));
 							subsystems.shooter.setDefaultCommand(
 									new ShootByController(subsystems.shooter, manipulatorController));
+							subsystems.intake.setDefaultCommand(
+									new IntakeByController(subsystems.intake, manipulatorController));
 							System.out.println("ENABLE MANUAL CONTROL");
 						}),
 						Commands.runOnce(() -> {
 							subsystems.indexer.removeDefaultCommand();
 							subsystems.shooter.removeDefaultCommand();
+							subsystems.intake.removeDefaultCommand();
 							System.out.println("DISABLE MANUAL CONTROL");
 						}, subsystems.indexer, subsystems.shooter),
 						() -> enableManualControl = !enableManualControl));
 		manipulatorController.leftStick().onTrue(
 				Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
+		manipulatorController.a().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID));
+		manipulatorController.b().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID));
+		manipulatorController.y().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HIGH));
+		manipulatorController.rightBumper().whileTrue(Scoring.intakeGamePiece(subsystems));
+
 	}
 
 	/**

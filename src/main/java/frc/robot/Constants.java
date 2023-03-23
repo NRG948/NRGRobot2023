@@ -58,7 +58,7 @@ public final class Constants {
      * Digital I/O port numbers.
      */
     public static class DigitalIO {
-      public static final int INDEXER_BEAM_BREAK = 3; //check with systems if beam break is applicable
+      public static final int INDEXER_BEAM_BREAK = 0; //check with systems if beam break is applicable
     }
 
     /**
