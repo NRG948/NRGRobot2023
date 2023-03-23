@@ -160,7 +160,7 @@ public class DriveStraight extends CommandBase {
         new TrapezoidProfile.State(distance, goalSpeed));
 
     System.out.println(
-        "BEGIN ProfiledDriveStraight intitialPose = " + initialPose +
+        "BEGIN DriveStraight intitialPose = " + initialPose +
             ", orientation = " + orientation +
             ", distance = " + distance +
             ", heading = " + heading);
@@ -196,6 +196,6 @@ public class DriveStraight extends CommandBase {
   public void end(boolean interrupted) {
     drivetrain.stopMotors();
     timer.stop();
-    System.out.println("END ProfiledDriveStraight");
+    System.out.println("END DriveStraight finalPose = " + drivetrain.getPosition());
   }
 }
