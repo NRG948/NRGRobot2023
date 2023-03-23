@@ -31,9 +31,9 @@ public class RainbowCycle extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    int firstPixelHue = step++ * 9;
+    int firstPixelHue = step++ * 3;
     for (int i = 0; i < 21; i++) {
-      Color8Bit color = new Color8Bit(Color.fromHSV((firstPixelHue + (180/21)) % 180, 255, 255));
+      Color8Bit color = new Color8Bit(Color.fromHSV((firstPixelHue + ((180 * (i + 1))/21)) % 180, 255, 255));
       led.setColor(color, i);
     }
     led.commitColor();
