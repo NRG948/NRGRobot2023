@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
 import frc.robot.util.FileUtil;
 
 /**
@@ -349,9 +350,9 @@ public final class Autos {
     if (pathplannerEventMap == null) {
       IntakeSubsystem intake = subsystems.intake;
       pathplannerEventMap = Map.of(
-          "IntakeGamePiece", Commands.runEnd(intake::enable, intake::disable, intake).withTimeout(2),
-          "ScoreHigh", Scoring.prepareToScore(subsystems/*, GoalState.SCORE_HIGH*/),
-          "ScoreMid", Scoring.prepareToScore(subsystems/*, GoalState.SCORE_MID*/));
+          "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
+          "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_RPM).withTimeout(3),
+          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID_RPM).withTimeout(3));
 
     }
     return pathplannerEventMap;
@@ -369,7 +370,7 @@ public final class Autos {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
 
     return Commands.sequence(
-        Scoring.prepareToScore(subsystems/* GoalState.SCORE_MID*/),
+        Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH_RPM),
         new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
         Commands.waitSeconds(0.5),
         new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)));

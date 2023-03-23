@@ -88,8 +88,7 @@ public final class Scoring {
     // }
 
     return Commands.sequence(
-        new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5),
-        prepareToScore(subsystems));
+        new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5));
   }
 
   /**
@@ -136,18 +135,6 @@ public final class Scoring {
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
             Commands.runOnce(() -> indexer.disable(), indexer)));
   }
-
-  /**
-   * Returns commands sequence to score the game piece to the desired level.
-   * 
-   * @param subsystems The subsystems container.
-   * @param target     The target scoring level.
-   * 
-   * @return A command sequence to automate scoring the game piece.
-   */
-  public static Command prepareToScore(Subsystems subsystems) {
-    return null;
-  } // Change later
 
   /**
    * Returns a command to prep the robot for a match.
