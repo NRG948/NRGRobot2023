@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -17,10 +19,14 @@ public class IndexerSubsystem extends SubsystemBase {
 
   private static final double MAX_RPM = 2000;
   private static final double RPM_PER_VOLT = 493.9;
-  private static final double INDEXER_SHOOT_RPM = 1000.0; //Estimates
-  private static final double INDEXER_INTAKE_RPM = 200.0;
+
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue INDEXER_SHOOT_RPM = new RobotPreferences.DoubleValue("Shooter", "Indexer Shoot RPM", 1000.0); //Estimates
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue INDEXER_INTAKE_RPM = new RobotPreferences.DoubleValue("Shooter", "Indexer Intake RPM", 250.0);
+
   private static final double KS = 0.5;
-  private static final double GEAR_RATIO = 0.0;
+  private static final double GEAR_RATIO = 5.0 / 1;
 
   private double goalRPM = 0;
   private boolean isEnabled = false;
@@ -45,11 +51,12 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Sets the goal RPM of the indexer */
   public void setShootRPM() {
     isEnabled = true;
-    goalRPM = INDEXER_SHOOT_RPM;
+    goalRPM = INDEXER_SHOOT_RPM.getValue();
   }
+  
   public void setIntakeRPM() {
     isEnabled = true;
-    goalRPM = INDEXER_INTAKE_RPM;
+    goalRPM = INDEXER_INTAKE_RPM.getValue();
   }
 
   public void disable() {

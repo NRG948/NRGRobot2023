@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 import com.nrg948.preferences.RobotPreferencesValue;
@@ -19,7 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants.CAN;
 
-@RobotPreferencesLayout(groupName = "Shooter", row = 2, column = 4, width = 2, height = 1)
+@RobotPreferencesLayout(groupName = "Shooter", row = 0, column = 6, width = 2, height = 4)
 public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
@@ -30,18 +32,26 @@ public class ShooterSubsystem extends SubsystemBase {
                                                     // be useful.
   private static final double KS = 1.0; // guess
 
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 250);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 1000);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1500);
+
+
   private static final double BACKSPIN_FACTOR = 0.9; // TODO: determine real backspin factor
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
-    STOP(0.0),
-    HYBRID_RPM(250),
-    MID_RPM(1000), // 1000 rpm as proposed by Taiga
-    HIGH_RPM(1500);
+    STOP(new RobotPreferences.DoubleValue("", "", 0.0)),
+    HYBRID(HYBRID_RPM),
+    MID(MID_RPM), // 1000 rpm as proposed by Taiga
+    HIGH(HIGH_RPM);
 
-    private final double rpm;
+    private final RobotPreferences.DoubleValue rpm;
 
-    GoalShooterRPM(double rpm) {
+    GoalShooterRPM(RobotPreferences.DoubleValue rpm) {
       this.rpm = rpm;
     }
 
@@ -51,7 +61,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * @return The RPM corresponding to the desired goal.
      */
     private double getRPM() {
-      return rpm;
+      return rpm.getValue();
     }
   }
 
@@ -179,7 +189,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param acquiringLimit Supplies the acquiring limit switch value.
    * @param scoringLimit   Supplies the scoring limit switch value.
    */
-  public void addShuffleBoardTab() {
+  public void addShuffleBoardTab(BooleanSupplier isCubeDetected) {
     if (!ENABLE_SHOOTER_TAB.getValue()) {
       return;
     }
@@ -192,5 +202,6 @@ public class ShooterSubsystem extends SubsystemBase {
     layout.addNumber("Current top RPM", () -> currentTopRPM);
     layout.addNumber("Current bottom RPM", () -> currentBottomRPM);
     layout.addNumber("Current goal RPM", () -> currentGoalRPM.getRPM());
+    layout.addBoolean("Has Cube", isCubeDetected);
   }
 }
