@@ -81,16 +81,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the motor speed for the shooter motors.
-   * 
-   * @param speed The desired motor speed.
-   */
-  public void setMotorVoltage(double voltage) {
-    bottomShooterMotor.setVoltage(voltage);
-    topShooterMotor.setVoltage(voltage * BACKSPIN_FACTOR); // spin bottom motor slower to create backspin
-  }
-
-  /**
    * Enables the shooter.
    * 
    * @param goalShooterRPM The desired shooter RPM.
@@ -116,6 +106,24 @@ public class ShooterSubsystem extends SubsystemBase {
   public void stopMotor() {
     topShooterMotor.stopMotor();
     bottomShooterMotor.stopMotor();
+  }
+
+  /**
+   * Sets the motor speed for the shooter motors.
+   * 
+   * @param speed The desired motor speed.
+   */
+  public void runMotor(double power) {
+    topShooterMotor.set(power * BACKSPIN_FACTOR);
+    bottomShooterMotor.set(-power);
+  }
+
+  /*
+   * Runs each motor with seperate power.
+   */
+  public void runMotorSeperate(double powerUpper, double powerLower) {
+    topShooterMotor.set(powerUpper);
+    bottomShooterMotor.set(-powerLower);
   }
 
   /**
@@ -159,7 +167,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     if (isEnabled) {
       currentVoltage = calculateMotorVoltage(currentGoalRPM);
-      setMotorVoltage(currentVoltage);
+      runMotor(currentVoltage);
     }
   }
 
