@@ -48,6 +48,11 @@ public class AdressableLEDSubsystem extends SubsystemBase {
     leds.setColor(color);
   }
 
+  public void fillAndCommitColor(Color8Bit color) {
+    leds.setColor(color);
+    commitColor();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
