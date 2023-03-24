@@ -58,7 +58,7 @@ public enum SwerveDriveParameters {
    * theoretical maximums.
    */
   Competition2023(
-      50, // TODO: Re-weigh the robot after each change is made.
+      52.62, // TODO: Re-weigh the robot after each change is made.
       Units.inchesToMeters(24.5),
       Units.inchesToMeters(22.5),
       MK4Standard,
@@ -73,7 +73,7 @@ public enum SwerveDriveParameters {
    * SysId tool.
    */
   Competition2023Characterized(
-      50,
+      52.62,
       Units.inchesToMeters(23.5),
       Units.inchesToMeters(21.625),
       MK4Standard,
