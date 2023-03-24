@@ -35,9 +35,11 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 250);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 1000);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 630);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1500);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 950);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 3000);
 
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Backspin constant", 0.66); // TODO: determine real backspin factor
@@ -47,7 +49,8 @@ public class ShooterSubsystem extends SubsystemBase {
     STOP(new RobotPreferences.DoubleValue("", "", 0.0)),
     HYBRID(HYBRID_RPM),
     MID(MID_RPM), // 1000 rpm as proposed by Taiga
-    HIGH(HIGH_RPM);
+    HIGH(HIGH_RPM),
+    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM);
 
     private final RobotPreferences.DoubleValue rpm;
 
