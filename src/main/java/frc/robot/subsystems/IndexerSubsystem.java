@@ -80,8 +80,5 @@ public class IndexerSubsystem extends SubsystemBase {
       double voltage = goalRPM / RPM_PER_VOLT + KS;
       indexerMotor.setVoltage(voltage);
     }
-    else {
-      stopMotor();
-    }
   }
 }
