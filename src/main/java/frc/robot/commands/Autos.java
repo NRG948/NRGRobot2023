@@ -350,7 +350,8 @@ public final class Autos {
       pathplannerEventMap = Map.of(
           "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
           "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
-          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3));
+          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
+          "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3));
 
     }
     return pathplannerEventMap;
