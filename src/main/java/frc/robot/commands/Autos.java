@@ -365,13 +365,8 @@ public final class Autos {
    * @return The initial scoring command sequence.
    */
   private static Command getInitialScoringSequence(Subsystems subsystems, Pose2d startPose2d) {
-    SwerveSubsystem drivetrain = subsystems.drivetrain;
 
-    return Commands.sequence(
-        Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
-        new DriveStraight(drivetrain, new Translation2d(-0.59, 0), getAutoSpeed(drivetrain, false)),
-        Commands.waitSeconds(0.5),
-        new DriveStraight(drivetrain, startPose2d, getAutoSpeed(drivetrain, false)));
+    return Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH);
   }
 
   @AutonomousCommandMethod(name="Score Cube And Drive Out Of Community")
@@ -401,6 +396,19 @@ public final class Autos {
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
       new DriveStraight(subsystems.drivetrain, new Translation2d(-0.3,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
       new DriveStraight(subsystems.drivetrain, new Translation2d(3.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90))
+    );
+  }
+
+  @AutonomousCommandMethod(name = "[BACKUP] Score High And Auto Balance")
+  public static Command scoreAndBalance(Subsystems subsystems) {
+    return Commands.sequence(
+      Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
+      Commands.waitSeconds(1),
+      Commands.either(
+        new DriveStraight(subsystems.drivetrain, RED_CHARGING_STATION_CENTER, COOP_SPEED_PERCENT),
+        new DriveStraight(subsystems.drivetrain, BLUE_CHARGING_STATION_CENTER, COOP_SPEED_PERCENT), 
+        () -> DriverStation.getAlliance().equals(Alliance.Red)),
+      new AutoBalanceOnChargeStation(subsystems.drivetrain)
     );
   }
   
