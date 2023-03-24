@@ -126,9 +126,9 @@ public class RobotContainer {
 		// manipulatorController.y().onTrue();
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onTrue(Commands.runOnce(() -> subsystems.leds.fillColor(ColorConstants.GREEN)));
+				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onFalse(Commands.runOnce(() -> subsystems.leds.fillColor(ColorConstants.RED)));
+				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
 
 		manipulatorController.start().onTrue(
 				Commands.either(
