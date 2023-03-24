@@ -402,11 +402,12 @@ public final class Autos {
   @AutonomousCommandMethod(name = "[BACKUP] Score High And Auto Balance")
   public static Command scoreAndBalance(Subsystems subsystems) {
     return Commands.sequence(
+      // TODO: Set initial position
       Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
       Commands.waitSeconds(1),
       Commands.either(
-        new DriveStraight(subsystems.drivetrain, RED_CHARGING_STATION_CENTER, COOP_SPEED_PERCENT),
-        new DriveStraight(subsystems.drivetrain, BLUE_CHARGING_STATION_CENTER, COOP_SPEED_PERCENT), 
+        new DriveStraight(subsystems.drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(subsystems.drivetrain, false)),
+        new DriveStraight(subsystems.drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(subsystems.drivetrain, false)), 
         () -> DriverStation.getAlliance().equals(Alliance.Red)),
       new AutoBalanceOnChargeStation(subsystems.drivetrain)
     );
