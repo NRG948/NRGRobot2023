@@ -34,6 +34,7 @@ import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
+import frc.robot.commands.PulseLED;
 import frc.robot.commands.RainbowCycle;
 // import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
@@ -72,6 +73,7 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
+		subsystems.lightningBolt.setDefaultCommand(new PulseLED(subsystems.lightningBolt));
 
 		initShuffleboard();
 
