@@ -47,8 +47,8 @@ import frc.robot.util.FileUtil;
  */
 public final class Autos {
 
-  public static int MAX_GAME_PIECES_TO_SCORE = 1;
-
+  public static int MAX_GAME_PIECES_TO_SCORE = 2;
+  
   private static final double FIELD_WIDTH_METERS = 8.02; // meters
 
   /**
