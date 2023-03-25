@@ -108,6 +108,7 @@ public final class Scoring {
             Commands.runOnce(() -> intake.enable(),
                 intake)),
         Commands.waitUntil(() -> indexer.isCubeDetected()),
+        Commands.waitSeconds(0.1),
         Commands.parallel(
             Commands.runOnce(() -> indexer.disable(),
                 indexer),
