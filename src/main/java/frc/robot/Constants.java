@@ -39,6 +39,7 @@ public final class Constants {
 
       
       public static final int LED = 1;
+      public static final int LightningLED = 2;
 
     }
 
