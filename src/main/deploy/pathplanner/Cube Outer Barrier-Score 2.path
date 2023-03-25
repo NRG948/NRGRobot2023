@@ -91,11 +91,18 @@
         "names": [
           "ScoreGamePieceMid"
         ],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.5090909090908111,
+      "names": [
+        "IntakeGamePiece"
+      ]
+    }
+  ]
 }
