@@ -396,7 +396,6 @@ public class SwerveSubsystem extends SubsystemBase {
     rawOrientationOffset = initialPosition.getRotation().minus(rawOrientation);
     rawOrientationOffsetLog.append(rawOrientationOffset.getDegrees());
     odometry.resetPosition(getOrientation(), drivetrain.getModulesPositions(), initialPosition);
-    tiltOffset = rawTilt;
   }
 
   /**
