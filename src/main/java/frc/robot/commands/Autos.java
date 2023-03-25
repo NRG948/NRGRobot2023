@@ -55,7 +55,7 @@ public final class Autos {
    * The location of the center of the blue alliance charging station on the
    * field.
    */
-  private static final Pose2d BLUE_CHARGING_STATION_CENTER = new Pose2d(3.83, 2.73, new Rotation2d());
+  private static final Pose2d BLUE_CHARGING_STATION_CENTER = new Pose2d(3.89, 2.78, new Rotation2d());
 
   /**
    * The location of the center of the red alliance charging station on the
@@ -285,12 +285,12 @@ public final class Autos {
                   Map.of(
                       Alliance.Blue,
                       Commands.sequence(
-                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
+                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, false)),
                           new AutoBalanceOnChargeStation(drivetrain),
                           new RainbowCycle(subsystems.leds)),
                       Alliance.Red,
                       Commands.sequence(
-                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, true)),
+                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, false)),
                           new AutoBalanceOnChargeStation(drivetrain),
                           new RainbowCycle(subsystems.leds)),
                       Alliance.Invalid,
