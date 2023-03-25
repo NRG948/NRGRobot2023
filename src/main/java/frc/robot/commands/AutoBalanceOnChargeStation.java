@@ -87,7 +87,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
       maxSpeed = this.drivetrain.getMaxSpeed() * MAX_SPEED_PERCENT.getValue();
     }
 
-    double speed = anglePID.calculate(measuredAngle) * maxSpeed;
+    double speed = -anglePID.calculate(measuredAngle) * maxSpeed;
     SmartDashboard.putNumber("Tilt", measuredAngle);
     SmartDashboard.putNumber("Speed", speed);
 
