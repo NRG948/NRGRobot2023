@@ -33,11 +33,11 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double KS = 1.0; // guess
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 250);
+  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 230);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 630);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 660);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 950);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1090);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 3000);
 
