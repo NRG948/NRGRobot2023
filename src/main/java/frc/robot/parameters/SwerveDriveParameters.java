@@ -80,7 +80,7 @@ public enum SwerveDriveParameters {
       Falcon500,
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
       new int[] { 1, 2, 4, 3 },
-      new FeedforwardConstants(0.23245, 3.7794, 0.24682),
+      new FeedforwardConstants(0.23701, 4.068, 0.18156),
       new FeedforwardConstants(0.904885, 0.0373245, 0.0032705));
 
   public static class Constants {
