@@ -73,7 +73,6 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-		subsystems.lightningBolt.setDefaultCommand(new PulseLED(subsystems.lightningBolt));
 
 		initShuffleboard();
 

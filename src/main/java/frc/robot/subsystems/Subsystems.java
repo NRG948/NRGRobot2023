@@ -14,7 +14,6 @@ public class Subsystems {
   public final AdressableLEDSubsystem leds = new AdressableLEDSubsystem();
   public final ShooterSubsystem shooter = new ShooterSubsystem();
   public final IndexerSubsystem indexer = new IndexerSubsystem();
-  public final LightningBoltLEDSubsystem lightningBolt = new LightningBoltLEDSubsystem();
 
   public final Subsystem[] all = new Subsystem[] {
     drivetrain,
@@ -23,6 +22,5 @@ public class Subsystems {
     indexer,
     intake,
     leds,
-    lightningBolt
   };
 }
