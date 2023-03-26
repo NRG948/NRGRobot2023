@@ -55,7 +55,7 @@ public final class Autos {
    * The location of the center of the blue alliance charging station on the
    * field.
    */
-  private static final Pose2d BLUE_CHARGING_STATION_CENTER = new Pose2d(3.89, 2.78, new Rotation2d());
+  private static final Pose2d BLUE_CHARGING_STATION_CENTER = new Pose2d(4, 2.78, new Rotation2d()); // 3.89
 
   /**
    * The location of the center of the red alliance charging station on the
