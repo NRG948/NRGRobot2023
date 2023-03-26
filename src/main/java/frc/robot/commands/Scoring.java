@@ -108,12 +108,11 @@ public final class Scoring {
             Commands.runOnce(() -> intake.enable(),
                 intake)),
         Commands.waitUntil(() -> indexer.isCubeDetected()),
-        Commands.waitSeconds(0.1),
-        Commands.parallel(
-            Commands.runOnce(() -> indexer.disable(),
-                indexer),
-            Commands.runOnce(() -> intake.disable(),
-                intake)));
+        Commands.waitSeconds(0.1)
+        ).finallyDo((interrupted) -> {
+          intake.disable();
+          indexer.disable();
+        });
   }
 
   /**

@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.883368952526323,
-        "y": 0.7370912559529735
+        "x": 4.883456341587809,
+        "y": 0.75
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -49,16 +49,16 @@
     },
     {
       "anchorPoint": {
-        "x": 3.9316815311085547,
-        "y": 0.755751793627832
+        "x": 3.93,
+        "y": 0.75
       },
       "prevControl": {
-        "x": 4.752745188802312,
-        "y": 0.7464215247904027
+        "x": 4.749689632236348,
+        "y": 0.7983889523162659
       },
       "nextControl": {
-        "x": 3.110617873414798,
-        "y": 0.7650820624652612
+        "x": 3.3064538726942243,
+        "y": 0.7131900384797212
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -75,23 +75,48 @@
     {
       "anchorPoint": {
         "x": 1.89,
-        "y": 1.1
+        "y": 1.12
       },
       "prevControl": {
-        "x": 1.8797908275821482,
-        "y": 0.689568618677799
+        "x": 2.3967638687247197,
+        "y": 1.12
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 1.8414658994034077,
+        "y": 1.12
+      },
       "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [
           "ScoreGamePieceMid"
         ],
         "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.3174970193356774,
+        "y": 1.939876904664841
+      },
+      "prevControl": {
+        "x": 2.1178038085613555,
+        "y": 1.9493861051779047
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }

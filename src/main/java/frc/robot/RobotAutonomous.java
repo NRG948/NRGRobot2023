@@ -150,7 +150,7 @@ public class RobotAutonomous {
 
     ComplexWidget numberOfGamePiecesWidget = autonomousLayout.add("Number of Game Pieces", scoreCount);
     SimpleWidget balanceWidget = autonomousLayout
-        .add("Balance on Charging Station", Autos.getBalanceOnChargingStation())
+        .add("Balance", Autos.getBalanceOnChargingStation())
         .withWidget(BuiltInWidgets.kToggleSwitch);
 
     // Set up a listener to update the number of game pieces to score depending on
