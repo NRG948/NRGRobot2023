@@ -14,6 +14,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -79,6 +81,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private double currentBottomRPM;
   private double currentVoltage;
   private boolean isEnabled = false;
+  
+  private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Goal RPM");
+  private DoubleLogEntry topRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Top RPM");
+  private DoubleLogEntry bottomRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Bottom RPM");
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -177,6 +183,11 @@ public class ShooterSubsystem extends SubsystemBase {
       currentVoltage = calculateMotorVoltage(currentGoalRPM);
       setMotorVoltage(currentVoltage);
     }
+    
+    topRPMLogger.append(currentTopRPM);
+    bottomRPMLogger.append(currentBottomRPM);
+    goalRPMLogger.append(currentGoalRPM.getRPM());
+
   }
 
   /**
