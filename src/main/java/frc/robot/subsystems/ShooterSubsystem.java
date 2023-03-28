@@ -96,8 +96,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private final RelativeEncoder topEncoder = topMotor.getEncoder();
   private final RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
 
-  private PIDController topPIDController = new PIDController(1.0, 0, 0);
-  private PIDController bottomPIDController = new PIDController(1.0, 0, 0);
+  private PIDController topPIDController = new PIDController(0.002088, 0, 0);
+  private PIDController bottomPIDController = new PIDController(0.002088, 0, 0);
   private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV);
 
   private GoalShooterRPM currentGoalRPM = GoalShooterRPM.STOP;
@@ -176,6 +176,10 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public double getCurrentTopRPM() {
     return currentTopRPM;
+  }
+
+  public double getCurrentBottomRPM() {
+    return currentBottomRPM;
   }
 
   /**
