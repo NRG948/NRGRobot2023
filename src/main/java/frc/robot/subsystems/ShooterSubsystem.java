@@ -27,7 +27,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
     "Enable Shooter Tab", false);
 
-  private static final double MAX_RPM = 5880.0; // change name if reed doesnt like it
+  private static final double MAX_RPM = 5880.0;
   private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could
                                                     // be useful.
   private static final double KS = 1.0; // guess
@@ -68,10 +68,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  private final CANSparkMax topShooterMotor = new CANSparkMax(CAN.SparkMax.TOP_SHOOTER, MotorType.kBrushless);
-  private final CANSparkMax bottomShooterMotor = new CANSparkMax(CAN.SparkMax.BOTTOM_SHOOTER, MotorType.kBrushless);
-  private final RelativeEncoder topEncoder = topShooterMotor.getEncoder();
-  private final RelativeEncoder bottomEncoder = bottomShooterMotor.getEncoder();
+  private final CANSparkMax topMotor = new CANSparkMax(CAN.SparkMax.TOP_SHOOTER, MotorType.kBrushless);
+  private final CANSparkMax bottomMotor = new CANSparkMax(CAN.SparkMax.BOTTOM_SHOOTER, MotorType.kBrushless);
+  private final RelativeEncoder topEncoder = topMotor.getEncoder();
+  private final RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
 
   private GoalShooterRPM currentGoalRPM = GoalShooterRPM.STOP;
 
@@ -82,9 +82,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
-    topShooterMotor.setIdleMode(IdleMode.kCoast);
-    bottomShooterMotor.setIdleMode(IdleMode.kCoast);
-    bottomShooterMotor.setInverted(true);
+    topMotor.setIdleMode(IdleMode.kCoast);
+    bottomMotor.setIdleMode(IdleMode.kCoast);
+    bottomMotor.setInverted(true);
   }
 
   /**
@@ -120,8 +120,8 @@ public class ShooterSubsystem extends SubsystemBase {
    * Stops the motors.
    */
   public void stopMotor() {
-    topShooterMotor.stopMotor();
-    bottomShooterMotor.stopMotor();
+    topMotor.stopMotor();
+    bottomMotor.stopMotor();
   }
 
   /**
@@ -130,8 +130,8 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed The desired motor speed.
    */
   public void setMotorVoltage(double voltage) {
-    topShooterMotor.setVoltage(voltage * BACKSPIN_FACTOR.getValue());
-    bottomShooterMotor.setVoltage(voltage);
+    topMotor.setVoltage(voltage * BACKSPIN_FACTOR.getValue());
+    bottomMotor.setVoltage(voltage);
   }
 
   /**
