@@ -14,6 +14,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -21,7 +23,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.CAN;
+import frc.robot.parameters.MotorParameters;
 
 @RobotPreferencesLayout(groupName = "Shooter", row = 0, column = 6, width = 2, height = 4)
 public class ShooterSubsystem extends SubsystemBase {
@@ -29,10 +33,10 @@ public class ShooterSubsystem extends SubsystemBase {
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
     "Enable Shooter Tab", false);
 
-  private static final double MAX_RPM = 5880.0;
   private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could
                                                     // be useful.
-  private static final double KS = 1.0; // guess
+  private static final double KS = 0.15; // guess
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MotorParameters.NeoV1_1.getFreeSpeedRPM();
 
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 230);
@@ -41,23 +45,31 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1090);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 3000);
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1800);
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Backspin constant", 0.66); // TODO: determine real backspin factor
+  public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 0.66);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.66);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.66);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.66);
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
-    STOP(new RobotPreferences.DoubleValue("", "", 0.0)),
-    HYBRID(HYBRID_RPM),
-    MID(MID_RPM), // 1000 rpm as proposed by Taiga
-    HIGH(HIGH_RPM),
-    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM);
+    STOP(new RobotPreferences.DoubleValue("", "", 0.0), new RobotPreferences.DoubleValue("", "", 0)),
+    HYBRID(HYBRID_RPM, HYBRID_BACKSPIN_FACTOR),
+    MID(MID_RPM, MID_BACKSPIN_FACTOR),
+    HIGH(HIGH_RPM, HIGH_BACKSPIN_FACTOR),
+    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM, MID_CHARGE_STATION_BACKSPIN_FACTOR);
 
     private final RobotPreferences.DoubleValue rpm;
+    private final RobotPreferences.DoubleValue backspinFactor;
 
-    GoalShooterRPM(RobotPreferences.DoubleValue rpm) {
+    GoalShooterRPM(RobotPreferences.DoubleValue rpm, RobotPreferences.DoubleValue backspinFactor) {
       this.rpm = rpm;
+      this.backspinFactor = backspinFactor;
     }
 
     /**
@@ -68,6 +80,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private double getRPM() {
       return rpm.getValue();
     }
+
+    /**
+     * Returns the percent of the bottom RPM for top motor.
+     * 
+     * @return The percent of the bottom RPM for top motor.
+     */
+    private double getBackspinFactor() {
+      return backspinFactor.getValue();
+    }
   }
 
   private final CANSparkMax topMotor = new CANSparkMax(CAN.SparkMax.TOP_SHOOTER, MotorType.kBrushless);
@@ -75,11 +96,16 @@ public class ShooterSubsystem extends SubsystemBase {
   private final RelativeEncoder topEncoder = topMotor.getEncoder();
   private final RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
 
+  private PIDController topPIDController = new PIDController(1.0, 0, 0);
+  private PIDController bottomPIDController = new PIDController(1.0, 0, 0);
+  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV);
+
   private GoalShooterRPM currentGoalRPM = GoalShooterRPM.STOP;
 
   private double currentTopRPM;
   private double currentBottomRPM;
-  private double currentVoltage;
+  private double topVoltage;
+  private double bottomVoltage;
   private boolean isEnabled = false;
   
   private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Goal RPM");
@@ -100,6 +126,8 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void setGoalRPM(GoalShooterRPM goalRPM) {
     currentGoalRPM = goalRPM;
+    topPIDController.setSetpoint(goalRPM.getRPM() * goalRPM.getBackspinFactor());
+    bottomPIDController.setSetpoint(goalRPM.getRPM());
   }
 
   /**
@@ -113,16 +141,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Calculates the motor voltage needed for a given RPM.
-   * 
-   * @param goalShooterRPM The desired RPM.
-   * @return The motor voltage needed.
-   */
-  public double calculateMotorVoltage(GoalShooterRPM goalShooterRPM) {
-    return goalShooterRPM.getRPM() / RPM_PER_VOLT + KS; // not sure
-  }
-
-  /**
    * Stops the motors.
    */
   public void stopMotor() {
@@ -131,13 +149,14 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the motor speed for the shooter motors.
+   * Sets the motor voltages for both top and bottom motor.
    * 
-   * @param speed The desired motor speed.
+   * @param topVoltage The voltage for the top motor.
+   * @param bottomVoltage The voltage for the bottom motor.
    */
-  public void setMotorVoltage(double voltage) {
-    topMotor.setVoltage(voltage * BACKSPIN_FACTOR.getValue());
-    bottomMotor.setVoltage(voltage);
+  public void setMotorVoltages(double topVoltage, double bottomVoltage) {
+    topMotor.setVoltage(topVoltage);
+    bottomMotor.setVoltage(bottomVoltage);
   }
 
   /**
@@ -146,6 +165,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public void disable() {
     isEnabled = false;
     stopMotor();
+    topPIDController.reset();
+    bottomPIDController.reset();
   }
 
   /**
@@ -180,8 +201,12 @@ public class ShooterSubsystem extends SubsystemBase {
     currentBottomRPM = bottomEncoder.getVelocity();
 
     if (isEnabled) {
-      currentVoltage = calculateMotorVoltage(currentGoalRPM);
-      setMotorVoltage(currentVoltage);
+      double feedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
+
+      topVoltage = feedforwardVoltage + topPIDController.calculate(currentTopRPM);
+      bottomVoltage = feedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
+      
+      setMotorVoltages(topVoltage, bottomVoltage);
     }
     
     topRPMLogger.append(currentTopRPM);

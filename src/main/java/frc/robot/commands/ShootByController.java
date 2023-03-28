@@ -34,14 +34,14 @@ public class ShootByController extends CommandBase {
   public void execute() {
     double speed = -controller.getHID().getLeftY();// Change for shooter NEOs
     speed = MathUtil.applyDeadband(speed * SHOOTER_SPEED, DEADBAND);
-    shooterSubsystem.setMotorVoltage(speed * RobotConstants.MAX_BATTERY_VOLTAGE);
+    double voltage = speed * RobotConstants.MAX_BATTERY_VOLTAGE;
+    shooterSubsystem.setMotorVoltages(voltage * 0.67, voltage);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     shooterSubsystem.stopMotor();
-
   }
 
   // Returns true when the command should end.
