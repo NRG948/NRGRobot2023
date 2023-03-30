@@ -39,22 +39,22 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MotorParameters.NeoV1_1.getFreeSpeedRPM();
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 230);
+  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 500);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 660);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 880);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1090);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1350);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1800);
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1440);
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 0.66);
+  public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 1);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.66);
+  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.8);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.66);
+  public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.5);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.66);
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 1.2);
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
