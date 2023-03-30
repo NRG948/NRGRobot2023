@@ -154,6 +154,8 @@ public class RobotContainer {
 		manipulatorController.a().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID));
 		manipulatorController.y().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HIGH));
+		manipulatorController.x().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION
+		));
 		manipulatorController.rightBumper().whileTrue(Scoring.intakeGamePiece(subsystems));
 
 	}
