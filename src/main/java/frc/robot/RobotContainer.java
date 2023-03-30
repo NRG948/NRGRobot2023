@@ -31,6 +31,7 @@ import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
+import frc.robot.commands.DriveWithAutoOrientation;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
@@ -111,7 +112,7 @@ public class RobotContainer {
 		driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
 				.andThen(new RainbowCycle(subsystems.leds)));
 
-		driveController.rightBumper().whileTrue(new ChaseTagCommand(subsystems.photonVision, subsystems.drivetrain));
+		driveController.rightBumper().whileTrue(new DriveWithAutoOrientation(subsystems.drivetrain, subsystems.photonVision, driveController));
 
 		// TODO: Once we're done with testing the autonomous motion commands, change
 		// this to call resetOrientation().

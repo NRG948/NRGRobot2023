@@ -35,7 +35,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "PhotonVision", "Enable Tab", false);
 
-  private final PhotonCamera camera = new PhotonCamera("IMX219");
+  private final PhotonCamera camera = new PhotonCamera("Front");
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
   /** Creates a new PhotonVisionSubsystem. */
@@ -45,7 +45,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //result = camera.getLatestResult();
+    result = camera.getLatestResult();
   }
 
   /**
