@@ -52,7 +52,7 @@ public final class Scoring {
 
     // Transform the robot's pose to find the tag's pose
     var robotPose = drivetrain.getPosition3d();
-    var cameraPose = robotPose.transformBy(RobotConstants.ROBOT_TO_CAMERA);
+    var cameraPose = robotPose.transformBy(RobotConstants.ROBOT_TO_BACK_CAMERA);
     System.out.println("CAMERA POSE = " + cameraPose);
     var targetPose = cameraPose.transformBy(cameraToTarget);
     System.out.println("TARGET POSE = " + targetPose);
