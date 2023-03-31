@@ -4,18 +4,16 @@
 
 package frc.robot.commands;
 
-import org.opencv.photo.Photo;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveWithAutoOrientation extends CommandBase {
+  public static final double DEADBAND = 0.1;
 
   private final SwerveSubsystem drivetrain;
   private final PhotonVisionSubsystem vision;
@@ -23,7 +21,8 @@ public class DriveWithAutoOrientation extends CommandBase {
   private ProfiledPIDController controller;
 
   /** Creates a new DriveWithAutoOrientation. */
-  public DriveWithAutoOrientation(SwerveSubsystem drivetrain, PhotonVisionSubsystem vision, CommandXboxController driveController) {
+  public DriveWithAutoOrientation(SwerveSubsystem drivetrain, PhotonVisionSubsystem vision,
+      CommandXboxController driveController) {
     this.drivetrain = drivetrain;
     this.vision = vision;
     this.driveController = driveController;
@@ -35,6 +34,7 @@ public class DriveWithAutoOrientation extends CommandBase {
   @Override
   public void initialize() {
     controller = new ProfiledPIDController(1.0, 0, 0, drivetrain.getRotationalConstraints());
+    controller.reset(drivetrain.getOrientation().getRadians());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -42,17 +42,30 @@ public class DriveWithAutoOrientation extends CommandBase {
   public void execute() {
     Rotation2d currentOrientation = drivetrain.getOrientation();
     Rotation2d targetOrientation = currentOrientation;
-    if(vision.hasTargets()) {
-      Rotation2d angleToTarget = Rotation2d.fromDegrees(vision.getAngleToBestTarget());
+    double rotationalSpeed = 0;
+
+    double xSpeed = -driveController.getLeftY();
+    double ySpeed = -driveController.getLeftX();
+    double inputScalar = Math.max(1-driveController.getRightTriggerAxis(), 0.15);
+    
+    xSpeed = MathUtil.applyDeadband(xSpeed, DEADBAND) * inputScalar;
+    ySpeed = MathUtil.applyDeadband(ySpeed, DEADBAND) * inputScalar;
+
+    if (vision.hasTargets()) {
+      Rotation2d angleToTarget = Rotation2d.fromDegrees(-vision.getAngleToBestTarget());
+
       targetOrientation = targetOrientation.plus(angleToTarget);
+      rotationalSpeed = controller.calculate(currentOrientation.getRadians(), targetOrientation.getRadians());
     }
-    double rotationalSpeed = controller.calculate(currentOrientation.getRadians(), targetOrientation.getRadians());
-    drivetrain.drive(-driveController.getLeftY(), driveController.getLeftX(), rotationalSpeed, true);
+
+
+    drivetrain.drive(xSpeed, ySpeed, rotationalSpeed, true);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override
