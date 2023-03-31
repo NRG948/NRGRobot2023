@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 public class Subsystems {
   public final SwerveSubsystem drivetrain = new SwerveSubsystem();
   public final PhotonVisionSubsystem photonVision = new PhotonVisionSubsystem();
+  public final AprilTagSubsystem aprilTag = new AprilTagSubsystem();
   public final IntakeSubsystem intake = new IntakeSubsystem();
   public final AdressableLEDSubsystem leds = new AdressableLEDSubsystem();
   public final ShooterSubsystem shooter = new ShooterSubsystem();
@@ -18,6 +19,7 @@ public class Subsystems {
   public final Subsystem[] all = new Subsystem[] {
     drivetrain,
     photonVision,
+    aprilTag,
     shooter,
     indexer,
     intake,
