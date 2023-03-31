@@ -12,7 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.subsystems.PhotonVisionSubsystem;
+import frc.robot.subsystems.AprilTagSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class ChaseTagCommand extends CommandBase {
@@ -26,7 +26,7 @@ public class ChaseTagCommand extends CommandBase {
             new Translation3d(1, 0, 0),
             new Rotation3d(0.0, 0.0, Math.PI));
 
-    private final PhotonVisionSubsystem photonVision;
+    private final AprilTagSubsystem photonVision;
     private final SwerveSubsystem swerveSubsystem;
 
     private ProfiledPIDController xController;
@@ -43,7 +43,7 @@ public class ChaseTagCommand extends CommandBase {
      * @param swerveSubsystem The swerve drive subsystem.
      * @param poseProvider    Supplies the pose of the robot.
      */
-    public ChaseTagCommand(PhotonVisionSubsystem photonVision, SwerveSubsystem swerveSubsystem) {
+    public ChaseTagCommand(AprilTagSubsystem photonVision, SwerveSubsystem swerveSubsystem) {
         this.photonVision = photonVision;
         this.swerveSubsystem = swerveSubsystem;
 
@@ -95,7 +95,7 @@ public class ChaseTagCommand extends CommandBase {
                     var camToTarget = target.getBestCameraToTarget();
 
                     // Transform the robot's pose to find the tag's pose
-                    var cameraPose = robotPose3d.transformBy(RobotConstants.CAMERA_TO_ROBOT);
+                    var cameraPose = robotPose3d.transformBy(RobotConstants.ROBOT_TO_BACK_CAMERA);
                     var targetPose = cameraPose.transformBy(camToTarget);
 
                     // Transform the tag's pose to set our goal

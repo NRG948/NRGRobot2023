@@ -63,18 +63,28 @@ public final class Constants {
     }
 
     /**
-     * A transform from the camera to the center of the robot.
-     * 
-     * TODO: Determine location of camera on the competition robot.
+     * A transform from the front camera to the center of the robot.
      */
-    public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(Units.inchesToMeters(9.125), Units.inchesToMeters(-13.34), Units.inchesToMeters(-14)),
-        new Rotation3d(0, Math.toRadians(-37), Math.toRadians(180)));
+    public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
+        new Translation3d(Units.inchesToMeters(-6.5), Units.inchesToMeters(0), Units.inchesToMeters(-26)),
+        new Rotation3d(0, Math.toRadians(60), 0));
 
     /**
-     * A transform from the robot center to the camera.
+     * A transform from the robot center to the front camera.
      */
-    public static final Transform3d ROBOT_TO_CAMERA = CAMERA_TO_ROBOT.inverse();
+    public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
+
+    /**
+     * A transform from the back camera to the center of the robot.
+     */
+    public static final Transform3d BACK_CAMERA_TO_ROBOT = new Transform3d(
+        new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(-6.5), Units.inchesToMeters(-15.125)),
+        new Rotation3d(0, Math.toRadians(0), Math.toRadians(180)));
+
+    /**
+     * A transform from the robot center to the back camera.
+     */
+    public static final Transform3d ROBOT_TO_BACK_CAMERA = BACK_CAMERA_TO_ROBOT.inverse();
 
     /**
      * A constant representing the distance from the grid to position the robot for
