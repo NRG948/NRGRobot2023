@@ -181,7 +181,8 @@ public class RobotContainer {
 				.withSize(2, 3);
 
 		VideoSource video = new HttpCamera(
-				"photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream",
+				"photonvision_Port_1183_MJPEG_Server",
+				"http://10.9.48.11:1183/?action=stream",
 				HttpCameraKind.kMJPGStreamer);
 		operatorTab.add("PhotonVision", video)
 				.withWidget(BuiltInWidgets.kCameraStream)
