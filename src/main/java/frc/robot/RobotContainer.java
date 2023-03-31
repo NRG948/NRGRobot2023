@@ -231,6 +231,7 @@ public class RobotContainer {
 		// default.
 		subsystems.drivetrain.addShuffleboardTab();
 		subsystems.photonVision.addShuffleboardTab();
+		subsystems.aprilTag.addShuffleboardTab();
 		subsystems.shooter.addShuffleBoardTab(subsystems.indexer::isCubeDetected);
 	}
 }
