@@ -19,6 +19,7 @@ import com.nrg948.preferences.RobotPreferencesValue;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -117,7 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveDriveKinematics kinematics = PARAMETERS.getValue().getKinematics();
 
   private final SwerveDrive drivetrain;
-  private final SwerveDriveOdometry odometry;
+  private final SwerveDrivePoseEstimator odometry;
   private final Field2d field = new Field2d();
 
   // The current sensor state updated by the periodic method.
@@ -182,7 +183,7 @@ public class SwerveSubsystem extends SubsystemBase {
     initializeSensorState();
 
     drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
-    odometry = new SwerveDriveOdometry(kinematics, getOrientation(), drivetrain.getModulesPositions());
+    odometry = new SwerveDrivePoseEstimator(kinematics, getOrientation(), drivetrain.getModulesPositions(), new Pose2d());
   }
 
   /**
@@ -402,7 +403,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Resets the orientation the robot.
    */
   public void resetOrientation() {
-    Pose2d currentPos = odometry.getPoseMeters();
+    Pose2d currentPos = odometry.getEstimatedPosition();
     Pose2d newPos2d = new Pose2d(currentPos.getTranslation(), new Rotation2d());
     resetPosition(newPos2d);
   }
@@ -413,7 +414,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The current position and orientation of the robot.
    */
   public Pose2d getPosition() {
-    return odometry.getPoseMeters();
+    return odometry.getEstimatedPosition();
   }
 
   /**
@@ -524,9 +525,9 @@ public class SwerveSubsystem extends SubsystemBase {
       ShuffleboardLayout positionLayout = odometryLayout.getLayout("Position", BuiltInLayouts.kGrid)
           .withProperties(Map.of("Number of columns", 4, "Number of rows", 1));
 
-      positionLayout.addDouble("X", () -> odometry.getPoseMeters().getX())
+      positionLayout.addDouble("X", () -> odometry.getEstimatedPosition().getX())
           .withPosition(0, 0);
-      positionLayout.addDouble("Y", () -> odometry.getPoseMeters().getY())
+      positionLayout.addDouble("Y", () -> odometry.getEstimatedPosition().getY())
           .withPosition(1, 0);
       positionLayout.addDouble("Tilt", () -> getTilt().getDegrees())
           .withPosition(2, 0);
