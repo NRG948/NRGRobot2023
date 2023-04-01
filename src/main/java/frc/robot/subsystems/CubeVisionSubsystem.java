@@ -21,11 +21,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
  * This subsystem is responsible for getting target information from
  * PhotonVision.
  */
-@RobotPreferencesLayout(groupName = "PhotonVision", row = 0, column = 4, width = 2, height = 1)
+@RobotPreferencesLayout(groupName = "CubeVision", row = 0, column = 4, width = 2, height = 1)
 public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
-      "PhotonVision", "Enable Tab", false);
+      "CubeVision", "Enable Tab", false);
       
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
@@ -33,14 +33,14 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
   }
 
   /**
-   * Adds a tab for PhotonVision in Shuffleboard.
+   * Adds a tab for CubeVision in Shuffleboard.
    */
   public void addShuffleboardTab() {
     if (!enableTab.getValue()) {
       return;
     }
 
-    ShuffleboardTab visionTab = Shuffleboard.getTab("PhotonVision");
+    ShuffleboardTab visionTab = Shuffleboard.getTab("CubeVision");
     ShuffleboardLayout targetLayout = visionTab.getLayout("Target Info", BuiltInLayouts.kList)
         .withPosition(0, 0)
         .withSize(2, 3);
@@ -48,9 +48,9 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
     targetLayout.addDouble("Angle", this::getAngleToBestTarget);
 
-    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream",
+    VideoSource video = new HttpCamera("photonvision_Port_1183_MJPEG_Server", "http://10.9.48.11:1183/?action=stream",
         HttpCameraKind.kMJPGStreamer);
-    visionTab.add("PhotonVision", video)
+    visionTab.add("CubeVision", video)
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
         .withSize(4, 3);
