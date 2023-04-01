@@ -9,19 +9,19 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.PhotonVisionSubsystem;
+import frc.robot.subsystems.CubeVisionSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveWithAutoOrientation extends CommandBase {
   public static final double DEADBAND = 0.1;
 
   private final SwerveSubsystem drivetrain;
-  private final PhotonVisionSubsystem vision;
+  private final CubeVisionSubsystem vision;
   private final CommandXboxController driveController;
   private ProfiledPIDController controller;
 
   /** Creates a new DriveWithAutoOrientation. */
-  public DriveWithAutoOrientation(SwerveSubsystem drivetrain, PhotonVisionSubsystem vision,
+  public DriveWithAutoOrientation(SwerveSubsystem drivetrain, CubeVisionSubsystem vision,
       CommandXboxController driveController) {
     this.drivetrain = drivetrain;
     this.vision = vision;

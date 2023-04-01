@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 /** Container class that manages robot subsystems. */
 public class Subsystems {
   public final SwerveSubsystem drivetrain = new SwerveSubsystem();
-  public final PhotonVisionSubsystem photonVision = new PhotonVisionSubsystem();
+  public final CubeVisionSubsystem photonVision = new CubeVisionSubsystem();
   public final AprilTagSubsystem aprilTag = new AprilTagSubsystem();
   public final IntakeSubsystem intake = new IntakeSubsystem();
   public final AdressableLEDSubsystem leds = new AdressableLEDSubsystem();

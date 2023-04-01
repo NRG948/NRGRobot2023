@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * PhotonVision.
  */
 @RobotPreferencesLayout(groupName = "PhotonVision", row = 0, column = 4, width = 2, height = 1)
-public class PhotonVisionSubsystem extends SubsystemBase {
+public class CubeVisionSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "PhotonVision", "Enable Tab", false);
@@ -39,7 +39,7 @@ public class PhotonVisionSubsystem extends SubsystemBase {
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
   /** Creates a new PhotonVisionSubsystem. */
-  public PhotonVisionSubsystem() {
+  public CubeVisionSubsystem() {
 
   }
 
