@@ -71,6 +71,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public static RobotPreferences.BooleanValue ENABLE_FIELD_TAB = new RobotPreferences.BooleanValue(
       PREFERENCES_GROUP, "Enable Field Tab", false);
 
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue DRIVE_KP = new RobotPreferences.DoubleValue(PREFERENCES_GROUP, "Drive KP", 1.0);
+
   private static final byte NAVX_UPDATE_FREQUENCY_HZ = 50;
 
   // 4 pairs of motors for drive & steering.
@@ -298,8 +301,8 @@ public class SwerveSubsystem extends SubsystemBase {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     return new HolonomicDriveController(
-        new PIDController(1.0, 0.0, 0.0),
-        new PIDController(1.0, 0.0, 0.0),
+        new PIDController(DRIVE_KP.getValue(), 0.0, 0.0),
+        new PIDController(DRIVE_KP.getValue(), 0.0, 0.0),
         thetaController);
   }
 
