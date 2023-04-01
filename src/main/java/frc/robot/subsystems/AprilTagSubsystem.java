@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.Constants.RobotConstants;
 
 /**
  * This subsystem is responsible for getting target information from
@@ -29,7 +30,7 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
 
   /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
-    super("Back");
+    super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT);
   }
   
   /**

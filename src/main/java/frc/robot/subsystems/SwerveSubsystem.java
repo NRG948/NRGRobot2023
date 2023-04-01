@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -490,13 +491,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
     if (visionSource.isPresent() && visionSource.get().hasTargets()) {
       PhotonVisionSubsystemBase source = visionSource.get();
+      Transform3d cameraToRobotTransform = source.getCameraToRobotTransform();
       Translation3d targetVector = new Translation3d(
           source.getDistanceToBestTarget(),
-          new Rotation3d(0, 0, Math.toRadians(-source.getAngleToBestTarget())));
+          new Rotation3d(0, 0, 
+              Math.toRadians(-source.getAngleToBestTarget())+cameraToRobotTransform.getRotation().getZ()));
       Pose3d cameraToTarget = new Pose3d(
           targetPose.get().getTranslation().minus(targetVector),
           new Rotation3d(0, 0, getOrientation().getRadians()));
-      Pose2d estimatedPose = cameraToTarget.transformBy(RobotConstants.FRONT_CAMERA_TO_ROBOT).toPose2d();
+      Pose2d estimatedPose = cameraToTarget.transformBy(cameraToRobotTransform).toPose2d();
 
       odometry.addVisionMeasurement(estimatedPose, source.getTargetTimestamp());
     }

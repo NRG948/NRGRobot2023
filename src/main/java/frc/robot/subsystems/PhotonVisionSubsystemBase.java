@@ -13,6 +13,9 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -23,16 +26,38 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class PhotonVisionSubsystemBase extends SubsystemBase {
 
   private final PhotonCamera camera;
+  private final Transform3d cameraToRobot;
+  private final Transform3d robotToCamera;
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
+  private BooleanLogEntry hasTargetLogger;
+  private DoubleLogEntry distanceLogger;
+  private DoubleLogEntry angleLogger;
+
   /** Creates a new PhotonVisionSubsystem. */
-  public PhotonVisionSubsystemBase(String cameraName) {
+  public PhotonVisionSubsystemBase(String cameraName,Transform3d cameraToRobot) {
     camera = new PhotonCamera(cameraName);
+    this.cameraToRobot = cameraToRobot;
+    this.robotToCamera = cameraToRobot.inverse();
+    hasTargetLogger = new BooleanLogEntry(DataLogManager.getLog(), cameraName + "/Has Target");
+    distanceLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Distance");
+    angleLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Angle");
   }
 
   @Override
   public void periodic() {
     result = camera.getLatestResult();
+    hasTargetLogger.append(hasTargets());
+    distanceLogger.append(getDistanceToBestTarget());
+    angleLogger.append(-getAngleToBestTarget());
+  }
+
+  public Transform3d  getCameraToRobotTransform(){
+    return cameraToRobot;
+  }
+
+  public Transform3d getRobotToCameraTransform(){
+    return robotToCamera;
   }
 
   /**

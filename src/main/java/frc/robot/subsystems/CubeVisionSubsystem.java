@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.Constants.RobotConstants;
 
 /**
  * This subsystem is responsible for getting target information from
@@ -29,7 +30,7 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
       
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
-    super("Front");
+    super("Front",RobotConstants.FRONT_CAMERA_TO_ROBOT);
   }
 
   /**

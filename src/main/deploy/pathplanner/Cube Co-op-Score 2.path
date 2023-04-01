@@ -89,7 +89,8 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ScoreGamePieceMid"
+          "ScoreGamePieceMid",
+          "DisablePoseEstimation"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -102,6 +103,12 @@
       "position": 0.5999999999999939,
       "names": [
         "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 2.0,
+      "names": [
+        "EnablePoseEstimation"
       ]
     }
   ]
