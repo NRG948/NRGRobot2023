@@ -19,7 +19,6 @@ import frc.robot.Constants.RobotConstants.DigitalIO;
 
 public class IndexerSubsystem extends SubsystemBase {
 
-  private static final double MAX_RPM = 2000;
   private static final double RPM_PER_VOLT = 493.9;
 
   @RobotPreferencesValue
@@ -30,7 +29,6 @@ public class IndexerSubsystem extends SubsystemBase {
       "Indexer Intake RPM", 250.0);
 
   private static final double KS = 0.5;
-  private static final double GEAR_RATIO = 5.0 / 1;
 
   private double goalRPM = 0;
   private boolean isEnabled = false;

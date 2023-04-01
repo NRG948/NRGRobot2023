@@ -33,9 +33,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
     "Enable Shooter Tab", false);
 
-  private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could
-                                                    // be useful.
-  private static final double KS = 0.15; // guess
+  private static final double KS = 0.15;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MotorParameters.NeoV1_1.getFreeSpeedRPM();
 
   @RobotPreferencesValue
