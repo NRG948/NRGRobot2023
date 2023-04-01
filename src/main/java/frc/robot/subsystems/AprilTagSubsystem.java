@@ -30,78 +30,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * PhotonVision.
  */
 @RobotPreferencesLayout(groupName = "AprilTag", row = 1, column = 4, width = 2, height = 1)
-public class AprilTagSubsystem extends SubsystemBase {
+public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "AprilTag", "Enable Tab", false);
 
-  private final PhotonCamera camera = new PhotonCamera("Back");
-  private PhotonPipelineResult result = new PhotonPipelineResult();
-
   /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
-
+    super("Back");
   }
-
-  @Override
-  public void periodic() {
-    result = camera.getLatestResult();
-  }
-
-  /**
-   * Returns whether the result contains any targets.
-   * 
-   * @return Returns true if there are targets.
-   */
-  public boolean hasTargets() {
-    return result.hasTargets();
-  }
-
-  /**
-   * Returns information on the best target.
-   * 
-   * @return Information on the best target.
-   */
-  public PhotonTrackedTarget getBestTarget() {
-    return result.getBestTarget();
-  }
-
-  /**
-   * Returns the distance to the best target.
-   * 
-   * @return The distance, in meters, to the best target.
-   */
-  public double getDistanceToBestTarget() {
-    if (!hasTargets()) {
-      return 0;
-    }
-
-    Transform3d bestTarget = getBestTarget().getBestCameraToTarget();
-    return Math.hypot(bestTarget.getX(), bestTarget.getY());
-  }
-
-  /**
-   * Returns the angle to the best target.
-   * 
-   * @return The angle to the best target.
-   */
-  public double getAngleToBestTarget() {
-    if (!hasTargets()) {
-      return 0;
-    }
-
-    return getBestTarget().getYaw();
-  }
-
-  /**
-   * Returns a list of visible targets.
-   * 
-   * @return A list of visible targets.
-   */
-  public List<PhotonTrackedTarget> getTargets() {
-    return result.getTargets();
-  }
-
+  
   /**
    * Adds a tab for April Tag in Shuffleboard.
    */
