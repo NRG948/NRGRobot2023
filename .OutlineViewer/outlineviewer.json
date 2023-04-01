@@ -12,6 +12,14 @@
     },
     "SmartDashboard": {
       "open": true
+    },
+    "photonvision": {
+      "Back": {
+        "open": true
+      },
+      "Front": {
+        "open": true
+      }
     }
   }
 }

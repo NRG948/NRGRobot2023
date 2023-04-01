@@ -112,14 +112,14 @@ public class RobotContainer {
 		driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
 				.andThen(new RainbowCycle(subsystems.leds)));
 
-		driveController.rightBumper().whileTrue(new DriveWithAutoOrientation(subsystems.drivetrain, subsystems.photonVision, driveController));
+		driveController.rightBumper().whileTrue(new DriveWithAutoOrientation(subsystems.drivetrain, subsystems.cubeVision, driveController));
 
 		// TODO: Once we're done with testing the autonomous motion commands, change
 		// this to call resetOrientation().
 		driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 		driveController.back().onTrue(Scoring.prepForMatch(subsystems));
 		driveController.leftBumper().whileTrue(Commands.sequence(
-				Commands.waitUntil(() -> subsystems.photonVision.hasTargets()),
+				Commands.waitUntil(() -> subsystems.cubeVision.hasTargets()),
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
 		driveController.leftStick().onTrue(Commands.runOnce(() -> new RainbowCycle(subsystems.leds)));
 
@@ -230,7 +230,7 @@ public class RobotContainer {
 		// The subsystem-specific tabs are added for testing and should be disabled by
 		// default.
 		subsystems.drivetrain.addShuffleboardTab();
-		subsystems.photonVision.addShuffleboardTab();
+		subsystems.cubeVision.addShuffleboardTab();
 		subsystems.aprilTag.addShuffleboardTab();
 		subsystems.shooter.addShuffleBoardTab(subsystems.indexer::isCubeDetected);
 	}

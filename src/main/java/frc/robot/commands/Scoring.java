@@ -47,7 +47,7 @@ public final class Scoring {
   public static Command scoreToGrid(Subsystems subsystems, XboxController manipulatorController) {
     var drivetrain = subsystems.drivetrain;
 
-    var target = subsystems.photonVision.getBestTarget();
+    var target = subsystems.cubeVision.getBestTarget();
     var cameraToTarget = target.getBestCameraToTarget();
 
     // Transform the robot's pose to find the tag's pose

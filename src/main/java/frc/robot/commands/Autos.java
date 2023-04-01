@@ -23,11 +23,13 @@ import com.nrg948.autonomous.AutonomousCommandMethod;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -78,8 +80,6 @@ public final class Autos {
 
   private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
   private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
-
-  private static Map<String, Command> pathplannerEventMap;
 
   /**
    * Returns whether to balance on the charging station at the end of autonomous.
@@ -327,7 +327,7 @@ public final class Autos {
         new PIDConstants(1.0, 0, 0),
         new PIDConstants(1.0, 0, 0),
         drivetrain::setModuleStates,
-        getPathplannerEventMap(subsystems),
+        getPathplannerEventMap(subsystems, pathGroup),
         true,
         drivetrain);
 
@@ -345,16 +345,17 @@ public final class Autos {
    * 
    * @return The map of event marker names to commands.
    */
-  private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems) {
-    if (pathplannerEventMap == null) {
-      pathplannerEventMap = Map.of(
+  private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems, List<PathPlannerTrajectory> pathGroup) {
+    PathPlannerState endState = pathGroup.get(pathGroup.size() - 1).getEndState(); 
+    Pose3d endPose = new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
+    return Map.of(
           "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
           "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
           "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
-          "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3));
-
-    }
-    return pathplannerEventMap;
+          "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
+          "EnablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.cubeVision, endPose)),
+          "DisablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.disablePoseEstimation())
+          );
   }
 
   /**

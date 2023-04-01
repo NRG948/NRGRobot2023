@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.lang.StackWalker.Option;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -131,8 +132,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Rotation2d tiltOffset;
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
-  private Optional <PhotonVisionSubsystemBase> visionSource;
-  private Optional <Pose3d> targetPose;
+  private Optional <PhotonVisionSubsystemBase> visionSource = Optional.empty();
+  private Optional <Pose3d> targetPose = Optional.empty();
 
   private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(),
       "/SwerveSubsystem/rawOrientation");
