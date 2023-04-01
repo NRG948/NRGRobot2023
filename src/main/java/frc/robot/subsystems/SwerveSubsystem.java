@@ -72,7 +72,8 @@ public class SwerveSubsystem extends SubsystemBase {
       PREFERENCES_GROUP, "Enable Field Tab", false);
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue DRIVE_KP = new RobotPreferences.DoubleValue(PREFERENCES_GROUP, "Drive KP", 1.0);
+  public static final RobotPreferences.DoubleValue DRIVE_KP = new RobotPreferences.DoubleValue(
+      PREFERENCES_GROUP, "Drive KP", 1.0);
 
   private static final byte NAVX_UPDATE_FREQUENCY_HZ = 50;
 
@@ -133,8 +134,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Rotation2d tiltOffset;
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
-  private Optional <PhotonVisionSubsystemBase> visionSource = Optional.empty();
-  private Optional <Pose3d> targetPose = Optional.empty();
+  private Optional<PhotonVisionSubsystemBase> visionSource = Optional.empty();
+  private Optional<Pose3d> targetPose = Optional.empty();
 
   private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(),
       "/SwerveSubsystem/rawOrientation");
@@ -190,7 +191,8 @@ public class SwerveSubsystem extends SubsystemBase {
     initializeSensorState();
 
     drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
-    odometry = new SwerveDrivePoseEstimator(kinematics, getOrientation(), drivetrain.getModulesPositions(), new Pose2d());
+    odometry = new SwerveDrivePoseEstimator(
+      kinematics, getOrientation(), drivetrain.getModulesPositions(), new Pose2d());
   }
 
   /**
@@ -468,12 +470,12 @@ public class SwerveSubsystem extends SubsystemBase {
     return tiltVelocity;
   }
 
-  public void enablePoseEstimation (PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
+  public void enablePoseEstimation(PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
     this.visionSource = Optional.of(visionSource);
     this.targetPose = Optional.of(targetPose);
   }
 
-  public void disablePoseEstimation () {
+  public void disablePoseEstimation() {
     this.visionSource = Optional.empty();
     this.targetPose = Optional.empty();
   }
@@ -485,11 +487,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Update the current module state.
     drivetrain.periodic();
-    if (visionSource.isPresent()&&visionSource.get().hasTargets()){
+
+    if (visionSource.isPresent() && visionSource.get().hasTargets()) {
       PhotonVisionSubsystemBase source = visionSource.get();
-      Translation3d targetVector = new Translation3d(source.getDistanceToBestTarget(), new Rotation3d(0,0,Math.toRadians(-source.getAngleToBestTarget())));
-      Pose3d cameraToTarget = new Pose3d(targetPose.get().getTranslation().minus(targetVector), new Rotation3d(0,0,getOrientation().getRadians()));
+      Translation3d targetVector = new Translation3d(
+          source.getDistanceToBestTarget(),
+          new Rotation3d(0, 0, Math.toRadians(-source.getAngleToBestTarget())));
+      Pose3d cameraToTarget = new Pose3d(
+          targetPose.get().getTranslation().minus(targetVector),
+          new Rotation3d(0, 0, getOrientation().getRadians()));
       Pose2d estimatedPose = cameraToTarget.transformBy(RobotConstants.FRONT_CAMERA_TO_ROBOT).toPose2d();
+
       odometry.addVisionMeasurement(estimatedPose, source.getTargetTimestamp());
     }
 
@@ -570,4 +578,3 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 }
-
