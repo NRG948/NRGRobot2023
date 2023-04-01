@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -45,6 +47,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.drive.SwerveDrive;
 import frc.robot.drive.SwerveModule;
 import frc.robot.parameters.SwerveAngleEncoder;
@@ -128,6 +131,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Rotation2d tiltOffset;
   private double tiltVelocity;
   private boolean wasNavXCalibrating;
+  private Optional <PhotonVisionSubsystemBase> visionSource;
+  private Optional <Pose3d> targetPose;
 
   private DoubleLogEntry rawOrientationLog = new DoubleLogEntry(DataLogManager.getLog(),
       "/SwerveSubsystem/rawOrientation");
@@ -461,6 +466,16 @@ public class SwerveSubsystem extends SubsystemBase {
     return tiltVelocity;
   }
 
+  public void enablePoseEstimation (PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
+    this.visionSource = Optional.of(visionSource);
+    this.targetPose = Optional.of(targetPose);
+  }
+
+  public void disablePoseEstimation () {
+    this.visionSource = Optional.empty();
+    this.targetPose = Optional.empty();
+  }
+
   @Override
   public void periodic() {
     // Read sensors to update subsystem state.
@@ -468,6 +483,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Update the current module state.
     drivetrain.periodic();
+    if (visionSource.isPresent()&&visionSource.get().hasTargets()){
+      PhotonVisionSubsystemBase source = visionSource.get();
+      Translation3d targetVector = new Translation3d(source.getDistanceToBestTarget(), new Rotation3d(0,0,Math.toRadians(-source.getAngleToBestTarget())));
+      Pose3d cameraToTarget = new Pose3d(targetPose.get().getTranslation().minus(targetVector), new Rotation3d(0,0,getOrientation().getRadians()));
+      Pose2d estimatedPose = cameraToTarget.transformBy(RobotConstants.FRONT_CAMERA_TO_ROBOT).toPose2d();
+      odometry.addVisionMeasurement(estimatedPose, source.getTargetTimestamp());
+    }
 
     // Update odometry last since this relies on the subsystem sensor and module
     // states.
@@ -546,3 +568,4 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 }
+

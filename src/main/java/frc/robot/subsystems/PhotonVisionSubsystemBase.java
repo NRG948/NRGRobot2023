@@ -90,6 +90,10 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
     return getBestTarget().getYaw();
   }
 
+  public double getTargetTimestamp(){
+    return result.getTimestampSeconds();
+  }
+
   /**
    * Returns a list of visible targets.
    * 
