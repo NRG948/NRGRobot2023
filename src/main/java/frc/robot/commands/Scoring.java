@@ -154,7 +154,7 @@ public final class Scoring {
             () -> shooter.disable(),
             shooter),
         Commands.sequence(
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(0.75),
             Commands.startEnd(() -> indexer.setShootRPM(),
                 () -> indexer.disable(),
                 indexer)));

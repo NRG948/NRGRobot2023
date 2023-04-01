@@ -34,25 +34,24 @@ public class ShooterSubsystem extends SubsystemBase {
     "Enable Shooter Tab", false);
 
   private static final double KS = 0.15;
-  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MotorParameters.NeoV1_1.getFreeSpeedRPM();
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) * 3 / MotorParameters.NeoV1_1.getFreeSpeedRPM();
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 500);
+  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 300);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 880);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 800);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1350);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1225);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1440);
-
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1420);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 1);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.8);
+  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.5);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.5);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 1.2);
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.5);
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
@@ -115,6 +114,8 @@ public class ShooterSubsystem extends SubsystemBase {
     topMotor.setIdleMode(IdleMode.kCoast);
     bottomMotor.setIdleMode(IdleMode.kCoast);
     bottomMotor.setInverted(true);
+    topEncoder.setVelocityConversionFactor(0.333);
+    bottomEncoder.setVelocityConversionFactor(0.333);
   }
 
   /**
@@ -203,10 +204,11 @@ public class ShooterSubsystem extends SubsystemBase {
     currentBottomRPM = bottomEncoder.getVelocity();
 
     if (isEnabled) {
-      double feedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
+      double bottomFeedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
+      double topFeedForwardVoltage = feedforward.calculate(currentGoalRPM.getRPM() * currentGoalRPM.getBackspinFactor());
 
-      topVoltage = feedforwardVoltage + topPIDController.calculate(currentTopRPM);
-      bottomVoltage = feedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
+      topVoltage = topFeedForwardVoltage + topPIDController.calculate(currentTopRPM);
+      bottomVoltage = bottomFeedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
       
       setMotorVoltages(topVoltage, bottomVoltage);
     }
