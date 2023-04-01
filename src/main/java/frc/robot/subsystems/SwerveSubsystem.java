@@ -193,7 +193,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     drivetrain = new SwerveDrive(PARAMETERS.getValue(), modules, () -> getOrientation());
     odometry = new SwerveDrivePoseEstimator(
-      kinematics, getOrientation(), drivetrain.getModulesPositions(), new Pose2d());
+        kinematics, getOrientation(), drivetrain.getModulesPositions(), new Pose2d());
   }
 
   /**
@@ -494,14 +494,16 @@ public class SwerveSubsystem extends SubsystemBase {
       Transform3d cameraToRobotTransform = source.getCameraToRobotTransform();
       Translation3d targetVector = new Translation3d(
           source.getDistanceToBestTarget(),
-          new Rotation3d(0, 0, 
-              Math.toRadians(-source.getAngleToBestTarget())+cameraToRobotTransform.getRotation().getZ()));
+          new Rotation3d(0, 0,
+              Math.toRadians(-source.getAngleToBestTarget()) + cameraToRobotTransform.getRotation().getZ()));
       Pose3d cameraToTarget = new Pose3d(
           targetPose.get().getTranslation().minus(targetVector),
           new Rotation3d(0, 0, getOrientation().getRadians()));
-      Pose2d estimatedPose = cameraToTarget.transformBy(cameraToRobotTransform).toPose2d();
+      Pose3d targetPose = cameraToTarget.transformBy(cameraToRobotTransform);
 
-      odometry.addVisionMeasurement(estimatedPose, source.getTargetTimestamp());
+      odometry.addVisionMeasurement(
+          targetPose.transformBy(source.getTargetToRobotTransform()).toPose2d(),
+          source.getTargetTimestamp());
     }
 
     // Update odometry last since this relies on the subsystem sensor and module

@@ -4,12 +4,17 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.Tracer;
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -22,17 +27,23 @@ import frc.robot.Constants.RobotConstants;
  * This subsystem is responsible for getting target information from
  * PhotonVision.
  */
+
 @RobotPreferencesLayout(groupName = "AprilTag", row = 1, column = 4, width = 2, height = 1)
 public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
+
+  private static final Transform3d TAG_TO_ROBOT = new Transform3d(
+      new Translation3d(Units.inchesToMeters(33), 0, 0),
+      new Rotation3d(0, 0, Math.PI));
+
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "AprilTag", "Enable Tab", false);
 
   /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
-    super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT);
+    super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT, TAG_TO_ROBOT);
   }
-  
+
   /**
    * Adds a tab for April Tag in Shuffleboard.
    */

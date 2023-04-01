@@ -28,6 +28,7 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
   private final PhotonCamera camera;
   private final Transform3d cameraToRobot;
   private final Transform3d robotToCamera;
+  private final Transform3d targetToRobot;
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
   private BooleanLogEntry hasTargetLogger;
@@ -35,10 +36,11 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
   private DoubleLogEntry angleLogger;
 
   /** Creates a new PhotonVisionSubsystem. */
-  public PhotonVisionSubsystemBase(String cameraName,Transform3d cameraToRobot) {
+  public PhotonVisionSubsystemBase(String cameraName, Transform3d cameraToRobot, Transform3d targetToRobot) {
     camera = new PhotonCamera(cameraName);
     this.cameraToRobot = cameraToRobot;
     this.robotToCamera = cameraToRobot.inverse();
+    this.targetToRobot = targetToRobot;
     hasTargetLogger = new BooleanLogEntry(DataLogManager.getLog(), cameraName + "/Has Target");
     distanceLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Distance");
     angleLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Angle");
@@ -52,12 +54,16 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
     angleLogger.append(-getAngleToBestTarget());
   }
 
-  public Transform3d  getCameraToRobotTransform(){
+  public Transform3d getCameraToRobotTransform() {
     return cameraToRobot;
   }
 
-  public Transform3d getRobotToCameraTransform(){
+  public Transform3d getRobotToCameraTransform() {
     return robotToCamera;
+  }
+
+  public Transform3d getTargetToRobotTransform() {
+    return targetToRobot;
   }
 
   /**
@@ -105,7 +111,7 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
     return getBestTarget().getYaw();
   }
 
-  public double getTargetTimestamp(){
+  public double getTargetTimestamp() {
     return result.getTimestampSeconds();
   }
 

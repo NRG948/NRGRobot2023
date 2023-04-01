@@ -10,6 +10,7 @@ import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -30,7 +31,7 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
       
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
-    super("Front",RobotConstants.FRONT_CAMERA_TO_ROBOT);
+    super("Front",RobotConstants.FRONT_CAMERA_TO_ROBOT, new Transform3d());
   }
 
   /**
