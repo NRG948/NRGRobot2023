@@ -10,12 +10,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import frc.robot.Constants.RobotConstants.CAN;
-import frc.robot.Constants.RobotConstants.DigitalIO;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants.CAN;
+import frc.robot.Constants.RobotConstants.DigitalIO;
 
 public class IndexerSubsystem extends SubsystemBase {
 
