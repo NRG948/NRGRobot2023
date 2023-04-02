@@ -11,6 +11,8 @@ import com.nrg948.preferences.RobotPreferencesValue;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -32,7 +34,7 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
 
   private static final Transform3d TAG_TO_ROBOT = new Transform3d(
       new Translation3d(Units.inchesToMeters(33), 0, 0),
-      new Rotation3d(0, 0, Math.PI));
+      new Rotation3d(0, 0, 0));
 
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
@@ -65,5 +67,20 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
         .withSize(4, 3);
+  }
+
+  @Override
+  public void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose) {
+    if (hasTargets()) {
+      Transform3d targetToCamera = new Transform3d(
+          new Translation3d(
+              getDistanceToBestTarget(),
+              new Rotation3d(0, 0, Math.toRadians(-getAngleToBestTarget()))),
+          getCameraToRobotTransform().getRotation()).inverse();
+      Pose3d cameraPose = targetPose.transformBy(targetToCamera);
+      Pose3d robotPose = cameraPose.transformBy(getCameraToRobotTransform());
+
+      estimator.addVisionMeasurement(robotPose.toPose2d(), getTargetTimestamp());
+    }
   }
 }

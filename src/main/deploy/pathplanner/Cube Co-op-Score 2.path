@@ -39,9 +39,11 @@
       "isReversal": true,
       "velOverride": -2.17,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "DisablePoseEstimation"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -100,15 +102,16 @@
   ],
   "markers": [
     {
-      "position": 0.5999999999999939,
+      "position": 0.4,
       "names": [
-        "IntakeGamePiece"
+        "IntakeGamePiece",
+        "EnableCubePoseEstimation"
       ]
     },
     {
       "position": 2.0,
       "names": [
-        "EnablePoseEstimation"
+        "EnableAprilTagPoseEstimation"
       ]
     }
   ]

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
+import org.photonvision.estimation.VisionEstimation;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -34,6 +36,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -144,6 +147,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry rawTiltLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/rawTilt");
   private DoubleLogEntry tiltOffsetLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltOffset");
   private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
+  private BooleanLogEntry poseEstimationEnabledLog = new BooleanLogEntry(DataLogManager.getLog(),
+      "/SwerveSubsystem/poseEstimationEnabled");
 
   // Simulation support.
   private final boolean isSimulation;
@@ -474,7 +479,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Enables vision-based pose estimation.
    * 
    * @param visionSource The source PhotonVision subsystem.
-   * @param targetPose The expected pose of the target on the field.
+   * @param targetPose   The expected pose of the target on the field.
    */
   public void enablePoseEstimation(PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
     this.visionSource = Optional.of(visionSource);
@@ -497,27 +502,18 @@ public class SwerveSubsystem extends SubsystemBase {
     // Update the current module state.
     drivetrain.periodic();
 
-    // Update the odometry using vision-based pose estimation if enabled.
-    if (visionSource.isPresent() && visionSource.get().hasTargets()) {
-      PhotonVisionSubsystemBase source = visionSource.get();
-      Transform3d cameraToRobotTransform = source.getCameraToRobotTransform();
-      Translation3d targetVector = new Translation3d(
-          source.getDistanceToBestTarget(),
-          new Rotation3d(0, 0,
-              Math.toRadians(-source.getAngleToBestTarget()) + cameraToRobotTransform.getRotation().getZ()));
-      Pose3d cameraToTarget = new Pose3d(
-          targetPose.get().getTranslation().minus(targetVector),
-          new Rotation3d(0, 0, getOrientation().getRadians()));
-      Pose3d targetPose = cameraToTarget.transformBy(cameraToRobotTransform);
-
-      odometry.addVisionMeasurement(
-          targetPose.transformBy(source.getTargetToRobotTransform()).toPose2d(),
-          source.getTargetTimestamp());
-    }
-
     // Update odometry last since this relies on the subsystem sensor and module
     // states.
     odometry.update(getOrientation(), drivetrain.getModulesPositions());
+
+    // Update the odometry using vision-based pose estimation if enabled.
+    boolean estimatePose = visionSource.isPresent();
+    
+    poseEstimationEnabledLog.append(estimatePose);
+
+    if (estimatePose) {
+      visionSource.get().updatePoseEstimate(odometry, targetPose.get());
+    }
 
     // Send the robot and module location to the field
     Pose2d robotPose = getPosition();

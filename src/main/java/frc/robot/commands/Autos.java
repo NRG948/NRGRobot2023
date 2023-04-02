@@ -348,12 +348,16 @@ public final class Autos {
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems, List<PathPlannerTrajectory> pathGroup) {
     PathPlannerState endState = pathGroup.get(pathGroup.size() - 1).getEndState(); 
     Pose3d endPose = new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
+    Pose3d aprilTagPose = endPose.transformBy(subsystems.aprilTag.getRobotToTargetTransform());
+    Pose3d cubePose = endPose.transformBy(subsystems.cubeVision.getRobotToTargetTransform());
+
     return Map.of(
           "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
           "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
           "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
           "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
-          "EnablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.aprilTag, endPose)),
+          "EnableAprilTagPoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.aprilTag, aprilTagPose)),
+          "EnableCubePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.cubeVision, cubePose)),
           "DisablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.disablePoseEstimation())
           );
   }

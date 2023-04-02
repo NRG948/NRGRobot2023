@@ -10,6 +10,9 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -20,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * This is a base class for subsystems responsible for getting target
  * information from PhotonVision.
  */
-public class PhotonVisionSubsystemBase extends SubsystemBase {
+public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
 
   private final PhotonCamera camera;
   private final Transform3d cameraToRobot;
@@ -60,6 +63,8 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
     distanceLogger.append(getDistanceToBestTarget());
     angleLogger.append(-getAngleToBestTarget());
   }
+
+  public abstract void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose);
 
   /**
    * Returns the transform from the camera to center of the robot.
