@@ -470,11 +470,20 @@ public class SwerveSubsystem extends SubsystemBase {
     return tiltVelocity;
   }
 
+  /**
+   * Enables vision-based pose estimation.
+   * 
+   * @param visionSource The source PhotonVision subsystem.
+   * @param targetPose The expected pose of the target on the field.
+   */
   public void enablePoseEstimation(PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
     this.visionSource = Optional.of(visionSource);
     this.targetPose = Optional.of(targetPose);
   }
 
+  /**
+   * Disables vision-based pose estimation.
+   */
   public void disablePoseEstimation() {
     this.visionSource = Optional.empty();
     this.targetPose = Optional.empty();
@@ -488,6 +497,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // Update the current module state.
     drivetrain.periodic();
 
+    // Update the odometry using vision-based pose estimation if enabled.
     if (visionSource.isPresent() && visionSource.get().hasTargets()) {
       PhotonVisionSubsystemBase source = visionSource.get();
       Transform3d cameraToRobotTransform = source.getCameraToRobotTransform();
