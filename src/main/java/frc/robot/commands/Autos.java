@@ -285,18 +285,9 @@ public final class Autos {
           Commands.either(
               Commands.select(
                   Map.of(
-                      Alliance.Blue,
-                      Commands.sequence(
-                          new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, false)),
-                          new AutoBalanceOnChargeStation(drivetrain),
-                          new RainbowCycle(subsystems.leds)),
-                      Alliance.Red,
-                      Commands.sequence(
-                          new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(drivetrain, false)),
-                          new AutoBalanceOnChargeStation(drivetrain),
-                          new RainbowCycle(subsystems.leds)),
-                      Alliance.Invalid,
-                      new PrintCommand("ERROR: Invalid alliance color!")),
+                      Alliance.Blue, driveAndBalance(subsystems, BLUE_CHARGING_STATION_CENTER),
+                      Alliance.Red, driveAndBalance(subsystems, RED_CHARGING_STATION_CENTER),
+                      Alliance.Invalid, new PrintCommand("ERROR: Invalid alliance color!")),
                   DriverStation::getAlliance),
               Commands.none(),
               Autos::getBalanceOnChargingStation));
@@ -366,7 +357,7 @@ public final class Autos {
 
   /**
    * Returns a command that enables vision-based pose estimation.
-   * 
+   * <p>
    * This command disables pose estimation if it previously saw a target but no
    * longer does.
    * 
@@ -399,6 +390,23 @@ public final class Autos {
             return false;
           }
         });
+  }
+
+  /**
+   * Returns a command to drive onto the center of the charging station and
+   * auto-balance.
+   * 
+   * @param subsystems The subsystems container.
+   * @param chargingStationPose The pose at the center of the charging station.
+   * 
+   * @return A command to drive onto the center of the charging station and
+   * auto-balance.
+   */
+  public static Command driveAndBalance(Subsystems subsystems, Pose2d chargingStationPose) {
+    return Commands.sequence(
+        new DriveStraight(subsystems.drivetrain, chargingStationPose, getAutoSpeed(subsystems.drivetrain, false)),
+        new AutoBalanceOnChargeStation(subsystems.drivetrain),
+        new RainbowCycle(subsystems.leds));
   }
 
   @AutonomousCommandMethod(name = "Score Cube And Drive Out Of Community")
