@@ -16,6 +16,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -105,9 +106,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private double bottomVoltage;
   private boolean isEnabled = false;
   
-  private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Goal RPM");
-  private DoubleLogEntry topRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Top RPM");
-  private DoubleLogEntry bottomRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Bottom RPM");
+  private BooleanLogEntry enabledLogger = new BooleanLogEntry(DataLogManager.getLog(), "/Shooter/Enabled");
+  private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Goal RPM");
+  private DoubleLogEntry topRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Top RPM");
+  private DoubleLogEntry bottomRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Bottom RPM");
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -123,7 +125,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param goalRPM The goal RPM.
    */
-  public void setGoalRPM(GoalShooterRPM goalRPM) {
+  private void setGoalRPMInternal(GoalShooterRPM goalRPM) {
     currentGoalRPM = goalRPM;
     topPIDController.setSetpoint(goalRPM.getRPM() * goalRPM.getBackspinFactor());
     bottomPIDController.setSetpoint(goalRPM.getRPM());
@@ -134,9 +136,28 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param goalShooterRPM The desired shooter RPM.
    */
-  public void enable(GoalShooterRPM goalShooterRPM) {
+  public void setGoalRPM(GoalShooterRPM goalShooterRPM) {
+    if (!isEnabled) {
+      enabledLogger.append(true);
+    }
+
     isEnabled = true;
-    setGoalRPM(goalShooterRPM);
+    setGoalRPMInternal(goalShooterRPM);
+  }
+
+  /**
+   * Disable the shooter.
+   */
+  public void disable() {
+    if (isEnabled) {
+      enabledLogger.append(false);
+    }
+
+    isEnabled = false;
+    stopMotor();
+    setGoalRPMInternal(GoalShooterRPM.STOP);
+    topPIDController.reset();
+    bottomPIDController.reset();
   }
 
   /**
@@ -156,16 +177,6 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setMotorVoltages(double topVoltage, double bottomVoltage) {
     topMotor.setVoltage(topVoltage);
     bottomMotor.setVoltage(bottomVoltage);
-  }
-
-  /**
-   * Disable the shooter.
-   */
-  public void disable() {
-    isEnabled = false;
-    stopMotor();
-    topPIDController.reset();
-    bottomPIDController.reset();
   }
 
   /**

@@ -128,7 +128,7 @@ public final class Scoring {
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
         Commands.sequence(
-            Commands.runOnce(() -> shooter.enable(target),
+            Commands.runOnce(() -> shooter.setGoalRPM(target),
                 shooter),
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
             Commands.waitSeconds(0.75),
@@ -151,7 +151,7 @@ public final class Scoring {
     ShooterSubsystem shooter = subsystems.shooter;
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
-        Commands.startEnd(() -> shooter.enable(target),
+        Commands.startEnd(() -> shooter.setGoalRPM(target),
             () -> shooter.setGoalRPM(GoalShooterRPM.HYBRID),
             shooter),
         Commands.sequence(
