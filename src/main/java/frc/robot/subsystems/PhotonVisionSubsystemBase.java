@@ -63,6 +63,14 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
     angleLogger.append(-getAngleToBestTarget());
   }
 
+  /**
+   * Updates the pose estimate based on vision information using the expected
+   * target pose.
+   * 
+   * @param estimator  The pose estimator.
+   * @param targetPose The expected pose of the target in the field of vision. The
+   *                   pose is specified in field-relative coordinates.
+   */
   public abstract void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose);
 
   /**
@@ -95,9 +103,11 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
   }
 
   /**
-   * Returns the transform from the center of the robot to the target at the endpoint of a path.
+   * Returns the transform from the center of the robot to the target at the
+   * endpoint of a path.
    * 
-   * @return The transform from the center of the robot to the target at the endpoint of a path.
+   * @return The transform from the center of the robot to the target at the
+   *         endpoint of a path.
    */
   public Transform3d getRobotToTargetTransform() {
     return robotToTarget;
