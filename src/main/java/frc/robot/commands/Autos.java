@@ -40,6 +40,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
+import frc.robot.subsystems.AdressableLEDSubsystem;
+import frc.robot.subsystems.AprilTagSubsystem;
+import frc.robot.subsystems.CubeVisionSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PhotonVisionSubsystemBase;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -50,9 +54,11 @@ import frc.robot.util.FileUtil;
  * routines.
  */
 public final class Autos {
+  private static final Rotation2d ORIENT_ZERO_DEGREES = new Rotation2d(0);
+  private static final Rotation2d ORIENT_90_DEGREES = Rotation2d.fromDegrees(90);
 
-  public static int MAX_GAME_PIECES_TO_SCORE = 2;
-  
+  public static final int MAX_GAME_PIECES_TO_SCORE = 2;
+
   private static final double FIELD_WIDTH_METERS = 8.02; // meters
 
   /**
@@ -157,9 +163,9 @@ public final class Autos {
         Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())),
         FollowTrajectory.fromWaypoints(
             subsystems.drivetrain,
-            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, ORIENT_ZERO_DEGREES),
             List.of(new Translation2d(1, 1), new Translation2d(2, 1)),
-            new Pose2d(3, 0, new Rotation2d(0))));
+            new Pose2d(3, 0, ORIENT_ZERO_DEGREES)));
   }
 
   /**
@@ -266,9 +272,9 @@ public final class Autos {
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
           // If we're scoring at least one game piece, run the intial scoring sequence.
           Commands.either(
-            Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
-            Commands.none(),
-            () -> getNumberOfGamePieces() != 0),
+              Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
+              Commands.none(),
+              () -> getNumberOfGamePieces() != 0),
           // Follow the primary segment of the autonomous path.
           paths.get(0).getValue().getFirst(),
           // Follow the second segment of the autonomous path based on the number of game
@@ -338,21 +344,28 @@ public final class Autos {
    * 
    * @return The map of event marker names to commands.
    */
-  private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems, List<PathPlannerTrajectory> pathGroup) {
-    PathPlannerState endState = pathGroup.get(0).getEndState(); 
+  private static Map<String, Command> getPathplannerEventMap(
+      Subsystems subsystems,
+      List<PathPlannerTrajectory> pathGroup) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    AprilTagSubsystem aprilTag = subsystems.aprilTag;
+    CubeVisionSubsystem cubeVision = subsystems.cubeVision;
+
+    // Find the vision target poses assuming they are relative to the end point of
+    // the first segment of the path group.
+    PathPlannerState endState = pathGroup.get(0).getEndState();
     Pose3d endPose = new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
     Pose3d aprilTagPose = endPose.transformBy(subsystems.aprilTag.getRobotToTargetTransform());
     Pose3d cubePose = endPose.transformBy(subsystems.cubeVision.getRobotToTargetTransform());
 
     return Map.of(
-          "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
-          "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
-          "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
-          "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
-          "EnableAprilTagPoseEstimation", estimatePose(subsystems.drivetrain, subsystems.aprilTag, aprilTagPose).withTimeout(3),
-          "EnableCubePoseEstimation", estimatePose(subsystems.drivetrain, subsystems.cubeVision, cubePose).withTimeout(3),
-          "DisablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.disablePoseEstimation())
-          );
+        "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
+        "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
+        "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
+        "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
+        "EnableAprilTagPoseEstimation", estimatePose(drivetrain, aprilTag, aprilTagPose).withTimeout(3),
+        "EnableCubePoseEstimation", estimatePose(drivetrain, cubeVision, cubePose).withTimeout(3),
+        "DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));
   }
 
   /**
@@ -367,7 +380,10 @@ public final class Autos {
    * 
    * @return A command that enables vision-based pose estimation.
    */
-  public static Command estimatePose(SwerveSubsystem drivetrain, PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
+  public static Command estimatePose(
+      SwerveSubsystem drivetrain,
+      PhotonVisionSubsystemBase visionSource,
+      Pose3d targetPose) {
     // Require only the PhotonVision subsystem since we do not want to interrupt
     // the current path following command running on the swerve subsystem.
     return Commands.startEnd(
@@ -396,63 +412,76 @@ public final class Autos {
    * Returns a command to drive onto the center of the charging station and
    * auto-balance.
    * 
-   * @param subsystems The subsystems container.
+   * @param subsystems          The subsystems container.
    * @param chargingStationPose The pose at the center of the charging station.
    * 
    * @return A command to drive onto the center of the charging station and
-   * auto-balance.
+   *         auto-balance.
    */
   public static Command driveAndBalance(Subsystems subsystems, Pose2d chargingStationPose) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    AdressableLEDSubsystem leds = subsystems.leds;
+    double autoSpeed = getAutoSpeed(drivetrain, false);
+
     return Commands.sequence(
-        new DriveStraight(subsystems.drivetrain, chargingStationPose, getAutoSpeed(subsystems.drivetrain, false)),
-        new AutoBalanceOnChargeStation(subsystems.drivetrain),
-        new RainbowCycle(subsystems.leds));
+        new DriveStraight(drivetrain, chargingStationPose, autoSpeed),
+        new AutoBalanceOnChargeStation(drivetrain),
+        new RainbowCycle(leds));
   }
 
   @AutonomousCommandMethod(name = "Score Cube And Drive Out Of Community")
   public static Command scoreCube(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    IntakeSubsystem intake = subsystems.intake;
+    double autoSpeed = getAutoSpeed(drivetrain, false);
+
     return Commands.sequence(
-      Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(1.5),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90)),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(3,0),getAutoSpeed(subsystems.drivetrain, false), new Rotation2d(0))
-    );
+        Commands.runOnce(() -> drivetrain.resetPosition(new Pose2d(0, 0, new Rotation2d(Math.PI)))),
+        Commands.runEnd(() -> intake.runMotor(-1.5), () -> intake.stopMotor()).withTimeout(1.5),
+        new DriveStraight(drivetrain, new Translation2d(0.5, 0), autoSpeed, ORIENT_90_DEGREES),
+        new DriveStraight(drivetrain, new Translation2d(-0.5, 0), autoSpeed, ORIENT_90_DEGREES),
+        new DriveStraight(drivetrain, new Translation2d(3, 0), autoSpeed, ORIENT_ZERO_DEGREES));
   }
 
   @AutonomousCommandMethod(name = "Score Cube-No Drive Out Of Community")
   public static Command scoreCubeTwo(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    IntakeSubsystem intake = subsystems.intake;
+    double autoSpeed = getAutoSpeed(drivetrain, false);
+
     return Commands.sequence(
-      Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      Commands.runEnd(() -> subsystems.intake.runMotor(-1.5), () -> subsystems.intake.stopMotor()).withTimeout(1.5),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(0.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(-0.5,0), getAutoSpeed(subsystems.drivetrain, false), Rotation2d.fromDegrees(90))
-    );
+        Commands.runOnce(() -> drivetrain.resetPosition(new Pose2d(0, 0, new Rotation2d(Math.PI)))),
+        Commands.runEnd(() -> intake.runMotor(-1.5), () -> intake.stopMotor()).withTimeout(1.5),
+        new DriveStraight(drivetrain, new Translation2d(0.5, 0), autoSpeed, ORIENT_90_DEGREES),
+        new DriveStraight(drivetrain, new Translation2d(-0.5, 0), autoSpeed, ORIENT_90_DEGREES));
   }
-  
+
   @AutonomousCommandMethod(name = "Bumper score and drive out")
   public static Command BumperScore(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    double autoSpeed = getAutoSpeed(drivetrain, false);
+
     return Commands.sequence(
-      Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(-0.3,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90)),
-      new DriveStraight(subsystems.drivetrain, new Translation2d(3.5,0), getAutoSpeed(subsystems.drivetrain,false), Rotation2d.fromDegrees(90))
-    );
+        Commands.runOnce(() -> drivetrain.resetPosition(new Pose2d(0, 0, new Rotation2d(Math.PI)))),
+        new DriveStraight(drivetrain, new Translation2d(-0.3, 0), autoSpeed, ORIENT_90_DEGREES),
+        new DriveStraight(drivetrain, new Translation2d(3.5, 0), autoSpeed, ORIENT_90_DEGREES));
   }
 
   @AutonomousCommandMethod(name = "[BACKUP] Score High And Auto Balance")
   public static Command scoreAndBalance(Subsystems subsystems) {
+    SwerveSubsystem drivetrain = subsystems.drivetrain;
+    double autoSpeed = getAutoSpeed(drivetrain, false);
+
     return Commands.sequence(
-      // TODO: Set initial position
-      Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
-      Commands.waitSeconds(1),
-      Commands.either(
-        new DriveStraight(subsystems.drivetrain, RED_CHARGING_STATION_CENTER, getAutoSpeed(subsystems.drivetrain, false)),
-        new DriveStraight(subsystems.drivetrain, BLUE_CHARGING_STATION_CENTER, getAutoSpeed(subsystems.drivetrain, false)), 
-        () -> DriverStation.getAlliance().equals(Alliance.Red)),
-      new AutoBalanceOnChargeStation(subsystems.drivetrain)
-    );
+        // TODO: Set initial position
+        Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
+        Commands.waitSeconds(1),
+        Commands.either(
+            new DriveStraight(drivetrain, RED_CHARGING_STATION_CENTER, autoSpeed),
+            new DriveStraight(drivetrain, BLUE_CHARGING_STATION_CENTER, autoSpeed),
+            () -> DriverStation.getAlliance().equals(Alliance.Red)),
+        new AutoBalanceOnChargeStation(drivetrain));
   }
-  
 
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
