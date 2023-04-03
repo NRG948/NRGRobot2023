@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import org.javatuples.LabelValue;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
+import frc.robot.subsystems.PhotonVisionSubsystemBase;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.FileUtil;
@@ -356,10 +358,47 @@ public final class Autos {
           "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
           "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
           "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems,GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
-          "EnableAprilTagPoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.aprilTag, aprilTagPose)),
-          "EnableCubePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.enablePoseEstimation(subsystems.cubeVision, cubePose)),
+          "EnableAprilTagPoseEstimation", estimatePose(subsystems.drivetrain, subsystems.aprilTag, aprilTagPose).withTimeout(3),
+          "EnableCubePoseEstimation", estimatePose(subsystems.drivetrain, subsystems.cubeVision, cubePose).withTimeout(3),
           "DisablePoseEstimation", Commands.runOnce(() -> subsystems.drivetrain.disablePoseEstimation())
           );
+  }
+
+  /**
+   * Returns a command that enables vision-based pose estimation.
+   * 
+   * This command disables pose estimation if it previously saw a target but no
+   * longer does.
+   * 
+   * @param drivetrain   The swerve subsystem.
+   * @param visionSource The source PhotonVision subsystem.
+   * @param targetPose   The expected pose of the target on the field.
+   * 
+   * @return A command that enables vision-based pose estimation.
+   */
+  public static Command estimatePose(SwerveSubsystem drivetrain, PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
+    // Require only the PhotonVision subsystem since we do not want to interrupt
+    // the current path following command running on the swerve subsystem.
+    return Commands.startEnd(
+        () -> drivetrain.enablePoseEstimation(visionSource, targetPose),
+        () -> drivetrain.disablePoseEstimation(),
+        visionSource)
+        .until(new BooleanSupplier() {
+          private boolean hadTargets = visionSource.hasTargets();
+
+          @Override
+          public boolean getAsBoolean() {
+            boolean hasTargets = visionSource.hasTargets();
+
+            if (hadTargets && !hasTargets) {
+              return true;
+            }
+
+            hadTargets = hasTargets;
+
+            return false;
+          }
+        });
   }
 
   @AutonomousCommandMethod(name = "Score Cube And Drive Out Of Community")
