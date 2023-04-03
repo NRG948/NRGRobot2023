@@ -264,7 +264,7 @@ public final class Autos {
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
           // If we're scoring at least one game piece, run the intial scoring sequence.
           Commands.either(
-            getInitialScoringSequence(subsystems, startPose2d),
+            Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
             Commands.none(),
             () -> getNumberOfGamePieces() != 0),
           // Follow the primary segment of the autonomous path.
@@ -362,20 +362,7 @@ public final class Autos {
           );
   }
 
-  /**
-   * Returns the initial scoring command sequence.
-   * 
-   * @param subsystems  The subsystems container.
-   * @param startPose2d The starting pose of the robot.
-   * 
-   * @return The initial scoring command sequence.
-   */
-  private static Command getInitialScoringSequence(Subsystems subsystems, Pose2d startPose2d) {
-
-    return Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH);
-  }
-
-  @AutonomousCommandMethod(name="Score Cube And Drive Out Of Community")
+  @AutonomousCommandMethod(name = "Score Cube And Drive Out Of Community")
   public static Command scoreCube(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
@@ -386,7 +373,7 @@ public final class Autos {
     );
   }
 
-  @AutonomousCommandMethod(name="Score Cube-No Drive Out Of Community")
+  @AutonomousCommandMethod(name = "Score Cube-No Drive Out Of Community")
   public static Command scoreCubeTwo(Subsystems subsystems) {
     return Commands.sequence(
       Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d(0,0,new Rotation2d(Math.PI)))),
