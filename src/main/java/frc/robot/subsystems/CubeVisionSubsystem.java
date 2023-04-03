@@ -10,14 +10,13 @@ import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -32,8 +31,6 @@ import frc.robot.Constants.RobotConstants;
  */
 @RobotPreferencesLayout(groupName = "CubeVision", row = 0, column = 4, width = 2, height = 1)
 public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
-  private static final double CUBE_X = 7.07;
-
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "CubeVision", "Enable Tab", false);
@@ -73,9 +70,8 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
   @Override
   public void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose) {
     if (hasTargets()) {
-      targetPose = new Pose3d(CUBE_X, 2.16, 0, new Rotation3d()); // TODO: Get cube positions for other paths
       Pose3d currentCameraPose = new Pose3d(estimator.getEstimatedPosition()).transformBy(getRobotToCameraTransform());
-      double deltaX = CUBE_X - currentCameraPose.getX();
+      double deltaX = targetPose.getX() - currentCameraPose.getX();
       double deltaY = deltaX * Math.tan(Math.toRadians(-getAngleToBestTarget()));
 
       if (deltaX > 0) {

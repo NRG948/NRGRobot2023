@@ -346,7 +346,7 @@ public final class Autos {
    * @return The map of event marker names to commands.
    */
   private static Map<String, Command> getPathplannerEventMap(Subsystems subsystems, List<PathPlannerTrajectory> pathGroup) {
-    PathPlannerState endState = pathGroup.get(pathGroup.size() - 1).getEndState(); 
+    PathPlannerState endState = pathGroup.get(0).getEndState(); 
     Pose3d endPose = new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
     Pose3d aprilTagPose = endPose.transformBy(subsystems.aprilTag.getRobotToTargetTransform());
     Pose3d cubePose = endPose.transformBy(subsystems.cubeVision.getRobotToTargetTransform());
