@@ -50,17 +50,25 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
     this.targetToRobot = targetToRobot;
     this.robotToTarget = targetToRobot.inverse();
 
-    hasTargetLogger = new BooleanLogEntry(DataLogManager.getLog(), cameraName + "/Has Target");
-    distanceLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Distance");
-    angleLogger = new DoubleLogEntry(DataLogManager.getLog(), cameraName + "/Angle");
+    hasTargetLogger = new BooleanLogEntry(DataLogManager.getLog(), String.format("/%s/Has Target", cameraName));
+    distanceLogger = new DoubleLogEntry(DataLogManager.getLog(), String.format("/%s/Distance", cameraName));
+    angleLogger = new DoubleLogEntry(DataLogManager.getLog(), String.format("/%s/Angle", cameraName));
   }
 
   @Override
   public void periodic() {
-    result = camera.getLatestResult();
-    hasTargetLogger.append(hasTargets());
-    distanceLogger.append(getDistanceToBestTarget());
-    angleLogger.append(-getAngleToBestTarget());
+    PhotonPipelineResult result = camera.getLatestResult();
+
+    if (this.result.hasTargets() != result.hasTargets()) {
+      hasTargetLogger.append(hasTargets());
+    }
+
+    this.result = result;
+
+    if (hasTargets()) {
+      distanceLogger.append(getDistanceToBestTarget());
+      angleLogger.append(-getAngleToBestTarget());
+    }
   }
 
   /**

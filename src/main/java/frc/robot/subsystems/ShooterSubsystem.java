@@ -32,7 +32,7 @@ import frc.robot.parameters.MotorParameters;
 public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
-    "Enable Shooter Tab", false);
+      "Enable Shooter Tab", false);
 
   private static final double KS = 0.15;
   private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) * 3 / MotorParameters.NeoV1_1.getFreeSpeedRPM();
@@ -129,6 +129,8 @@ public class ShooterSubsystem extends SubsystemBase {
     currentGoalRPM = goalRPM;
     topPIDController.setSetpoint(goalRPM.getRPM() * goalRPM.getBackspinFactor());
     bottomPIDController.setSetpoint(goalRPM.getRPM());
+
+    goalRPMLogger.append(currentGoalRPM.getRPM());
   }
 
   /**
@@ -171,7 +173,7 @@ public class ShooterSubsystem extends SubsystemBase {
   /**
    * Sets the motor voltages for both top and bottom motor.
    * 
-   * @param topVoltage The voltage for the top motor.
+   * @param topVoltage    The voltage for the top motor.
    * @param bottomVoltage The voltage for the bottom motor.
    */
   public void setMotorVoltages(double topVoltage, double bottomVoltage) {
@@ -216,18 +218,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
     if (isEnabled) {
       double bottomFeedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
-      double topFeedForwardVoltage = feedforward.calculate(currentGoalRPM.getRPM() * currentGoalRPM.getBackspinFactor());
+      double topFeedForwardVoltage = feedforward.calculate(
+          currentGoalRPM.getRPM() * currentGoalRPM.getBackspinFactor());
 
       topVoltage = topFeedForwardVoltage + topPIDController.calculate(currentTopRPM);
       bottomVoltage = bottomFeedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
-      
+
       setMotorVoltages(topVoltage, bottomVoltage);
     }
-    
+
     topRPMLogger.append(currentTopRPM);
     bottomRPMLogger.append(currentBottomRPM);
-    goalRPMLogger.append(currentGoalRPM.getRPM());
-
   }
 
   /**
@@ -245,7 +246,7 @@ public class ShooterSubsystem extends SubsystemBase {
     ShuffleboardLayout layout = tab.getLayout("Shooter", BuiltInLayouts.kList)
         .withPosition(0, 0)
         .withSize(1, 3);
-    
+
     layout.addNumber("Current top RPM", () -> currentTopRPM);
     layout.addNumber("Current bottom RPM", () -> currentBottomRPM);
     layout.addNumber("Current goal RPM", () -> currentGoalRPM.getRPM());

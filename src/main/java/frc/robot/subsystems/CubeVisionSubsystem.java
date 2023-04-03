@@ -37,10 +37,10 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
 
   private DoubleLogEntry deltaXLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta X");
   private DoubleLogEntry deltaYLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta Y");
-  
+
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
-    super("Front",RobotConstants.FRONT_CAMERA_TO_ROBOT, new Transform3d());
+    super("Front", RobotConstants.FRONT_CAMERA_TO_ROBOT, new Transform3d());
   }
 
   /**
@@ -72,20 +72,20 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
     if (hasTargets()) {
       Pose3d currentCameraPose = new Pose3d(estimator.getEstimatedPosition()).transformBy(getRobotToCameraTransform());
       double deltaX = targetPose.getX() - currentCameraPose.getX();
-      double deltaY = deltaX * Math.tan(Math.toRadians(-getAngleToBestTarget()));
 
       if (deltaX > 0) {
+        double deltaY = deltaX * Math.tan(Math.toRadians(-getAngleToBestTarget()));
         Transform3d targetToCamera = new Transform3d(
             new Translation3d(deltaX, deltaY, 0),
             getCameraToRobotTransform().getRotation()).inverse();
         Pose3d cameraPose = targetPose.transformBy(targetToCamera);
         Pose2d robotPose = cameraPose.transformBy(getCameraToRobotTransform()).toPose2d();
-        
-        estimator.addVisionMeasurement(robotPose, getTargetTimestamp());
-      }
 
-      deltaXLogger.append(deltaX);
-      deltaYLogger.append(deltaY);
+        estimator.addVisionMeasurement(robotPose, getTargetTimestamp());
+
+        deltaXLogger.append(deltaX);
+        deltaYLogger.append(deltaY);
+      }
     }
   }
 }

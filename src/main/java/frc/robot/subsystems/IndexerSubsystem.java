@@ -81,13 +81,16 @@ public class IndexerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    cubeDetected = !beamBreak.get();
+    boolean cubeDetected = !beamBreak.get();
+
+    if (this.cubeDetected != cubeDetected) {
+      cubeDetectedLogger.append(cubeDetected);
+      this.cubeDetected = cubeDetected;
+    }
 
     if (isEnabled) {
       double voltage = goalRPM / RPM_PER_VOLT + KS;
       indexerMotor.setVoltage(voltage);
     }
-
-    cubeDetectedLogger.append(cubeDetected);
   }
 }

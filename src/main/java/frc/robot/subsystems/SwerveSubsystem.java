@@ -480,6 +480,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void enablePoseEstimation(PhotonVisionSubsystemBase visionSource, Pose3d targetPose) {
     this.visionSource = Optional.of(visionSource);
     this.targetPose = Optional.of(targetPose);
+    poseEstimationEnabledLog.append(true);
   }
 
   /**
@@ -488,6 +489,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void disablePoseEstimation() {
     this.visionSource = Optional.empty();
     this.targetPose = Optional.empty();
+    poseEstimationEnabledLog.append(false);
   }
 
   @Override
@@ -505,8 +507,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // Update the odometry using vision-based pose estimation if enabled.
     boolean estimatePose = visionSource.isPresent();
     
-    poseEstimationEnabledLog.append(estimatePose);
-
     if (estimatePose) {
       visionSource.get().updatePoseEstimate(odometry, targetPose.get());
     }
