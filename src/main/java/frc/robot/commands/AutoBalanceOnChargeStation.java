@@ -38,13 +38,13 @@ public class AutoBalanceOnChargeStation extends CommandBase {
    */
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KP = new RobotPreferences.DoubleValue(
-      PREFERENCES_GROUP, "KP", 0.042);
+      PREFERENCES_GROUP, "KP", 0.021);
   //@RobotPreferencesValue
   //public static final RobotPreferences.DoubleValue ANGLE_KI = new RobotPreferences.DoubleValue(
   //    PREFERENCES_GROUP, "KI", 0.037047927);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
-      PREFERENCES_GROUP, "KD", 0.0119035);
+      PREFERENCES_GROUP, "KD", 0.0060);
 
   private static final double TIME_AT_LEVEL = 0.25;
 
@@ -77,6 +77,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     timer.reset();
 
     wasLevel = false;
+    System.out.println("Starting AutoBalanceOnChargeStation at tilt: " + drivetrain.getTilt().getDegrees());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
