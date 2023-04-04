@@ -4,51 +4,54 @@
 
 package frc.robot.subsystems;
 
-import java.util.List;
-
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
 
 /**
  * This subsystem is responsible for getting target information from
  * PhotonVision.
  */
-@RobotPreferencesLayout(groupName = "PhotonVision", row = 0, column = 4, width = 2, height = 1)
+@RobotPreferencesLayout(groupName = "CubeVision", row = 0, column = 4, width = 2, height = 1)
 public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
-      "PhotonVision", "Enable Tab", false);
-      
+      "CubeVision", "Enable Tab", false);
+
+  private DoubleLogEntry deltaXLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta X");
+  private DoubleLogEntry deltaYLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta Y");
+
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
-    super("Front");
+    super("Front", RobotConstants.FRONT_CAMERA_TO_ROBOT, new Transform3d());
   }
 
   /**
-   * Adds a tab for PhotonVision in Shuffleboard.
+   * Adds a tab for CubeVision in Shuffleboard.
    */
   public void addShuffleboardTab() {
     if (!enableTab.getValue()) {
       return;
     }
 
-    ShuffleboardTab visionTab = Shuffleboard.getTab("PhotonVision");
+    ShuffleboardTab visionTab = Shuffleboard.getTab("CubeVision");
     ShuffleboardLayout targetLayout = visionTab.getLayout("Target Info", BuiltInLayouts.kList)
         .withPosition(0, 0)
         .withSize(2, 3);
@@ -56,11 +59,33 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
     targetLayout.addDouble("Angle", this::getAngleToBestTarget);
 
-    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream",
+    VideoSource video = new HttpCamera("photonvision_Port_1183_MJPEG_Server", "http://10.9.48.11:1183/?action=stream",
         HttpCameraKind.kMJPGStreamer);
-    visionTab.add("PhotonVision", video)
+    visionTab.add("CubeVision", video)
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
         .withSize(4, 3);
+  }
+
+  @Override
+  public void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose) {
+    if (hasTargets()) {
+      Pose3d currentCameraPose = new Pose3d(estimator.getEstimatedPosition()).transformBy(getRobotToCameraTransform());
+      double deltaX = targetPose.getX() - currentCameraPose.getX();
+
+      if (deltaX > 0) {
+        double deltaY = deltaX * Math.tan(Math.toRadians(-getAngleToBestTarget()));
+        Transform3d targetToCamera = new Transform3d(
+            new Translation3d(deltaX, deltaY, 0),
+            getCameraToRobotTransform().getRotation()).inverse();
+        Pose3d cameraPose = targetPose.transformBy(targetToCamera);
+        Pose2d robotPose = cameraPose.transformBy(getCameraToRobotTransform()).toPose2d();
+
+        estimator.addVisionMeasurement(robotPose, getTargetTimestamp());
+
+        deltaXLogger.append(deltaX);
+        deltaYLogger.append(deltaY);
+      }
+    }
   }
 }

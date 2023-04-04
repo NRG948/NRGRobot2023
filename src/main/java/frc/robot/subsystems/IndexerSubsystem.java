@@ -10,16 +10,15 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import frc.robot.Constants.RobotConstants.CAN;
-import frc.robot.Constants.RobotConstants.DigitalIO;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants.CAN;
+import frc.robot.Constants.RobotConstants.DigitalIO;
 
 public class IndexerSubsystem extends SubsystemBase {
 
-  private static final double MAX_RPM = 2000;
   private static final double RPM_PER_VOLT = 493.9;
 
   @RobotPreferencesValue
@@ -30,7 +29,6 @@ public class IndexerSubsystem extends SubsystemBase {
       "Indexer Intake RPM", 250.0);
 
   private static final double KS = 0.5;
-  private static final double GEAR_RATIO = 5.0 / 1;
 
   private double goalRPM = 0;
   private boolean isEnabled = false;
@@ -83,7 +81,12 @@ public class IndexerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    cubeDetected = !beamBreak.get();
+    boolean cubeDetected = !beamBreak.get();
+
+    if (this.cubeDetected != cubeDetected) {
+      cubeDetectedLogger.append(cubeDetected);
+      this.cubeDetected = cubeDetected;
+    }
 
     if (isEnabled) {
       double voltage = goalRPM / RPM_PER_VOLT + KS;

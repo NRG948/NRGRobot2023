@@ -4,42 +4,47 @@
 
 package frc.robot.subsystems;
 
-import java.util.List;
-
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 import com.nrg948.preferences.RobotPreferencesValue;
 
 import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
 
 /**
  * This subsystem is responsible for getting target information from
  * PhotonVision.
  */
+
 @RobotPreferencesLayout(groupName = "AprilTag", row = 1, column = 4, width = 2, height = 1)
 public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
+
+  private static final Transform3d TAG_TO_ROBOT = new Transform3d(
+      new Translation3d(Units.inchesToMeters(33), 0, 0),
+      new Rotation3d(0, 0, 0));
+
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "AprilTag", "Enable Tab", false);
 
   /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
-    super("Back");
+    super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT, TAG_TO_ROBOT);
   }
-  
+
   /**
    * Adds a tab for April Tag in Shuffleboard.
    */
@@ -62,5 +67,20 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
         .withWidget(BuiltInWidgets.kCameraStream)
         .withPosition(2, 0)
         .withSize(4, 3);
+  }
+
+  @Override
+  public void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose) {
+    if (hasTargets()) {
+      Transform3d targetToCamera = new Transform3d(
+          new Translation3d(
+              getDistanceToBestTarget(),
+              new Rotation3d(0, 0, Math.toRadians(-getAngleToBestTarget()))),
+          getCameraToRobotTransform().getRotation()).inverse();
+      Pose3d cameraPose = targetPose.transformBy(targetToCamera);
+      Pose3d robotPose = cameraPose.transformBy(getCameraToRobotTransform());
+
+      estimator.addVisionMeasurement(robotPose.toPose2d(), getTargetTimestamp());
+    }
   }
 }

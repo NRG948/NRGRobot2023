@@ -16,6 +16,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -31,30 +32,27 @@ import frc.robot.parameters.MotorParameters;
 public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static RobotPreferences.BooleanValue ENABLE_SHOOTER_TAB = new RobotPreferences.BooleanValue("Shooter",
-    "Enable Shooter Tab", false);
+      "Enable Shooter Tab", false);
 
-  private static final double RPM_PER_VOLT = 493.9; // Provided by systems, the change in RPM per change in volt. Could
-                                                    // be useful.
-  private static final double KS = 0.15; // guess
-  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) / MotorParameters.NeoV1_1.getFreeSpeedRPM();
+  private static final double KS = 0.15;
+  private static final double KV = (RobotConstants.MAX_BATTERY_VOLTAGE - KS) * 3 / MotorParameters.NeoV1_1.getFreeSpeedRPM();
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 500);
+  public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 300);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 880);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 800);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1350);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1225);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1440);
-
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1420);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 1);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.8);
+  public static final RobotPreferences.DoubleValue MID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Backspin", 0.5);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.5);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 1.2);
+  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.5);
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
@@ -108,15 +106,18 @@ public class ShooterSubsystem extends SubsystemBase {
   private double bottomVoltage;
   private boolean isEnabled = false;
   
-  private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Goal RPM");
-  private DoubleLogEntry topRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Top RPM");
-  private DoubleLogEntry bottomRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Bottom RPM");
+  private BooleanLogEntry enabledLogger = new BooleanLogEntry(DataLogManager.getLog(), "/Shooter/Enabled");
+  private DoubleLogEntry goalRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Goal RPM");
+  private DoubleLogEntry topRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Top RPM");
+  private DoubleLogEntry bottomRPMLogger = new DoubleLogEntry(DataLogManager.getLog(), "/Shooter/Bottom RPM");
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
     topMotor.setIdleMode(IdleMode.kCoast);
     bottomMotor.setIdleMode(IdleMode.kCoast);
     bottomMotor.setInverted(true);
+    topEncoder.setVelocityConversionFactor(0.333);
+    bottomEncoder.setVelocityConversionFactor(0.333);
   }
 
   /**
@@ -124,10 +125,12 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param goalRPM The goal RPM.
    */
-  public void setGoalRPM(GoalShooterRPM goalRPM) {
+  private void setGoalRPMInternal(GoalShooterRPM goalRPM) {
     currentGoalRPM = goalRPM;
     topPIDController.setSetpoint(goalRPM.getRPM() * goalRPM.getBackspinFactor());
     bottomPIDController.setSetpoint(goalRPM.getRPM());
+
+    goalRPMLogger.append(currentGoalRPM.getRPM());
   }
 
   /**
@@ -135,9 +138,28 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param goalShooterRPM The desired shooter RPM.
    */
-  public void enable(GoalShooterRPM goalShooterRPM) {
+  public void setGoalRPM(GoalShooterRPM goalShooterRPM) {
+    if (!isEnabled) {
+      enabledLogger.append(true);
+    }
+
     isEnabled = true;
-    setGoalRPM(goalShooterRPM);
+    setGoalRPMInternal(goalShooterRPM);
+  }
+
+  /**
+   * Disable the shooter.
+   */
+  public void disable() {
+    if (isEnabled) {
+      enabledLogger.append(false);
+    }
+
+    isEnabled = false;
+    stopMotor();
+    setGoalRPMInternal(GoalShooterRPM.STOP);
+    topPIDController.reset();
+    bottomPIDController.reset();
   }
 
   /**
@@ -151,22 +173,12 @@ public class ShooterSubsystem extends SubsystemBase {
   /**
    * Sets the motor voltages for both top and bottom motor.
    * 
-   * @param topVoltage The voltage for the top motor.
+   * @param topVoltage    The voltage for the top motor.
    * @param bottomVoltage The voltage for the bottom motor.
    */
   public void setMotorVoltages(double topVoltage, double bottomVoltage) {
     topMotor.setVoltage(topVoltage);
     bottomMotor.setVoltage(bottomVoltage);
-  }
-
-  /**
-   * Disable the shooter.
-   */
-  public void disable() {
-    isEnabled = false;
-    stopMotor();
-    topPIDController.reset();
-    bottomPIDController.reset();
   }
 
   /**
@@ -205,18 +217,18 @@ public class ShooterSubsystem extends SubsystemBase {
     currentBottomRPM = bottomEncoder.getVelocity();
 
     if (isEnabled) {
-      double feedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
+      double bottomFeedforwardVoltage = feedforward.calculate(currentGoalRPM.getRPM());
+      double topFeedForwardVoltage = feedforward.calculate(
+          currentGoalRPM.getRPM() * currentGoalRPM.getBackspinFactor());
 
-      topVoltage = feedforwardVoltage + topPIDController.calculate(currentTopRPM);
-      bottomVoltage = feedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
-      
+      topVoltage = topFeedForwardVoltage + topPIDController.calculate(currentTopRPM);
+      bottomVoltage = bottomFeedforwardVoltage + bottomPIDController.calculate(currentBottomRPM);
+
       setMotorVoltages(topVoltage, bottomVoltage);
     }
-    
+
     topRPMLogger.append(currentTopRPM);
     bottomRPMLogger.append(currentBottomRPM);
-    goalRPMLogger.append(currentGoalRPM.getRPM());
-
   }
 
   /**
@@ -234,7 +246,7 @@ public class ShooterSubsystem extends SubsystemBase {
     ShuffleboardLayout layout = tab.getLayout("Shooter", BuiltInLayouts.kList)
         .withPosition(0, 0)
         .withSize(1, 3);
-    
+
     layout.addNumber("Current top RPM", () -> currentTopRPM);
     layout.addNumber("Current bottom RPM", () -> currentBottomRPM);
     layout.addNumber("Current goal RPM", () -> currentGoalRPM.getRPM());

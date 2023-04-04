@@ -10,39 +10,115 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.nrg948.preferences.RobotPreferences;
-import com.nrg948.preferences.RobotPreferencesLayout;
-import com.nrg948.preferences.RobotPreferencesValue;
-
-import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoSource;
-import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
- * This subsystem is responsible for getting target information from
- * PhotonVision.
+ * This is a base class for subsystems responsible for getting target
+ * information from PhotonVision.
  */
-@RobotPreferencesLayout(groupName = "PhotonVision", row = 0, column = 4, width = 2, height = 1)
-public class PhotonVisionSubsystemBase extends SubsystemBase {
+public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
 
   private final PhotonCamera camera;
+  private final Transform3d cameraToRobot;
+  private final Transform3d robotToCamera;
+  private final Transform3d targetToRobot;
+  private final Transform3d robotToTarget;
   private PhotonPipelineResult result = new PhotonPipelineResult();
 
-  /** Creates a new PhotonVisionSubsystem. */
-  public PhotonVisionSubsystemBase(String cameraName) {
-    camera = new PhotonCamera(cameraName);
+  private BooleanLogEntry hasTargetLogger;
+  private DoubleLogEntry distanceLogger;
+  private DoubleLogEntry angleLogger;
+
+  /**
+   * Creates a new PhotonVisionSubsystemBase.
+   * 
+   * @param cameraName    The name of the PhotonVision camera.
+   * @param cameraToRobot The transform from the camera to center of the robot.
+   * @param targetToRobot The transform from the target to the center of the robot
+   *                      at the endpoint of a path.
+   */
+  public PhotonVisionSubsystemBase(String cameraName, Transform3d cameraToRobot, Transform3d targetToRobot) {
+    this.camera = new PhotonCamera(cameraName);
+    this.cameraToRobot = cameraToRobot;
+    this.robotToCamera = cameraToRobot.inverse();
+    this.targetToRobot = targetToRobot;
+    this.robotToTarget = targetToRobot.inverse();
+
+    hasTargetLogger = new BooleanLogEntry(DataLogManager.getLog(), String.format("/%s/Has Target", cameraName));
+    distanceLogger = new DoubleLogEntry(DataLogManager.getLog(), String.format("/%s/Distance", cameraName));
+    angleLogger = new DoubleLogEntry(DataLogManager.getLog(), String.format("/%s/Angle", cameraName));
   }
 
   @Override
   public void periodic() {
-    result = camera.getLatestResult();
+    PhotonPipelineResult result = camera.getLatestResult();
+
+    if (this.result.hasTargets() != result.hasTargets()) {
+      hasTargetLogger.append(hasTargets());
+    }
+
+    this.result = result;
+
+    if (hasTargets()) {
+      distanceLogger.append(getDistanceToBestTarget());
+      angleLogger.append(-getAngleToBestTarget());
+    }
+  }
+
+  /**
+   * Updates the pose estimate based on vision information using the expected
+   * target pose.
+   * 
+   * @param estimator  The pose estimator.
+   * @param targetPose The expected pose of the target in the field of vision. The
+   *                   pose is specified in field-relative coordinates.
+   */
+  public abstract void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose);
+
+  /**
+   * Returns the transform from the camera to center of the robot.
+   * 
+   * @return The transform from the camera to center of the robot.
+   */
+  public Transform3d getCameraToRobotTransform() {
+    return cameraToRobot;
+  }
+
+  /**
+   * Returns the transform from the center of the robot to the camera.
+   * 
+   * @return The transform from the center of the robot to the camera.
+   */
+  public Transform3d getRobotToCameraTransform() {
+    return robotToCamera;
+  }
+
+  /**
+   * Returns the transform from the target to the center of the robot at the
+   * endpoint of a path.
+   * 
+   * @return The transform from the target to the center of the robot at the
+   *         endpoint of a path.
+   */
+  public Transform3d getTargetToRobotTransform() {
+    return targetToRobot;
+  }
+
+  /**
+   * Returns the transform from the center of the robot to the target at the
+   * endpoint of a path.
+   * 
+   * @return The transform from the center of the robot to the target at the
+   *         endpoint of a path.
+   */
+  public Transform3d getRobotToTargetTransform() {
+    return robotToTarget;
   }
 
   /**
@@ -90,7 +166,12 @@ public class PhotonVisionSubsystemBase extends SubsystemBase {
     return getBestTarget().getYaw();
   }
 
-  public double getTargetTimestamp(){
+  /**
+   * Returns the estimated time, in seconds, the target was detected.
+   * 
+   * @return The timestamp in seconds or -1 if no target was detected.
+   */
+  public double getTargetTimestamp() {
     return result.getTimestampSeconds();
   }
 

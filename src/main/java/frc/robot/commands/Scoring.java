@@ -17,6 +17,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
 
 /**
  * A class of static methods used to create command sequences to score game
@@ -127,13 +128,13 @@ public final class Scoring {
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
         Commands.sequence(
-            Commands.runOnce(() -> shooter.enable(target),
+            Commands.runOnce(() -> shooter.setGoalRPM(target),
                 shooter),
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
-            Commands.waitSeconds(0.5),
-            Commands.runOnce(() -> shooter.disable(), shooter)),
+            Commands.waitSeconds(0.75),
+            Commands.runOnce(() -> shooter.setGoalRPM(GoalShooterRPM.HYBRID), shooter)),
         Commands.sequence(
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(0.75),
             Commands.runOnce(() -> indexer.setShootRPM(), indexer),
             Commands.waitUntil(() -> !indexer.isCubeDetected()),
             Commands.runOnce(() -> indexer.disable(), indexer)));
@@ -150,11 +151,14 @@ public final class Scoring {
     ShooterSubsystem shooter = subsystems.shooter;
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
-        Commands.startEnd(() -> shooter.enable(target),
-            () -> shooter.disable(),
+        Commands.startEnd(() -> shooter.setGoalRPM(target),
+            () -> shooter.setGoalRPM(GoalShooterRPM.HYBRID),
             shooter),
         Commands.sequence(
-            Commands.waitSeconds(0.5),
+            Commands.either(
+              Commands.none(),
+              Commands.waitSeconds(0.75),
+              () -> shooter.getCurrentGoalRPM().equals(GoalShooterRPM.HYBRID)),
             Commands.startEnd(() -> indexer.setShootRPM(),
                 () -> indexer.disable(),
                 indexer)));

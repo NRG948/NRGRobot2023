@@ -29,19 +29,16 @@ import frc.robot.Constants.ColorConstants;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ChaseTagCommand;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithAutoOrientation;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
-import frc.robot.commands.PulseLED;
 import frc.robot.commands.RainbowCycle;
-// import frc.robot.commands.RaiseElevatorWithController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.ShootByController;
-import frc.robot.subsystems.Subsystems;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
+import frc.robot.subsystems.Subsystems;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -132,6 +129,11 @@ public class RobotContainer {
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
 
+		new Trigger(() -> DriverStation.isTeleopEnabled())
+				.onTrue(Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.HYBRID)));
+		new Trigger(() -> DriverStation.isDisabled())
+				.onTrue(Commands.runOnce(() -> subsystems.shooter.disable()).ignoringDisable(true));
+		
 		manipulatorController.start().onTrue(
 				Commands.either(
 						Commands.runOnce(() -> {
