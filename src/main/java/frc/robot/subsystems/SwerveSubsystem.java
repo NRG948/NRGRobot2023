@@ -145,6 +145,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry tiltVelocityLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/tiltVelocity");
   private BooleanLogEntry poseEstimationEnabledLog = new BooleanLogEntry(DataLogManager.getLog(),
       "/SwerveSubsystem/poseEstimationEnabled");
+  private DoubleLogEntry poseXLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/Pose X");
+  private DoubleLogEntry poseYLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/Pose Y");
+  private DoubleLogEntry poseAngleLog = new DoubleLogEntry(DataLogManager.getLog(), "/SwerveSubsystem/Pose Angle");
 
   // Simulation support.
   private final boolean isSimulation;
@@ -527,6 +530,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     field.getObject("Swerve Modules").setPoses(modulePoses);
+
+    poseXLog.append(robotPose.getX());
+    poseYLog.append(robotPose.getY());
+    poseAngleLog.append(robotPose.getRotation().getDegrees());
   }
 
   @Override
