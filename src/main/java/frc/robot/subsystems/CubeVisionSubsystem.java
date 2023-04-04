@@ -14,8 +14,10 @@ import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -31,16 +33,27 @@ import frc.robot.Constants.RobotConstants;
  */
 @RobotPreferencesLayout(groupName = "CubeVision", row = 0, column = 4, width = 2, height = 1)
 public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
+  /**
+   *
+   */
+  private static final Transform3d TARGET_TO_ROBOT = new Transform3d(
+    new Translation3d(Units.inchesToMeters(-12.0), 0,0),
+    new Rotation3d()
+  );
+
   @RobotPreferencesValue
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "CubeVision", "Enable Tab", false);
 
   private DoubleLogEntry deltaXLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta X");
   private DoubleLogEntry deltaYLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Delta Y");
+  private DoubleLogEntry targetXLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Target X");
+  private DoubleLogEntry targetYLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Target Y");
+  private DoubleLogEntry targetAngleLogger = new DoubleLogEntry(DataLogManager.getLog(), "Cube/Target Angle");
 
   /** Creates a new PhotonVisionSubsystem. */
   public CubeVisionSubsystem() {
-    super("Front", RobotConstants.FRONT_CAMERA_TO_ROBOT, new Transform3d());
+    super("Front", RobotConstants.FRONT_CAMERA_TO_ROBOT, TARGET_TO_ROBOT);
   }
 
   /**
@@ -87,5 +100,8 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
         deltaYLogger.append(deltaY);
       }
     }
+    targetXLogger.append(targetPose.getX());
+    targetYLogger.append(targetPose.getY());
+    targetAngleLogger.append(Math.toRadians(targetPose.getRotation().getAngle()));
   }
 }
