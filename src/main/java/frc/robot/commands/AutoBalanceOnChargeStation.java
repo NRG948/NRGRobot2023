@@ -21,6 +21,7 @@ import frc.robot.subsystems.SwerveSubsystem;
  */
 @RobotPreferencesLayout(groupName = "Auto Balance", row = 0, column = 2, width = 2, height = 3)
 public class AutoBalanceOnChargeStation extends CommandBase {
+  private double SIN_45 = Math.sin(Math.toRadians(45));
   private static final String PREFERENCES_GROUP = "Auto Balance";
 
   @RobotPreferencesValue
@@ -32,20 +33,20 @@ public class AutoBalanceOnChargeStation extends CommandBase {
 
   /*
    * The PID constants were derived using the Zeigler-Nichols tuning method. We
-   * started with a kP of 0.7 and measured an oscillation period of 2.26733
+   * started with a kP of 0.07 and measured an oscillation period of 2.26733
    * seconds.
    */
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KP = new RobotPreferences.DoubleValue(
       PREFERENCES_GROUP, "KP", 0.042);
-  @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue ANGLE_KI = new RobotPreferences.DoubleValue(
-      PREFERENCES_GROUP, "KI", 0.037047927);
+  //@RobotPreferencesValue
+  //public static final RobotPreferences.DoubleValue ANGLE_KI = new RobotPreferences.DoubleValue(
+  //    PREFERENCES_GROUP, "KI", 0.037047927);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
       PREFERENCES_GROUP, "KD", 0.0119035);
 
-  private static final double TIME_AT_LEVEL = 0.2;
+  private static final double TIME_AT_LEVEL = 0.25;
 
   private final SwerveSubsystem drivetrain;
   private final Timer timer = new Timer();
@@ -83,7 +84,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   public void execute() {
     double measuredAngle = drivetrain.getTilt().getDegrees();
 
-    if (measuredAngle <= 2.0) {
+    if (Math.abs(measuredAngle) <= 2.0) {
       maxSpeed = this.drivetrain.getMaxSpeed() * MAX_SPEED_PERCENT.getValue();
     }
 
@@ -95,9 +96,17 @@ public class AutoBalanceOnChargeStation extends CommandBase {
       drivetrain.stopMotors();
       return;
     }
-
+    
+    double xSpeed, ySpeed;
+    if (Math.abs(measuredAngle) < 10) {
+      xSpeed = speed * SIN_45;
+      ySpeed = xSpeed;
+    } else {
+      xSpeed = speed;
+      ySpeed = 0;
+    }
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-        speed, 0.0, 0.0, drivetrain.getOrientation());
+        xSpeed, ySpeed, 0.0, drivetrain.getOrientation());
 
     drivetrain.setChassisSpeeds(chassisSpeeds, true);
   }
