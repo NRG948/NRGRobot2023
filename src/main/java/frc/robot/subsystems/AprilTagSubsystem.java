@@ -76,7 +76,7 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
           new Translation3d(
               getDistanceToBestTarget(),
               new Rotation3d(0, 0, Math.toRadians(-getAngleToBestTarget()))),
-          getCameraToRobotTransform().getRotation()).inverse();
+          new Rotation3d());
       Pose3d cameraPose = targetPose.transformBy(targetToCamera);
       Pose3d robotPose = cameraPose.transformBy(getCameraToRobotTransform());
 
