@@ -24,15 +24,15 @@
     },
     {
       "anchorPoint": {
-        "x": 7.066798255733917,
+        "x": 7.17,
         "y": 2.1621453929930765
       },
       "prevControl": {
-        "x": 6.339037286414448,
+        "x": 6.442239030680531,
         "y": 2.1621453929930765
       },
       "nextControl": {
-        "x": 6.339037286414448,
+        "x": 6.442239030680531,
         "y": 2.1621453929930765
       },
       "holonomicAngle": 0,
@@ -102,14 +102,14 @@
   ],
   "markers": [
     {
-      "position": 0.4,
+      "position": 0.5454545454545763,
       "names": [
         "IntakeGamePiece",
         "EnableCubePoseEstimation"
       ]
     },
     {
-      "position": 2.0,
+      "position": 2.5,
       "names": [
         "EnableAprilTagPoseEstimation"
       ]
