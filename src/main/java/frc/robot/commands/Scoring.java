@@ -109,8 +109,7 @@ public final class Scoring {
             Commands.runOnce(() -> intake.enable(),
                 intake)),
         Commands.waitUntil(() -> indexer.isCubeDetected()),
-        Commands.waitSeconds(0.1)
-        ).finallyDo((interrupted) -> {
+        Commands.waitSeconds(0.1)).finallyDo((interrupted) -> {
           intake.disable();
           indexer.disable();
         });
@@ -130,13 +129,13 @@ public final class Scoring {
         Commands.sequence(
             Commands.runOnce(() -> shooter.setGoalRPM(target),
                 shooter),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()),
+            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
             Commands.waitSeconds(0.75),
-            Commands.runOnce(() -> shooter.setGoalRPM(GoalShooterRPM.HYBRID), shooter)),
+            Commands.runOnce(() -> shooter.disable(), shooter)),
         Commands.sequence(
             Commands.waitSeconds(0.75),
             Commands.runOnce(() -> indexer.setShootRPM(), indexer),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()),
+            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
             Commands.runOnce(() -> indexer.disable(), indexer)));
   }
 
@@ -152,13 +151,10 @@ public final class Scoring {
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
         Commands.startEnd(() -> shooter.setGoalRPM(target),
-            () -> shooter.setGoalRPM(GoalShooterRPM.HYBRID),
+            () -> shooter.disable(),
             shooter),
         Commands.sequence(
-            Commands.either(
-              Commands.none(),
-              Commands.waitSeconds(0.75),
-              () -> shooter.getCurrentGoalRPM().equals(GoalShooterRPM.HYBRID)),
+            Commands.waitSeconds(0.75),
             Commands.startEnd(() -> indexer.setShootRPM(),
                 () -> indexer.disable(),
                 indexer)));

@@ -128,11 +128,6 @@ public class RobotContainer {
 				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
-
-		new Trigger(() -> DriverStation.isTeleopEnabled())
-				.onTrue(Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.HYBRID)));
-		new Trigger(() -> DriverStation.isDisabled())
-				.onTrue(Commands.runOnce(() -> subsystems.shooter.disable()).ignoringDisable(true));
 		
 		manipulatorController.start().onTrue(
 				Commands.either(
