@@ -153,11 +153,11 @@ public class ShooterSubsystem extends SubsystemBase {
   public void disable() {
     if (isEnabled) {
       enabledLogger.append(false);
+      goalRPMLogger.append(0);
     }
 
     isEnabled = false;
     stopMotor();
-    setGoalRPMInternal(GoalShooterRPM.STOP);
     topPIDController.reset();
     bottomPIDController.reset();
   }
