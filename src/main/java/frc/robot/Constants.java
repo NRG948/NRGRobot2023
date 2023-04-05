@@ -67,7 +67,7 @@ public final class Constants {
      */
     public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
         new Translation3d(Units.inchesToMeters(-6.5), Units.inchesToMeters(0), Units.inchesToMeters(-26)),
-        new Rotation3d(0, Math.toRadians(-60), 0));
+        new Rotation3d(0, Math.toRadians(25.0), 0));
 
     /**
      * A transform from the robot center to the front camera.
