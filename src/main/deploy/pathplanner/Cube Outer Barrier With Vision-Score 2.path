@@ -24,24 +24,26 @@
     },
     {
       "anchorPoint": {
-        "x": 6.8526234762393194,
-        "y": 4.37
+        "x": 7.081113236150113,
+        "y": 4.599340506560786
       },
       "prevControl": {
-        "x": 7.473086353928353,
-        "y": 4.365334865581286
+        "x": 5.744166809210954,
+        "y": 4.599340506560786
       },
       "nextControl": {
-        "x": 6.232160598550286,
-        "y": 4.374665134418715
+        "x": 5.744166809210954,
+        "y": 4.599340506560786
       },
-      "holonomicAngle": 0,
-      "isReversal": false,
+      "holonomicAngle": 0.0,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "DisablePoseEstimation"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -53,12 +55,12 @@
         "y": 4.8704003509340605
       },
       "prevControl": {
-        "x": 6.128186418746287,
-        "y": 4.923500056886441
+        "x": 5.959153169321774,
+        "y": 4.78073524790429
       },
       "nextControl": {
-        "x": 2.7374071199176315,
-        "y": 4.833079275584344
+        "x": 3.044063521729357,
+        "y": 4.924177785802138
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -91,7 +93,7 @@
         "names": [
           "ScoreGamePieceMid"
         ],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -99,9 +101,16 @@
   ],
   "markers": [
     {
-      "position": 0.45,
+      "position": 0.5,
       "names": [
+        "EnableCubePoseEstimation",
         "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 2.0,
+      "names": [
+        "EnableAprilTagPoseEstimation"
       ]
     }
   ]

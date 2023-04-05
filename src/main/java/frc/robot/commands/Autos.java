@@ -326,7 +326,7 @@ public final class Autos {
         new PIDConstants(1.0, 0, 0),
         new PIDConstants(1.0, 0, 0),
         drivetrain::setModuleStates,
-        getPathplannerEventMap(subsystems, pathGroup),
+        getPathplannerEventMap(subsystems, pathGroupName, pathGroup),
         true,
         drivetrain);
 
@@ -341,31 +341,52 @@ public final class Autos {
    * reached.
    * 
    * @param subsystems The subsystems container.
+   * @param pathGroupName The path group name.
+   * @param pathGroup The Pathplanner path group.
    * 
    * @return The map of event marker names to commands.
    */
   private static Map<String, Command> getPathplannerEventMap(
       Subsystems subsystems,
+      String pathGroupName,
       List<PathPlannerTrajectory> pathGroup) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
     AprilTagSubsystem aprilTag = subsystems.aprilTag;
     CubeVisionSubsystem cubeVision = subsystems.cubeVision;
 
-    // Find the vision target poses assuming they are relative to the end point of
-    // the first segment of the path group.
-    PathPlannerState endState = pathGroup.get(0).getEndState();
-    Pose3d endPose = new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
-    Pose3d aprilTagPose = endPose.transformBy(subsystems.aprilTag.getRobotToTargetTransform());
-    Pose3d cubePose = endPose.transformBy(subsystems.cubeVision.getRobotToTargetTransform());
+    Command enableAprilTagPoseEstimation = Commands.none();
+    Command enableCubePoseEstimation = Commands.none();
+
+    if (pathGroupName.contains("With Vision") && pathGroupName.endsWith("-Score 2")) {
+      // The pose of the cube can be determined from the robot pose at the end of the first path segment.
+      Pose3d cubePose = getRobotPose3d(pathGroup.get(0))
+          .transformBy(cubeVision.getRobotToTargetTransform());
+
+      enableCubePoseEstimation = estimatePose(drivetrain, cubeVision, cubePose);
+
+      // The pose of the AprilTag can be determined from the robot pose at the end of the second path segment.
+      if (pathGroup.size() >= 2) {
+        Pose3d aprilTagPose = getRobotPose3d(pathGroup.get(1))
+            .transformBy(aprilTag.getRobotToTargetTransform());
+
+        enableAprilTagPoseEstimation = estimatePose(drivetrain, aprilTag, aprilTagPose);
+      }
+    }
 
     return Map.of(
         "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
         "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
         "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
         "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
-        "EnableAprilTagPoseEstimation", estimatePose(drivetrain, aprilTag, aprilTagPose).withTimeout(3),
-        "EnableCubePoseEstimation", estimatePose(drivetrain, cubeVision, cubePose).withTimeout(3),
+        "EnableAprilTagPoseEstimation", enableAprilTagPoseEstimation.withTimeout(3),
+        "EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3),
         "DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));
+  }
+
+  public static Pose3d getRobotPose3d(PathPlannerTrajectory path) {
+    PathPlannerState endState = path.getEndState();
+
+    return new Pose3d(new Pose2d(endState.poseMeters.getTranslation(), endState.holonomicRotation));
   }
 
   /**

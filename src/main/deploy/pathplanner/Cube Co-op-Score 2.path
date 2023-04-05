@@ -94,7 +94,7 @@
           "ScoreGamePieceMid",
           "DisablePoseEstimation"
         ],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -104,14 +104,7 @@
     {
       "position": 0.5454545454545763,
       "names": [
-        "IntakeGamePiece",
-        "EnableCubePoseEstimation"
-      ]
-    },
-    {
-      "position": 2.5,
-      "names": [
-        "EnableAprilTagPoseEstimation"
+        "IntakeGamePiece"
       ]
     }
   ]
