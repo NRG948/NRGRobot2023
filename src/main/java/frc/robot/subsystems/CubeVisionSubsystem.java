@@ -100,6 +100,7 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
         deltaYLogger.append(deltaY);
       }
     }
+    
     targetXLogger.append(targetPose.getX());
     targetYLogger.append(targetPose.getY());
     targetAngleLogger.append(Math.toRadians(targetPose.getRotation().getAngle()));

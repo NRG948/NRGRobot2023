@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -40,7 +42,11 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
   public static final RobotPreferences.BooleanValue enableTab = new RobotPreferences.BooleanValue(
       "AprilTag", "Enable Tab", false);
 
-  /** Creates a new PhotonVisionSubsystem. */
+  private DoubleLogEntry targetXLogger = new DoubleLogEntry(DataLogManager.getLog(), "AprilTag/Target X");
+  private DoubleLogEntry targetYLogger = new DoubleLogEntry(DataLogManager.getLog(), "AprilTag/Target Y");
+  private DoubleLogEntry targetAngleLogger = new DoubleLogEntry(DataLogManager.getLog(), "AprilTag/Target Angle");
+
+      /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
     super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT, TAG_TO_ROBOT);
   }
@@ -82,5 +88,9 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
 
       estimator.addVisionMeasurement(robotPose.toPose2d(), getTargetTimestamp());
     }
+
+    targetXLogger.append(targetPose.getX());
+    targetYLogger.append(targetPose.getY());
+    targetAngleLogger.append(Math.toRadians(targetPose.getRotation().getAngle()));
   }
 }
