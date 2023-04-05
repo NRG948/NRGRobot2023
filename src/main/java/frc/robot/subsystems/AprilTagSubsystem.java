@@ -46,7 +46,7 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
   private DoubleLogEntry targetYLogger = new DoubleLogEntry(DataLogManager.getLog(), "AprilTag/Target Y");
   private DoubleLogEntry targetAngleLogger = new DoubleLogEntry(DataLogManager.getLog(), "AprilTag/Target Angle");
 
-      /** Creates a new PhotonVisionSubsystem. */
+  /** Creates a new PhotonVisionSubsystem. */
   public AprilTagSubsystem() {
     super("Back", RobotConstants.BACK_CAMERA_TO_ROBOT, TAG_TO_ROBOT);
   }
@@ -81,9 +81,9 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
       Transform3d cameraToRobot = getCameraToRobotTransform();
       Transform3d targetToCamera = new Transform3d(
           new Translation3d(
-              -getDistanceToBestTarget(),
+              getDistanceToBestTarget(),
               new Rotation3d(0, 0, Math.toRadians(-getAngleToBestTarget()))),
-              cameraToRobot.getRotation());
+          cameraToRobot.getRotation()).inverse();
       Pose3d cameraPose = targetPose.transformBy(targetToCamera);
       Pose3d robotPose = cameraPose.transformBy(cameraToRobot);
 
