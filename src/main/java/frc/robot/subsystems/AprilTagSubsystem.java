@@ -78,13 +78,14 @@ public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
   @Override
   public void updatePoseEstimate(SwerveDrivePoseEstimator estimator, Pose3d targetPose) {
     if (hasTargets()) {
+      Transform3d cameraToRobot = getCameraToRobotTransform();
       Transform3d targetToCamera = new Transform3d(
           new Translation3d(
-              getDistanceToBestTarget(),
+              -getDistanceToBestTarget(),
               new Rotation3d(0, 0, Math.toRadians(-getAngleToBestTarget()))),
-          new Rotation3d());
+              cameraToRobot.getRotation());
       Pose3d cameraPose = targetPose.transformBy(targetToCamera);
-      Pose3d robotPose = cameraPose.transformBy(getCameraToRobotTransform());
+      Pose3d robotPose = cameraPose.transformBy(cameraToRobot);
 
       estimator.addVisionMeasurement(robotPose.toPose2d(), getTargetTimestamp());
     }
