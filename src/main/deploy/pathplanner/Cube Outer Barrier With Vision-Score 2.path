@@ -103,7 +103,6 @@
     {
       "position": 0.5,
       "names": [
-        "EnableCubePoseEstimation",
         "IntakeGamePiece"
       ]
     },
@@ -111,6 +110,12 @@
       "position": 2.0,
       "names": [
         "EnableAprilTagPoseEstimation"
+      ]
+    },
+    {
+      "position": 0.1,
+      "names": [
+        "EnableCubePoseEstimation"
       ]
     }
   ]

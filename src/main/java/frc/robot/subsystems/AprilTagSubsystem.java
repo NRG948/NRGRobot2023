@@ -35,7 +35,7 @@ import frc.robot.Constants.RobotConstants;
 public class AprilTagSubsystem extends PhotonVisionSubsystemBase {
 
   private static final Transform3d TAG_TO_ROBOT = new Transform3d(
-      new Translation3d(Units.inchesToMeters(33), 0, 0),
+      new Translation3d(Units.inchesToMeters(35), 0, 0),
       new Rotation3d(0, 0, 0));
 
   @RobotPreferencesValue

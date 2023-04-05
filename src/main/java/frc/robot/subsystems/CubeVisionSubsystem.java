@@ -37,7 +37,7 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
    *
    */
   private static final Transform3d TARGET_TO_ROBOT = new Transform3d(
-    new Translation3d(Units.inchesToMeters(-12.0), 0,0),
+    new Translation3d(Units.inchesToMeters(0), 0,0),
     new Rotation3d()
   );
 
