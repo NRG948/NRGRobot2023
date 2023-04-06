@@ -118,7 +118,7 @@ public class RobotContainer {
 		driveController.leftBumper().whileTrue(Commands.sequence(
 				Commands.waitUntil(() -> subsystems.cubeVision.hasTargets()),
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
-		driveController.leftStick().onTrue(Commands.runOnce(() -> new RainbowCycle(subsystems.leds)));
+		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
 
 		// manipulatorController.b();
 		// manipulatorController.a().onTrue();
