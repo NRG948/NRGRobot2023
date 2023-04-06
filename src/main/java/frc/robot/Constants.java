@@ -103,6 +103,11 @@ public final class Constants {
      * The offset from the center of the grid to side scoring position.
      */
     public static final double GRID_SIDE_OFFSET = Units.inchesToMeters(22);
+
+    /**
+     * The number of LEDs on the addressable LED string.
+     */
+    public static final int LED_COUNT = 63;
   }
 
   /**

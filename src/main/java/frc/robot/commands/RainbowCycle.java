@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ColorConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.AdressableLEDSubsystem;
 
 public class RainbowCycle extends CommandBase {
@@ -32,7 +33,7 @@ public class RainbowCycle extends CommandBase {
   @Override
   public void execute() {
     int firstPixelHue = step++ * 3;
-    for (int i = 0; i < 21; i++) {
+    for (int i = 0; i < RobotConstants.LED_COUNT; i++) {
       Color8Bit color = new Color8Bit(Color.fromHSV((firstPixelHue + ((180 * (i + 1))/21)) % 180, 255, 255));
       led.setColor(color, i);
     }

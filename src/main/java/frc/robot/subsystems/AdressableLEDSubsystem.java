@@ -9,12 +9,13 @@ import static frc.robot.Constants.ColorConstants.*;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.AddressableLEDs;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.PWMPort;
 
 
 public class AdressableLEDSubsystem extends SubsystemBase {
   private boolean isYellow = false;
-  private AddressableLEDs leds = new AddressableLEDs(PWMPort.LED, 51);
+  private AddressableLEDs leds = new AddressableLEDs(PWMPort.LED, RobotConstants.LED_COUNT);
   /** Creates a new AdressableLEDs. */
   public AdressableLEDSubsystem() {
     leds.start();
