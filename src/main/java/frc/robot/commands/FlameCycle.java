@@ -4,11 +4,10 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ColorConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.AdressableLEDSubsystem;
 
 public class FlameCycle extends CommandBase {
@@ -38,13 +37,15 @@ public class FlameCycle extends CommandBase {
   @Override
   public void execute() {
     double multiplier = Math.abs(Math.sin(step++ * Math.toRadians(6)));
-    Color8Bit color0 = new Color8Bit((int) (redDiff * multiplier + ColorConstants.RED.red),
-        (int) (greenDiff * multiplier * ColorConstants.RED.green),
-        (int) (blueDiff * multiplier * ColorConstants.RED.blue));
-    Color8Bit color1 = new Color8Bit((int) (redDiff * multiplier + ColorConstants.YELLOW.red),
-        (int) (greenDiff * multiplier * ColorConstants.YELLOW.green),
-        (int) (blueDiff * multiplier * ColorConstants.YELLOW.blue));
-    for (int i = 0; i < 63; i++) {
+    Color8Bit color0 = new Color8Bit(
+        (int) (-(redDiff * multiplier) + ColorConstants.RED.red),
+        (int) (-(greenDiff * multiplier) + ColorConstants.RED.green),
+        (int) (-(blueDiff * multiplier) + ColorConstants.RED.blue));
+    Color8Bit color1 = new Color8Bit(
+        (int) (redDiff * multiplier + ColorConstants.YELLOW.red),
+        (int) (greenDiff * multiplier + ColorConstants.YELLOW.green),
+        (int) (blueDiff * multiplier + ColorConstants.YELLOW.blue));
+    for (int i = 0; i < RobotConstants.LED_COUNT; i++) {
       Color8Bit color = (i % 2) == 0 ? color0 : color1;
       led.setColor(color, i);
     }

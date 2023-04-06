@@ -123,6 +123,7 @@ public class RobotContainer {
 				Commands.waitUntil(() -> subsystems.cubeVision.hasTargets()),
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
 		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
+		driveController.rightStick().onTrue(new FlameCycle(subsystems.leds));
 
 		// manipulatorController.b();
 		// manipulatorController.a().onTrue();
