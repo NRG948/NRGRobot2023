@@ -315,7 +315,7 @@ public final class Autos {
    */
   public static Pair<Command, Pose2d> getPathplannerCommand(Subsystems subsystems, String pathGroupName) {
     SwerveSubsystem drivetrain = subsystems.drivetrain;
-    boolean isOuterPath = pathGroupName.contains("Outer");
+    boolean isOuterPath = pathGroupName.contains("Outer") && !pathGroupName.contains("Wall");
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
         pathGroupName,
         new PathConstraints(getAutoSpeed(drivetrain, isOuterPath), getAutoAcceleration(drivetrain)));
