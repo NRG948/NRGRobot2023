@@ -154,9 +154,9 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
   }
 
   /**
-   * Returns the angle to the best target.
+   * Returns the angle to the best target in degrees.
    * 
-   * @return The angle to the best target.
+   * @return The angle to the best target in degrees.
    */
   public double getAngleToBestTarget() {
     if (!hasTargets()) {
@@ -165,6 +165,20 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
 
     return getBestTarget().getYaw();
   }
+
+  /**
+   * Returns the pitch to the best target in degrees.
+   * 
+   * @return
+   */
+  public double getPitchToBestTarget() {
+    if (!hasTargets()) {
+      return 0;
+    }
+
+    return getBestTarget().getPitch();
+  }
+
 
   /**
    * Returns the estimated time, in seconds, the target was detected.

@@ -63,16 +63,20 @@ public final class Constants {
     }
 
     /**
-     * A transform from the front camera to the center of the robot.
-     */
-    public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-6.5), Units.inchesToMeters(0), Units.inchesToMeters(-26)),
-        new Rotation3d(0, Math.toRadians(25.0), 0));
-
-    /**
      * A transform from the robot center to the front camera.
      */
-    public static final Transform3d ROBOT_TO_FRONT_CAMERA = FRONT_CAMERA_TO_ROBOT.inverse();
+    public static final double FRONT_CAMERA_PITCH = Math.toRadians(-25);
+    public static final double FRONT_CAMERA_X = Units.inchesToMeters(6.5);
+    public static final double FRONT_CAMERA_Y = Units.inchesToMeters(0);
+    public static final double FRONT_CAMERA_Z = Units.inchesToMeters(26);
+    public static final Transform3d ROBOT_TO_FRONT_CAMERA = new Transform3d(
+      new Translation3d(FRONT_CAMERA_X, FRONT_CAMERA_Y, FRONT_CAMERA_Z),
+      new Rotation3d(0, FRONT_CAMERA_PITCH, 0));
+
+    /**
+     * A transform from the front camera to the center of the robot.
+     */
+    public static final Transform3d FRONT_CAMERA_TO_ROBOT = ROBOT_TO_FRONT_CAMERA.inverse();
 
     /**
      * A transform from the back camera to the center of the robot.
