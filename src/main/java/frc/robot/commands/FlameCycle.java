@@ -36,7 +36,7 @@ public class FlameCycle extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double multiplier = Math.abs(Math.sin(step++ * Math.toRadians(6)));
+    double multiplier = Math.sin(step++ * Math.toRadians(6))*0.5 +.5;
     Color8Bit color0 = new Color8Bit(
         (int) (-(redDiff * multiplier) + ColorConstants.RED.red),
         (int) (-(greenDiff * multiplier) + ColorConstants.RED.green),
