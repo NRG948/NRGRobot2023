@@ -46,7 +46,7 @@ public class FlameCycle extends CommandBase {
         (int) (greenDiff * multiplier + ColorConstants.YELLOW.green),
         (int) (blueDiff * multiplier + ColorConstants.YELLOW.blue));
     for (int i = 0; i < RobotConstants.LED_COUNT; i++) {
-      Color8Bit color = (i % 2) == 0 ? color0 : color1;
+      Color8Bit color = ((i / 3) % 2) == 0 ? color0 : color1;
       led.setColor(color, i);
     }
     led.commitColor();
