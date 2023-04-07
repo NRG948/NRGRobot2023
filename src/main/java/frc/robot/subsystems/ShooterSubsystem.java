@@ -40,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid RPM", 300);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 800);
+  public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 840);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1225);
   @RobotPreferencesValue
