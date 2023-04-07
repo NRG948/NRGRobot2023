@@ -24,19 +24,19 @@
     },
     {
       "anchorPoint": {
-        "x": 6.844287919345071,
-        "y": 0.944222465368008
+        "x": 7.0,
+        "y": 0.83
       },
       "prevControl": {
-        "x": 5.498537714979977,
-        "y": 1.0925000800736915
+        "x": 6.210074002625558,
+        "y": 0.83
       },
       "nextControl": {
-        "x": 8.201485324788077,
-        "y": 0.7946835737437823
+        "x": 6.210074002625558,
+        "y": 0.83
       },
       "holonomicAngle": 0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": true,
@@ -50,15 +50,15 @@
     {
       "anchorPoint": {
         "x": 3.915369357456272,
-        "y": 0.6833195345780007
+        "y": 0.6
       },
       "prevControl": {
-        "x": 4.7107686429921145,
-        "y": 0.8872130373462269
+        "x": 4.736486026329841,
+        "y": 0.5999999999999999
       },
       "nextControl": {
-        "x": 3.279366366425042,
-        "y": 0.5202858482640057
+        "x": 3.2588026910210948,
+        "y": 0.6000000000000001
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -75,48 +75,23 @@
     {
       "anchorPoint": {
         "x": 1.89,
-        "y": 1.12
+        "y": 1.04
       },
       "prevControl": {
         "x": 2.3967638687247197,
-        "y": 1.12
-      },
-      "nextControl": {
-        "x": 1.8414658994034077,
-        "y": 1.12
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "ScoreGamePieceMid"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.2,
-        "y": 1.94
-      },
-      "prevControl": {
-        "x": 2.0003067892256783,
-        "y": 1.9495092005130636
+        "y": 1.04
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "ScoreGamePieceMid"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
