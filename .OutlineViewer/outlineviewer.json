@@ -1,16 +1,43 @@
 {
-  "Connections": {
+  "Clients": {
     "open": true
   },
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
-    "serverTeam": "948"
+    "serverTeam": "10.9.48.2"
+  },
+  "Server": {
+    "open": true
   },
   "transitory": {
     "Shuffleboard": {
-      "open": true
-    },
-    "SmartDashboard": {
+      "Drive": {
+        "Back Left": {
+          "Rotation": {
+            "open": true
+          },
+          "open": true
+        },
+        "Back Right": {
+          "Rotation": {
+            "open": true
+          },
+          "open": true
+        },
+        "Front Left": {
+          "Rotation": {
+            "open": true
+          },
+          "open": true
+        },
+        "Front Right": {
+          "Rotation": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
       "open": true
     },
     "photonvision": {
@@ -18,7 +45,7 @@
         "open": true
       },
       "Front": {
-        "open": true
+        "open": false
       }
     }
   }
