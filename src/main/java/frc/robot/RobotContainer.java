@@ -30,6 +30,7 @@ import frc.robot.Constants.ColorConstants;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
+import frc.robot.commands.BrownPulse;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveWithAutoOrientation;
 import frc.robot.commands.DriveWithController;
@@ -123,7 +124,7 @@ public class RobotContainer {
 				Commands.waitUntil(() -> subsystems.cubeVision.hasTargets()),
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
 		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
-		driveController.rightStick().onTrue(new FlameCycle(subsystems.leds));
+		driveController.rightStick().onTrue(new BrownPulse(subsystems.leds));
 
 		// manipulatorController.b();
 		// manipulatorController.a().onTrue();
