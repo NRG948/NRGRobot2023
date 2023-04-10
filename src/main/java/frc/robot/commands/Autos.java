@@ -84,7 +84,7 @@ public final class Autos {
    * corrections.
    */
   private static final double OUTER_SPEED_PERCENT = 0.8;
-  private static final double COOP_SPEED_PERCENT = 0.5;
+  private static final double COOP_SPEED_PERCENT = 0.55;
 
   private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
   private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
