@@ -109,7 +109,7 @@ public final class Scoring {
             Commands.runOnce(() -> intake.enable(),
                 intake)),
         Commands.waitUntil(() -> indexer.isCubeDetected()),
-        Commands.waitSeconds(0.1)).finallyDo((interrupted) -> {
+        Commands.waitSeconds(0.20)).finallyDo((interrupted) -> {
           intake.disable();
           indexer.disable();
         });
@@ -135,7 +135,7 @@ public final class Scoring {
         Commands.sequence(
             Commands.waitSeconds(0.75),
             Commands.runOnce(() -> indexer.setShootRPM(), indexer),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
+            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), //potentially change to 0.6
             Commands.runOnce(() -> indexer.disable(), indexer)));
   }
 
