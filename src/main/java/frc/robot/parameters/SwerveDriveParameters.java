@@ -6,6 +6,8 @@ package frc.robot.parameters;
 
 import static frc.robot.parameters.MotorParameters.Falcon500;
 import static frc.robot.parameters.SwerveModuleParameters.MK4Standard;
+import static frc.robot.parameters.SwerveModuleParameters.MK4Fast;
+
 
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesValue;
@@ -61,7 +63,7 @@ public enum SwerveDriveParameters {
       52.62, // TODO: Re-weigh the robot after each change is made.
       Units.inchesToMeters(24.5),
       Units.inchesToMeters(22.5),
-      MK4Standard,
+      MK4Fast,
       Falcon500,
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
       new int[] { 1, 2, 4, 3 },
@@ -76,7 +78,7 @@ public enum SwerveDriveParameters {
       52.62,
       Units.inchesToMeters(23.5),
       Units.inchesToMeters(21.625),
-      MK4Standard,
+      MK4Fast,
       Falcon500,
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
       new int[] { 1, 2, 4, 3 },
