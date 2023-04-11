@@ -32,6 +32,7 @@ import frc.robot.Constants.OperatorConstants.XboxControllerPort;
 import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
 import frc.robot.commands.BrownPulse;
+import frc.robot.commands.DriveAndAutoRotate;
 import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveAndOrientToCube;
 import frc.robot.commands.DriveWithController;
@@ -126,10 +127,11 @@ public class RobotContainer {
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
 		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
 		driveController.rightStick().onTrue(new BrownPulse(subsystems.leds));
-
-		// manipulatorController.b();
-		// manipulatorController.a().onTrue();
-		// manipulatorController.y().onTrue();
+		
+		driveController.a().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(180)));
+		driveController.b().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(-90)));
+		driveController.x().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(90)));
+		driveController.y().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
