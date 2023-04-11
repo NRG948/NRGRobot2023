@@ -16,6 +16,8 @@ import frc.robot.Constants.RobotConstants.PWMPort;
 public class AdressableLEDSubsystem extends SubsystemBase {
   private boolean isYellow = false;
   private AddressableLEDs leds = new AddressableLEDs(PWMPort.LED, RobotConstants.LED_COUNT);
+  private boolean enabled;
+
   /** Creates a new AdressableLEDs. */
   public AdressableLEDSubsystem() {
     leds.start();
@@ -52,6 +54,20 @@ public class AdressableLEDSubsystem extends SubsystemBase {
   public void fillAndCommitColor(Color8Bit color) {
     leds.setColor(color);
     commitColor();
+  }
+
+  public void stop() {
+    leds.stop();
+    enabled = false;
+  }
+
+  public void start() {
+    leds.start();
+    enabled = true;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
   }
 
   @Override

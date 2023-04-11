@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.CubeVisionSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class DriveWithAutoOrientation extends CommandBase {
+public class DriveAndOrientToCube extends CommandBase {
   public static final double DEADBAND = 0.1;
 
   private final SwerveSubsystem drivetrain;
@@ -21,7 +21,7 @@ public class DriveWithAutoOrientation extends CommandBase {
   private ProfiledPIDController controller;
 
   /** Creates a new DriveWithAutoOrientation. */
-  public DriveWithAutoOrientation(SwerveSubsystem drivetrain, CubeVisionSubsystem vision,
+  public DriveAndOrientToCube(SwerveSubsystem drivetrain, CubeVisionSubsystem vision,
       CommandXboxController driveController) {
     this.drivetrain = drivetrain;
     this.vision = vision;

@@ -11,6 +11,7 @@ import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -32,7 +33,7 @@ import frc.robot.commands.AutoBalanceOnChargeStation;
 import frc.robot.commands.Autos;
 import frc.robot.commands.BrownPulse;
 import frc.robot.commands.DriveStraight;
-import frc.robot.commands.DriveWithAutoOrientation;
+import frc.robot.commands.DriveAndOrientToCube;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.FlameCycle;
 import frc.robot.commands.IndexByController;
@@ -114,7 +115,7 @@ public class RobotContainer {
 		driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
 				.andThen(new RainbowCycle(subsystems.leds)));
 
-		driveController.rightBumper().whileTrue(new DriveWithAutoOrientation(subsystems.drivetrain, subsystems.cubeVision, driveController));
+		driveController.rightBumper().whileTrue(new DriveAndOrientToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
 
 		// TODO: Once we're done with testing the autonomous motion commands, change
 		// this to call resetOrientation().
@@ -134,6 +135,11 @@ public class RobotContainer {
 				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
+		new Trigger(() -> HALUtil.getFPGAButton())
+			.onTrue(Commands.either(
+				Commands.runOnce(() -> subsystems.leds.start()),
+				Commands.runOnce(() -> subsystems.leds.stop()),
+				() -> subsystems.leds.isEnabled()));
 		
 		manipulatorController.start().onTrue(
 				Commands.either(
