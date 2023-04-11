@@ -127,7 +127,7 @@ public class RobotContainer {
 				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
 		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
 		driveController.rightStick().onTrue(new BrownPulse(subsystems.leds));
-		
+
 		driveController.a().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(180)));
 		driveController.b().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(-90)));
 		driveController.x().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(90)));
@@ -139,9 +139,9 @@ public class RobotContainer {
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
 		new Trigger(() -> HALUtil.getFPGAButton())
 			.onTrue(Commands.either(
-				Commands.runOnce(() -> subsystems.leds.start()),
 				Commands.runOnce(() -> subsystems.leds.stop()),
-				() -> subsystems.leds.isEnabled()));
+				Commands.runOnce(() -> subsystems.leds.start()),
+				() -> subsystems.leds.isEnabled()).ignoringDisable(true));
 		
 		manipulatorController.start().onTrue(
 				Commands.either(
@@ -166,8 +166,8 @@ public class RobotContainer {
 		manipulatorController.a().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID));
 		manipulatorController.y().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HIGH));
-		manipulatorController.x().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION
-		));
+		manipulatorController.x().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
+		manipulatorController.leftBumper().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID_EDGE_COMMUNITY));
 		manipulatorController.rightBumper().whileTrue(Scoring.intakeGamePiece(subsystems));
 
 	}

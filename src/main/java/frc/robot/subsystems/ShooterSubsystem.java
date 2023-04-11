@@ -42,9 +42,11 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MID_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid RPM", 840);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1225);
+  public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1230);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1800);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue HYBRID_EDGE_COMMUNITY_RPM = new RobotPreferences.DoubleValue("Shooter", "Hybrid Edge Community RPM", 1950);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Backspin", 1);
   @RobotPreferencesValue
@@ -53,6 +55,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.5);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.5);
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue HYBRID_COMMUNITY_EDGE_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Hybrid Edge Community Backspin", 1.5);
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
@@ -60,7 +64,8 @@ public class ShooterSubsystem extends SubsystemBase {
     HYBRID(HYBRID_RPM, HYBRID_BACKSPIN_FACTOR),
     MID(MID_RPM, MID_BACKSPIN_FACTOR),
     HIGH(HIGH_RPM, HIGH_BACKSPIN_FACTOR),
-    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM, MID_CHARGE_STATION_BACKSPIN_FACTOR);
+    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM, MID_CHARGE_STATION_BACKSPIN_FACTOR),
+    HYBRID_EDGE_COMMUNITY(HYBRID_EDGE_COMMUNITY_RPM, HYBRID_COMMUNITY_EDGE_BACKSPIN_FACTOR);
 
     private final RobotPreferences.DoubleValue rpm;
     private final RobotPreferences.DoubleValue backspinFactor;
@@ -160,6 +165,7 @@ public class ShooterSubsystem extends SubsystemBase {
     stopMotor();
     topPIDController.reset();
     bottomPIDController.reset();
+    currentGoalRPM = GoalShooterRPM.STOP;
   }
 
   /**
