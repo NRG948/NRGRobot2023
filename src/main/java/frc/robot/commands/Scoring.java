@@ -125,18 +125,26 @@ public final class Scoring {
   public static Command shootToTarget(Subsystems subsystems, ShooterSubsystem.GoalShooterRPM target) {
     ShooterSubsystem shooter = subsystems.shooter;
     IndexerSubsystem indexer = subsystems.indexer;
-    return Commands.parallel(
+    return Commands.either(
         Commands.sequence(
-            Commands.runOnce(() -> shooter.setGoalRPM(target),
-                shooter),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
-            Commands.waitSeconds(0.75),
-            Commands.runOnce(() -> shooter.disable(), shooter)),
-        Commands.sequence(
-            Commands.waitSeconds(0.75),
             Commands.runOnce(() -> indexer.setShootRPM(), indexer),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), //potentially change to 0.6
-            Commands.runOnce(() -> indexer.disable(), indexer)));
+            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
+            Commands.runOnce(() -> indexer.disable(), indexer),
+            Commands.waitSeconds(0.5),
+            Commands.runOnce(() -> shooter.disable(), shooter)),
+        Commands.parallel(
+            Commands.sequence(
+                Commands.runOnce(() -> shooter.setGoalRPM(target),
+                    shooter),
+                Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> shooter.disable(), shooter)),
+            Commands.sequence(
+                Commands.waitSeconds(0.75),
+                Commands.runOnce(() -> indexer.setShootRPM(), indexer),
+                Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
+                Commands.runOnce(() -> indexer.disable(), indexer))),
+        () -> shooter.getCurrentGoalRPM() == target);
   }
 
   /**

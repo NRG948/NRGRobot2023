@@ -42,11 +42,11 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "DisablePoseEstimation"
+          "IntakeGamePiece"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "deadline",
+        "waitTime": 1.0
       }
     },
     {
@@ -105,6 +105,12 @@
       "position": 0.5454545454545763,
       "names": [
         "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 2.0,
+      "names": [
+        "SetMidRPM"
       ]
     }
   ]

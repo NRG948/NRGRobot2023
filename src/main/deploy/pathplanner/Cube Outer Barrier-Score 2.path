@@ -81,6 +81,33 @@
         "x": 2.522810936656762,
         "y": 4.394556640225177
       },
+      "nextControl": {
+        "x": 2.522810936656762,
+        "y": 4.394556640225177
+      },
+      "holonomicAngle": 0,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "ScoreGamePieceMid"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.2937603127114654,
+        "y": 3.4573928689842117
+      },
+      "prevControl": {
+        "x": 2.191772322475943,
+        "y": 3.6817664475023615
+      },
       "nextControl": null,
       "holonomicAngle": 0,
       "isReversal": false,
@@ -88,10 +115,8 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "ScoreGamePieceMid"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -102,6 +127,12 @@
       "position": 0.3,
       "names": [
         "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 2.0,
+      "names": [
+        "SetMidRPM"
       ]
     }
   ]

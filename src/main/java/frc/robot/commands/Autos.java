@@ -375,12 +375,14 @@ public final class Autos {
 
     return Map.of(
         "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
+        "WaitForGamePiece", Commands.waitUntil(subsystems.indexer::isCubeDetected).withTimeout(1),
         "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
         "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
         "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
         "EnableAprilTagPoseEstimation", enableAprilTagPoseEstimation.withTimeout(3),
         "EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3),
-        "DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));
+        "DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()),
+        "SetMidRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.MID)));
   }
 
   public static Pose3d getRobotPose3d(PathPlannerTrajectory path) {
