@@ -61,8 +61,8 @@ public enum SwerveDriveParameters {
    */
   Competition2023(
       52.62, // TODO: Re-weigh the robot after each change is made.
-      Units.inchesToMeters(24.5),
-      Units.inchesToMeters(22.5),
+      Units.inchesToMeters(23.5),
+      Units.inchesToMeters(21.625),
       MK4Fast,
       Falcon500,
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
@@ -76,14 +76,14 @@ public enum SwerveDriveParameters {
    */
   Competition2023Characterized(
       52.62,
-      Units.inchesToMeters(23.5), //TODO: re-measure
-      Units.inchesToMeters(21.625), //TODO: re-measure
+      Units.inchesToMeters(23.5),
+      Units.inchesToMeters(21.625),
       MK4Fast,
       Falcon500,
       new int[] { 2, 3, 4, 5, 8, 9, 6, 7 },
       new int[] { 1, 2, 4, 3 },
-      new FeedforwardConstants(0.23701, 4.068, 0.18156), //TODO: re-characterize
-      new FeedforwardConstants(0.904885, 0.0373245, 0.0032705)); //TODO: re-characterize
+      new FeedforwardConstants(0.1799, 3.0602, 0.3206),
+      new FeedforwardConstants(0.8974075, 0.03768975, 0.00282645)); 
 
   public static class Constants {
     /**
