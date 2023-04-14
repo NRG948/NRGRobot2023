@@ -20,39 +20,49 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final CANSparkMax motor = new CANSparkMax(CAN.SparkMax.INTAKE, MotorType.kBrushless);
   private boolean isEnabled = false;
+  private double motorPower;
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
     motor.setIdleMode(IdleMode.kBrake);
   }
-
-  @Override
-  public void periodic() {
-    if (isEnabled) {
-      motor.set(INTAKE_POWER);
-    }
-  }
-
+  
   public void runMotor(double power) {
     motor.set(power);
   }
-
+  
   public void stopMotor() {
     motor.stopMotor();
   }
-
+  
   /**
-   * Enable the intake.
+   * Enable the intake upward.
    */
-  public void enable() {
+  public void up() {
     isEnabled = true;
+    motorPower = INTAKE_POWER;
   }
-
+  
+  /**
+   * Enable the intake downward.
+   */
+  public void down() {
+    isEnabled = true;
+    motorPower = -INTAKE_POWER;
+  }
+  
   /**
    * Disable the intake.
    */
   public void disable() {
     isEnabled = false;
     stopMotor();
+  }
+
+  @Override
+  public void periodic() {
+    if (isEnabled) {
+      runMotor(motorPower);
+    }
   }
 }

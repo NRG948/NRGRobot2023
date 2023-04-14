@@ -375,8 +375,8 @@ public final class Autos {
     }
 
     Map<String, Command> eventMaps = new HashMap<String,Command>();
-    
-    eventMaps.put("IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3));
+
+    eventMaps.put("IntakeGamePiece", Scoring.intake(subsystems).withTimeout(3));
     eventMaps.put("WaitForGamePiece", Commands.waitUntil(subsystems.indexer::isCubeDetected).withTimeout(1));
     eventMaps.put("ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3));
     eventMaps.put("ScoreGamePieceFarHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.FAR_HYBRID).withTimeout(3));

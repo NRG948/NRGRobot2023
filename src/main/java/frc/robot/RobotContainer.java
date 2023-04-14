@@ -148,12 +148,14 @@ public class RobotContainer {
 						() -> enableManualControl = !enableManualControl));
 		manipulatorController.leftStick().onTrue(
 				Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
-		manipulatorController.a().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID));
-		manipulatorController.b().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID));
-		manipulatorController.y().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HIGH));
-		manipulatorController.x().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
-		manipulatorController.leftBumper().whileTrue(Scoring.manualShootToTarget(subsystems, GoalShooterRPM.HYBRID_EDGE_COMMUNITY));
-		manipulatorController.rightBumper().whileTrue(Scoring.intakeGamePiece(subsystems));
+		manipulatorController.povUp().whileTrue(Commands.runOnce(() -> subsystems.indexer.feed(), subsystems.indexer));
+		manipulatorController.povDown().whileTrue(Scoring.outake(subsystems));
+		manipulatorController.a().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HYBRID));
+		manipulatorController.b().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID));
+		manipulatorController.y().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HIGH));
+		manipulatorController.x().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
+		manipulatorController.leftBumper().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.FAR_HYBRID));
+		manipulatorController.rightBumper().whileTrue(Scoring.intake(subsystems));
 
 	}
 
