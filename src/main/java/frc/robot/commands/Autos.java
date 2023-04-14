@@ -58,7 +58,7 @@ public final class Autos {
   private static final Rotation2d ORIENT_ZERO_DEGREES = new Rotation2d(0);
   private static final Rotation2d ORIENT_90_DEGREES = Rotation2d.fromDegrees(90);
 
-  public static final int MAX_GAME_PIECES_TO_SCORE = 2;
+  public static final int MAX_GAME_PIECES_TO_SCORE = 4;
 
   private static final double FIELD_WIDTH_METERS = 8.02; // meters
 
