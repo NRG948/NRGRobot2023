@@ -101,21 +101,6 @@ public class RobotContainer {
 	 */
 	private void configureCommandBindings() {
 
-		driveController.a().onTrue(
-				new DriveStraight(subsystems.drivetrain, new Translation2d(3.0, Math.toRadians(0)),
-						Autos.getAutoSpeed(subsystems.drivetrain, true))
-						.until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-						.andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
-						.andThen(new RainbowCycle(subsystems.leds)));
-		driveController.b().onTrue(
-				new DriveStraight(subsystems.drivetrain, new Translation2d(-3.0, Math.toRadians(0)),
-						Autos.getAutoSpeed(subsystems.drivetrain, true))
-						.until(() -> Math.abs(subsystems.drivetrain.getTilt().getDegrees()) > 9.0)
-						.andThen(new AutoBalanceOnChargeStation(subsystems.drivetrain))
-						.andThen(new RainbowCycle(subsystems.leds)));
-		driveController.x().whileTrue(new AutoBalanceOnChargeStation(subsystems.drivetrain)
-				.andThen(new RainbowCycle(subsystems.leds)));
-
 		driveController.rightBumper().whileTrue(new DriveAndOrientToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
 
 		// TODO: Once we're done with testing the autonomous motion commands, change
