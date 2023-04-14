@@ -98,18 +98,35 @@ public final class Scoring {
    * @param subsystems The susystems container.
    * @return A command sequence to intake a game piece.
    */
-  public static Command intakeGamePiece(Subsystems subsystems) {
+  public static Command intake(Subsystems subsystems) {
     IntakeSubsystem intake = subsystems.intake;
     IndexerSubsystem indexer = subsystems.indexer;
 
     return Commands.sequence(
         Commands.parallel(
-            Commands.runOnce(() -> indexer.setIntakeRPM(),
+            Commands.runOnce(() -> indexer.intake(),
                 indexer),
-            Commands.runOnce(() -> intake.enable(),
+            Commands.runOnce(() -> intake.up(),
                 intake)),
         Commands.waitUntil(() -> indexer.isCubeDetected()),
         Commands.waitSeconds(0.20)).finallyDo((interrupted) -> {
+          intake.disable();
+          indexer.disable();
+        });
+  }
+
+  public static Command outake(Subsystems subsystems) {
+    IntakeSubsystem intake = subsystems.intake;
+    IndexerSubsystem indexer = subsystems.indexer;
+
+    return Commands.sequence(
+        Commands.parallel(
+            Commands.runOnce(() -> indexer.outake(),
+                indexer),
+            Commands.runOnce(() -> intake.down(),
+                intake)),
+        Commands.waitUntil(() -> !indexer.isCubeDetected()),
+        Commands.waitSeconds(1.5)).finallyDo((interrupted) -> {
           intake.disable();
           indexer.disable();
         });
@@ -127,7 +144,7 @@ public final class Scoring {
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.either(
         Commands.sequence(
-            Commands.runOnce(() -> indexer.setShootRPM(), indexer),
+            Commands.runOnce(() -> indexer.feed(), indexer),
             Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
             Commands.runOnce(() -> indexer.disable(), indexer),
             Commands.waitSeconds(0.5),
@@ -141,7 +158,7 @@ public final class Scoring {
                 Commands.runOnce(() -> shooter.disable(), shooter)),
             Commands.sequence(
                 Commands.waitSeconds(0.75),
-                Commands.runOnce(() -> indexer.setShootRPM(), indexer),
+                Commands.runOnce(() -> indexer.feed(), indexer),
                 Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
                 Commands.runOnce(() -> indexer.disable(), indexer))),
         () -> shooter.getCurrentGoalRPM() == target);
@@ -150,11 +167,11 @@ public final class Scoring {
   /**
    * Returns a command to shoot the cube into the specified target.
    * 
-   * @param subsystems The subsystems container.
+   * @param subsystems The subsystems container
    * @param target     The target
    * @return A command to shoot the cube into the specified target
    */
-  public static Command manualShootToTarget(Subsystems subsystems, ShooterSubsystem.GoalShooterRPM target) {
+  public static Command manualShootToTarget(Subsystems subsystems, GoalShooterRPM target) {
     ShooterSubsystem shooter = subsystems.shooter;
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.parallel(
@@ -163,9 +180,23 @@ public final class Scoring {
             shooter),
         Commands.sequence(
             Commands.waitSeconds(0.75),
-            Commands.startEnd(() -> indexer.setShootRPM(),
+            Commands.startEnd(() -> indexer.feed(),
                 () -> indexer.disable(),
                 indexer)));
+  }
+
+  /**
+   * Returns a command to spin the shooter to the specified RPM.
+   * 
+   * @param subsystems The subsystems container.
+   * @param targetRPM The target RPM.
+   * @return A command to spin the shooter to the specified RPM.
+   */
+  public static Command spinToRPM(Subsystems subsystems, GoalShooterRPM targetRPM) {
+    ShooterSubsystem shooter = subsystems.shooter;
+    return Commands.startEnd(() -> shooter.setGoalRPM(targetRPM),
+        () -> shooter.disable(),
+        shooter);
   }
 
   /**

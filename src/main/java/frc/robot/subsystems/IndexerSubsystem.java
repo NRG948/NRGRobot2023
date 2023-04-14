@@ -22,7 +22,7 @@ public class IndexerSubsystem extends SubsystemBase {
   private static final double RPM_PER_VOLT = 493.9;
 
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue INDEXER_SHOOT_RPM = new RobotPreferences.DoubleValue("Shooter",
+  public static final RobotPreferences.DoubleValue INDEXER_FEED_RPM = new RobotPreferences.DoubleValue("Shooter",
       "Indexer Shoot RPM", 1000.0); // Estimates
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue INDEXER_INTAKE_RPM = new RobotPreferences.DoubleValue("Shooter",
@@ -55,14 +55,19 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /** Sets the goal RPM of the indexer */
-  public void setShootRPM() {
+  public void feed() {
     isEnabled = true;
-    goalRPM = INDEXER_SHOOT_RPM.getValue();
+    goalRPM = INDEXER_FEED_RPM.getValue();
   }
 
-  public void setIntakeRPM() {
+  public void intake() {
     isEnabled = true;
     goalRPM = INDEXER_INTAKE_RPM.getValue();
+  }
+
+  public void outake() {
+    isEnabled = true;
+    goalRPM = -INDEXER_INTAKE_RPM.getValue();
   }
 
   public void disable() {
@@ -89,7 +94,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     if (isEnabled) {
-      double voltage = goalRPM / RPM_PER_VOLT + KS;
+      double voltage = goalRPM / RPM_PER_VOLT + Math.signum(goalRPM) * KS;
       indexerMotor.setVoltage(voltage);
     }
   }

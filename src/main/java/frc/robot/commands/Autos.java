@@ -10,6 +10,7 @@ import static frc.robot.util.FilesystemUtil.getPathplannerDirectory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -373,16 +374,21 @@ public final class Autos {
       }
     }
 
-    return Map.of(
-        "IntakeGamePiece", Scoring.intakeGamePiece(subsystems).withTimeout(3),
-        "WaitForGamePiece", Commands.waitUntil(subsystems.indexer::isCubeDetected).withTimeout(1),
-        "ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3),
-        "ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3),
-        "ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3),
-        "EnableAprilTagPoseEstimation", enableAprilTagPoseEstimation.withTimeout(3),
-        "EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3),
-        "DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()),
-        "SetMidRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.MID)));
+    Map<String, Command> eventMaps = new HashMap<String,Command>();
+
+    eventMaps.put("IntakeGamePiece", Scoring.intake(subsystems).withTimeout(3));
+    eventMaps.put("WaitForGamePiece", Commands.waitUntil(subsystems.indexer::isCubeDetected).withTimeout(1));
+    eventMaps.put("ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3));
+    eventMaps.put("ScoreGamePieceFarHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.FAR_HYBRID).withTimeout(3));
+    eventMaps.put("ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3));
+    eventMaps.put("ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3));
+    eventMaps.put("EnableAprilTagPoseEstimation", enableAprilTagPoseEstimation.withTimeout(3));
+    eventMaps.put("EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3));
+    eventMaps.put("DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));
+    eventMaps.put("SetMidRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.MID)));
+    eventMaps.put("SetFarHybridRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.FAR_HYBRID)));
+
+    return eventMaps;     
   }
 
   public static Pose3d getRobotPose3d(PathPlannerTrajectory path) {
