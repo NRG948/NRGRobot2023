@@ -1,0 +1,68 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 5.33,
+        "y": 3.24
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.177018014646715,
+        "y": 3.209403602929344
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.393159824487587,
+        "y": 5.854110639518989
+      },
+      "prevControl": {
+        "x": 7.148388647922333,
+        "y": 5.721526252212811
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": -0.4303030303030403,
+      "names": [
+        "SetFarHybridRPM"
+      ]
+    },
+    {
+      "position": -0.7,
+      "names": [
+        "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 0.96,
+      "names": [
+        "ScoreGamePieceFarHybrid"
+      ]
+    }
+  ]
+}
