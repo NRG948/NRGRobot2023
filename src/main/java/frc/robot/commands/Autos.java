@@ -297,7 +297,9 @@ public final class Autos {
                       Alliance.Invalid, new PrintCommand("ERROR: Invalid alliance color!")),
                   DriverStation::getAlliance),
               Commands.none(),
-              Autos::getBalanceOnChargingStation));
+              Autos::getBalanceOnChargingStation),
+              Commands.either(Scoring.shootToTarget(subsystems, GoalShooterRPM.FAR_HYBRID), Commands.none(), subsystems.indexer::isCubeDetected)
+              );
       sequence.setName(origin);
 
       commandSequences.add(new LabelValue<String, Command>(origin, sequence));
