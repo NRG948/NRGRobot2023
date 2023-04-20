@@ -46,7 +46,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
       PREFERENCES_GROUP, "KD", 0.0060);
 
-  private static final double TIME_AT_LEVEL = 0.33;
+  private static final double TIME_AT_LEVEL = 0.4;
 
   private final SwerveSubsystem drivetrain;
   private final Timer timer = new Timer();
@@ -99,7 +99,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
     }
     
     double xSpeed, ySpeed;
-    if (Math.abs(measuredAngle) < 10) {
+    if (Math.abs(measuredAngle) < 10.5) {
       xSpeed = speed * SIN_45;
       ySpeed = xSpeed;
     } else {
