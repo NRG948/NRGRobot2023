@@ -25,15 +25,15 @@
     {
       "anchorPoint": {
         "x": 6.95,
-        "y": 2.151946593969525
+        "y": 2.35
       },
       "prevControl": {
         "x": 6.705228823434747,
-        "y": 2.1417477949459722
+        "y": 2.3398012009764475
       },
       "nextControl": {
         "x": 6.705228823434747,
-        "y": 2.1417477949459722
+        "y": 2.3398012009764475
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -41,7 +41,9 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "IntakeGamePiece"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -56,8 +58,35 @@
         "x": 5.968121627464631,
         "y": 2.3151273783463613
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 5.968121627464631,
+        "y": 2.3151273783463613
+      },
       "holonomicAngle": 0,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.015804260616155,
+        "y": 2.0703562017811064
+      },
+      "prevControl": {
+        "x": 5.948632929517766,
+        "y": 1.6726030398625693
+      },
+      "nextControl": null,
+      "holonomicAngle": 34.99202019855864,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -81,12 +110,6 @@
       "position": 0.6787878787879146,
       "names": [
         "SetFarHybridRPM"
-      ]
-    },
-    {
-      "position": 1.97,
-      "names": [
-        "ScoreGamePieceFarHybrid"
       ]
     }
   ]
