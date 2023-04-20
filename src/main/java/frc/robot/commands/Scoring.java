@@ -145,7 +145,7 @@ public final class Scoring {
     return Commands.either(
         Commands.sequence(
             Commands.runOnce(() -> indexer.feed(), indexer),
-            Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
+            new WaitForCubeShot(indexer).withTimeout(1.0), // potentially change to 0.6
             Commands.runOnce(() -> indexer.disable(), indexer),
             Commands.waitSeconds(0.5),
             Commands.runOnce(() -> shooter.disable(), shooter)),
@@ -153,13 +153,13 @@ public final class Scoring {
             Commands.sequence(
                 Commands.runOnce(() -> shooter.setGoalRPM(target),
                     shooter),
-                Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
+                    new WaitForCubeShot(indexer).withTimeout(1.0),
                 Commands.waitSeconds(0.5),
                 Commands.runOnce(() -> shooter.disable(), shooter)),
             Commands.sequence(
                 Commands.waitSeconds(0.75),
                 Commands.runOnce(() -> indexer.feed(), indexer),
-                Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
+                new WaitForCubeShot(indexer).withTimeout(1.0), // potentially change to 0.6
                 Commands.runOnce(() -> indexer.disable(), indexer))),
         () -> shooter.getCurrentGoalRPM() == target);
   }
