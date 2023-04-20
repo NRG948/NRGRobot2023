@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
 import frc.robot.subsystems.AdressableLEDSubsystem;
 import frc.robot.subsystems.AprilTagSubsystem;
@@ -457,7 +458,7 @@ public final class Autos {
     return Commands.sequence(
         new DriveStraight(drivetrain, chargingStationPose, autoSpeed),
         new AutoBalanceOnChargeStation(drivetrain),
-        new RainbowCycle(leds));
+        new ScheduleCommand(new RainbowCycle(leds)));
   }
 
   @AutonomousCommandMethod(name = "Score Cube And Drive Out Of Community")

@@ -114,9 +114,9 @@ public class RobotContainer {
 				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
+				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN), subsystems.leds));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
+				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED), subsystems.leds));
 		new Trigger(() -> HALUtil.getFPGAButton())
 				.onTrue(Commands.either(
 						Commands.runOnce(() -> subsystems.leds.stop()),
