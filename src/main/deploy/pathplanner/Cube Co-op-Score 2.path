@@ -91,7 +91,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ScoreGamePieceMid",
+          "ScoreGamePieceHybrid",
           "DisablePoseEstimation"
         ],
         "executionBehavior": "parallel",
@@ -110,7 +110,7 @@
     {
       "position": 2.0,
       "names": [
-        "SetMidRPM"
+        "SetHybridRPM"
       ]
     }
   ]

@@ -28,20 +28,22 @@
         "y": 4.37
       },
       "prevControl": {
-        "x": 7.473086353928353,
-        "y": 4.365334865581286
+        "x": 6.232143060698828,
+        "y": 4.37
       },
       "nextControl": {
-        "x": 6.232160598550286,
-        "y": 4.374665134418715
+        "x": 6.232143060698828,
+        "y": 4.37
       },
       "holonomicAngle": 0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "IntakeGamePiece"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -53,12 +55,12 @@
         "y": 4.75
       },
       "prevControl": {
-        "x": 6.131238973214292,
-        "y": 4.803099705952381
+        "x": 5.761351980719229,
+        "y": 4.650652354739824
       },
       "nextControl": {
-        "x": 2.7404596743856366,
-        "y": 4.712678924650284
+        "x": 2.7425830426310034,
+        "y": 4.835626123020903
       },
       "holonomicAngle": 0,
       "isReversal": false,
