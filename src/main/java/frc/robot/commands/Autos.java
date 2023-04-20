@@ -389,6 +389,7 @@ public final class Autos {
     eventMaps.put("EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3));
     eventMaps.put("DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));
     eventMaps.put("SetMidRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.MID)));
+    eventMaps.put("SetHybridRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.HYBRID)));
     eventMaps.put("SetFarHybridRPM", Commands.runOnce(() -> subsystems.shooter.setGoalRPM(GoalShooterRPM.FAR_HYBRID)));
 
     return eventMaps;     
