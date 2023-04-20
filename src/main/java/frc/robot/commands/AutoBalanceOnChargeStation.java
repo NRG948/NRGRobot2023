@@ -46,7 +46,7 @@ public class AutoBalanceOnChargeStation extends CommandBase {
   public static final RobotPreferences.DoubleValue ANGLE_KD = new RobotPreferences.DoubleValue(
       PREFERENCES_GROUP, "KD", 0.0060);
 
-  private static final double TIME_AT_LEVEL = 0.25;
+  private static final double TIME_AT_LEVEL = 0.33;
 
   private final SwerveSubsystem drivetrain;
   private final Timer timer = new Timer();
