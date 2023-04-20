@@ -57,18 +57,18 @@ public abstract class PhotonVisionSubsystemBase extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // PhotonPipelineResult currentResult = camera.getLatestResult();
+    PhotonPipelineResult currentResult = camera.getLatestResult();
 
-    // if (this.result.hasTargets() != currentResult.hasTargets()) {
-    //   hasTargetLogger.append(currentResult.hasTargets());
-    // }
+    if (this.result.hasTargets() != currentResult.hasTargets()) {
+      hasTargetLogger.append(currentResult.hasTargets());
+    }
 
-    // this.result = currentResult;
+    this.result = currentResult;
 
-    // if (hasTargets()) {
-    //   distanceLogger.append(getDistanceToBestTarget());
-    //   angleLogger.append(-getAngleToBestTarget());
-    // }
+    if (hasTargets()) {
+      distanceLogger.append(getDistanceToBestTarget());
+      angleLogger.append(-getAngleToBestTarget());
+    }
   }
 
   /**
