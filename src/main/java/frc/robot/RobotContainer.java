@@ -11,10 +11,9 @@ import com.nrg948.preferences.RobotPreferencesLayout;
 
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
-import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -24,22 +23,17 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ColorConstants;
 import frc.robot.Constants.OperatorConstants.XboxControllerPort;
-import frc.robot.commands.AutoBalanceOnChargeStation;
-import frc.robot.commands.Autos;
-import frc.robot.commands.BrownPulse;
 import frc.robot.commands.DriveAndAutoRotate;
-import frc.robot.commands.DriveStraight;
 import frc.robot.commands.DriveAndOrientToCube;
+import frc.robot.commands.DriveAndStrafeToCube;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.FlameCycle;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
-import frc.robot.commands.RainbowCycle;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.ShootByController;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
@@ -76,9 +70,9 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-		
+
 		CommandScheduler.getInstance().schedule(new FlameCycle(subsystems.leds));
-		
+
 		initShuffleboard();
 
 		configureCommandBindings();
@@ -101,33 +95,34 @@ public class RobotContainer {
 	 */
 	private void configureCommandBindings() {
 
-		driveController.rightBumper().whileTrue(new DriveAndOrientToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
-
+		driveController.rightBumper()
+				.whileTrue(new DriveAndOrientToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
+		driveController.leftBumper()
+				.whileTrue(new DriveAndStrafeToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
 		// TODO: Once we're done with testing the autonomous motion commands, change
 		// this to call resetOrientation().
 		driveController.start().onTrue(Commands.runOnce(() -> subsystems.drivetrain.resetPosition(new Pose2d())));
 		driveController.back().onTrue(Scoring.prepForMatch(subsystems));
-		driveController.leftBumper().whileTrue(Commands.sequence(
-				Commands.waitUntil(() -> subsystems.cubeVision.hasTargets()),
-				new ProxyCommand(() -> Scoring.scoreToGrid(subsystems, driveController.getHID()))));
-		driveController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
-		driveController.rightStick().onTrue(new BrownPulse(subsystems.leds));
 
-		driveController.a().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(180)));
-		driveController.b().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(-90)));
-		driveController.x().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(90)));
-		driveController.y().whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
+		driveController.a()
+				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(180)));
+		driveController.b()
+				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(-90)));
+		driveController.x()
+				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(90)));
+		driveController.y()
+				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN)));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED)));
 		new Trigger(() -> HALUtil.getFPGAButton())
-			.onTrue(Commands.either(
-				Commands.runOnce(() -> subsystems.leds.stop()),
-				Commands.runOnce(() -> subsystems.leds.start()),
-				() -> subsystems.leds.isEnabled()).ignoringDisable(true));
-		
+				.onTrue(Commands.either(
+						Commands.runOnce(() -> subsystems.leds.stop()),
+						Commands.runOnce(() -> subsystems.leds.start()),
+						() -> subsystems.leds.isEnabled()).ignoringDisable(true));
+
 		manipulatorController.start().onTrue(
 				Commands.either(
 						Commands.runOnce(() -> {
@@ -148,7 +143,8 @@ public class RobotContainer {
 						() -> enableManualControl = !enableManualControl));
 		manipulatorController.leftStick().onTrue(
 				Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
-		manipulatorController.povUp().whileTrue(Commands.runOnce(() -> subsystems.indexer.feed(), subsystems.indexer));
+		manipulatorController.povUp().whileTrue(
+				Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer));
 		manipulatorController.povDown().whileTrue(Scoring.outake(subsystems));
 		manipulatorController.a().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID));
@@ -156,6 +152,8 @@ public class RobotContainer {
 		manipulatorController.x().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
 		manipulatorController.leftBumper().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.FAR_HYBRID));
 		manipulatorController.rightBumper().whileTrue(Scoring.intake(subsystems));
+		// manipulatorController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
+		// manipulatorController.rightStick().onTrue(new FlameCycle(subsystems.leds));
 
 	}
 
