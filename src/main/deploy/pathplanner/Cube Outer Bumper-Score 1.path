@@ -51,42 +51,15 @@
     },
     {
       "anchorPoint": {
-        "x": 5.231014431494511,
-        "y": 2.4171153685818836
+        "x": 5.5879723973188415,
+        "y": 2.753675736359107
       },
       "prevControl": {
-        "x": 5.968121627464631,
-        "y": 2.3151273783463613
-      },
-      "nextControl": {
-        "x": 5.968121627464631,
-        "y": 2.3151273783463613
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "ScoreGamePieceFarHybrid"
-        ],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 7.015804260616155,
-        "y": 2.0703562017811064
-      },
-      "prevControl": {
-        "x": 5.948632929517766,
-        "y": 1.6726030398625693
+        "x": 6.391371786942047,
+        "y": 2.55693726769133
       },
       "nextControl": null,
-      "holonomicAngle": 34.99202019855864,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,

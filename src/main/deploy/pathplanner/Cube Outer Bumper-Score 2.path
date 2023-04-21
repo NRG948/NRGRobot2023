@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 5.23,
-        "y": 2.42
+        "x": 5.26,
+        "y": 0.92
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.4749835594048335,
-        "y": 2.42
+        "x": 5.7205567846250185,
+        "y": 1.7235970349803302
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,24 +24,26 @@
     },
     {
       "anchorPoint": {
-        "x": 7.026003059639706,
-        "y": 3.294212084607376
+        "x": 6.95,
+        "y": 2.35
       },
       "prevControl": {
-        "x": 6.873021074286421,
-        "y": 3.2636156875367197
+        "x": 6.705228823434747,
+        "y": 2.3398012009764475
       },
       "nextControl": {
-        "x": 6.873021074286421,
-        "y": 3.2636156875367197
+        "x": 7.194771176565253,
+        "y": 2.3601987990235527
       },
-      "holonomicAngle": 15.0,
-      "isReversal": true,
+      "holonomicAngle": 0,
+      "isReversal": false,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": true,
+      "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "IntakeGamePiece"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -49,12 +51,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.3330024217300345,
-        "y": 3.2432180894896145
+        "x": 5.271809627588721,
+        "y": 2.651687746123584
       },
       "prevControl": {
-        "x": 5.08823124516478,
-        "y": 3.1106337021834363
+        "x": 4.9839375216918365,
+        "y": 2.9189946330274337
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -63,8 +65,10 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -72,21 +76,15 @@
   ],
   "markers": [
     {
-      "position": 0.5696969696969597,
-      "names": [
-        "SetFarHybridRPM"
-      ]
-    },
-    {
-      "position": 0.3,
+      "position": 0.2666666666666558,
       "names": [
         "IntakeGamePiece"
       ]
     },
     {
-      "position": 1.96,
+      "position": 1.2848484848484862,
       "names": [
-        "ScoreGamePieceFarHybrid"
+        "SetFarHybridRPM"
       ]
     }
   ]

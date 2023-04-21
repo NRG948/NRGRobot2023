@@ -16,9 +16,7 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "ScoreGamePieceHybrid"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
@@ -44,7 +42,7 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "IntakeGamePiece"
+          "IntakeGamePieceSmallerTimeout"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
@@ -67,8 +65,10 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -82,7 +82,7 @@
       ]
     },
     {
-      "position": 0.9575757575756538,
+      "position": 1.1636363636363298,
       "names": [
         "SetFarHybridRPM"
       ]
