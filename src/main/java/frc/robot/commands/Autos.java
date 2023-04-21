@@ -268,13 +268,13 @@ public final class Autos {
     groupedCommands.forEach((origin, paths) -> {
       Command sequence;
       Pose2d startPose2d = paths.get(0).getValue().getSecond();
-
+      GoalShooterRPM rpm = origin.contains("Bumper") ? GoalShooterRPM.FAR_HYBRID : GoalShooterRPM.HIGH;
       sequence = Commands.sequence(
           // Set the initial position of the robot.
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
           // If we're scoring at least one game piece, run the intial scoring sequence.
           Commands.either(
-              Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
+              Scoring.shootToTarget(subsystems, rpm),
               Commands.none(),
               () -> getNumberOfGamePieces() != 0),
           // Follow the primary segment of the autonomous path.
@@ -380,6 +380,7 @@ public final class Autos {
     Map<String, Command> eventMaps = new HashMap<String,Command>();
 
     eventMaps.put("IntakeGamePiece", Scoring.intake(subsystems).withTimeout(3));
+    eventMaps.put("IntakeGamePieceSmallerTimeout", Scoring.intake(subsystems).withTimeout(1.5));
     eventMaps.put("WaitForGamePiece", Commands.waitUntil(subsystems.indexer::isCubeDetected).withTimeout(1));
     eventMaps.put("ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3));
     eventMaps.put("ScoreGamePieceFarHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.FAR_HYBRID).withTimeout(3));
