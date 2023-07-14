@@ -115,40 +115,33 @@ public class RobotContainer {
 				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN), subsystems.leds));
+				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN),
+						subsystems.leds));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED), subsystems.leds));
+				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED),
+						subsystems.leds));
 		new Trigger(() -> HALUtil.getFPGAButton())
 				.onTrue(Commands.either(
 						Commands.runOnce(() -> subsystems.leds.stop()),
 						Commands.runOnce(() -> subsystems.leds.start()),
 						() -> subsystems.leds.isEnabled()).ignoringDisable(true));
+		
+		subsystems.indexer.setDefaultCommand(
+				new IndexByController(subsystems.indexer, manipulatorController));
+		subsystems.shooter.setDefaultCommand(
+				new ShootByController(subsystems.shooter, manipulatorController));
+		subsystems.intake.setDefaultCommand(
+				new IntakeByController(subsystems.intake, manipulatorController));
 
-		manipulatorController.start().onTrue(
-				Commands.either(
-						Commands.runOnce(() -> {
-							subsystems.indexer.setDefaultCommand(
-									new IndexByController(subsystems.indexer, manipulatorController));
-							subsystems.shooter.setDefaultCommand(
-									new ShootByController(subsystems.shooter, manipulatorController));
-							subsystems.intake.setDefaultCommand(
-									new IntakeByController(subsystems.intake, manipulatorController));
-							System.out.println("ENABLE MANUAL CONTROL");
-						}),
-						Commands.runOnce(() -> {
-							subsystems.indexer.removeDefaultCommand();
-							subsystems.shooter.removeDefaultCommand();
-							subsystems.intake.removeDefaultCommand();
-							System.out.println("DISABLE MANUAL CONTROL");
-						}, subsystems.indexer, subsystems.shooter),
-						() -> enableManualControl = !enableManualControl));
 		manipulatorController.leftStick().onTrue(
 				Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
 		manipulatorController.povUp().whileTrue(
-			Commands.parallel(
-				Commands.startEnd(subsystems.intake::up, subsystems.intake::disable, subsystems.intake),
-				Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer)
-			)); // was Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer)
+				Commands.parallel(
+						Commands.startEnd(subsystems.intake::up, subsystems.intake::disable, subsystems.intake),
+						Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer))); // was
+																														// Commands.startEnd(subsystems.indexer::feed,
+																														// subsystems.indexer::disable,
+																														// subsystems.indexer)
 		manipulatorController.povDown().whileTrue(Scoring.outake(subsystems));
 		manipulatorController.a().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID));
