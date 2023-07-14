@@ -37,6 +37,7 @@ import frc.robot.commands.IntakeByController;
 import frc.robot.commands.Scoring;
 import frc.robot.commands.ShootByController;
 import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.Subsystems;
 
 /**
@@ -144,7 +145,10 @@ public class RobotContainer {
 		manipulatorController.leftStick().onTrue(
 				Commands.runOnce(() -> subsystems.leds.setGamePieceColor(), subsystems.leds));
 		manipulatorController.povUp().whileTrue(
-				Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer));
+			Commands.parallel(
+				Commands.startEnd(subsystems.intake::up, subsystems.intake::disable, subsystems.intake),
+				Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer)
+			)); // was Commands.startEnd(subsystems.indexer::feed, subsystems.indexer::disable, subsystems.indexer)
 		manipulatorController.povDown().whileTrue(Scoring.outake(subsystems));
 		manipulatorController.a().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID));
@@ -152,7 +156,7 @@ public class RobotContainer {
 		manipulatorController.x().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
 		manipulatorController.leftBumper().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.FAR_HYBRID));
 		manipulatorController.rightBumper().whileTrue(Scoring.intake(subsystems));
-		// manipulatorController.leftStick().onTrue(new RainbowCycle(subsystems.leds));
+		// manipulatorController.leftStick().onTrue(new RainbowCycle(subsystems.leds);
 		// manipulatorController.rightStick().onTrue(new FlameCycle(subsystems.leds));
 
 	}
