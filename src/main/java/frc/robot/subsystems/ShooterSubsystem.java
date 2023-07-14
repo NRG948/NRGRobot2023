@@ -44,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_RPM = new RobotPreferences.DoubleValue("Shooter", "High RPM", 1230);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_RPM = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station RPM", 1800);
+  public static final RobotPreferences.DoubleValue MAX_POWER_RPM = new RobotPreferences.DoubleValue("Shooter", "Max Power RPM", 1800);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue FAR_HYBRID_RPM = new RobotPreferences.DoubleValue("Shooter", "Far Hybrid RPM", 1950);
   @RobotPreferencesValue
@@ -54,7 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue HIGH_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "High Backspin", 0.5);
   @RobotPreferencesValue
-  public static final RobotPreferences.DoubleValue MID_CHARGE_STATION_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Mid Charge Station Backspin", 0.5);
+  public static final RobotPreferences.DoubleValue MAX_POWER_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Max Power Backspin", 0.5);
   @RobotPreferencesValue
   public static final RobotPreferences.DoubleValue FAR_HYBRID_BACKSPIN_FACTOR = new RobotPreferences.DoubleValue("Shooter", "Far Hybrid Backspin", 1.0);
 
@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
     HYBRID(HYBRID_RPM, HYBRID_BACKSPIN_FACTOR),
     MID(MID_RPM, MID_BACKSPIN_FACTOR),
     HIGH(HIGH_RPM, HIGH_BACKSPIN_FACTOR),
-    MID_CHARGE_STATION(MID_CHARGE_STATION_RPM, MID_CHARGE_STATION_BACKSPIN_FACTOR),
+    MAX_POWER(MAX_POWER_RPM, MAX_POWER_BACKSPIN_FACTOR),
     FAR_HYBRID(FAR_HYBRID_RPM, FAR_HYBRID_BACKSPIN_FACTOR);
 
     private final RobotPreferences.DoubleValue rpm;

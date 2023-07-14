@@ -384,7 +384,7 @@ public final class Autos {
     eventMaps.put("ScoreGamePieceMid", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID).withTimeout(3));
     eventMaps.put("ScoreGamePieceFarHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.FAR_HYBRID).withTimeout(3));
     eventMaps.put("ScoreGamePieceHybrid", Scoring.shootToTarget(subsystems, GoalShooterRPM.HYBRID).withTimeout(3));
-    eventMaps.put("ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MID_CHARGE_STATION).withTimeout(3));
+    eventMaps.put("ScoreMidFromChargeStation", Scoring.shootToTarget(subsystems, GoalShooterRPM.MAX_POWER).withTimeout(3));
     eventMaps.put("EnableAprilTagPoseEstimation", enableAprilTagPoseEstimation.withTimeout(3));
     eventMaps.put("EnableCubePoseEstimation", enableCubePoseEstimation.withTimeout(3));
     eventMaps.put("DisablePoseEstimation", Commands.runOnce(() -> drivetrain.disablePoseEstimation()));

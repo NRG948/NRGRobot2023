@@ -153,7 +153,7 @@ public class RobotContainer {
 		manipulatorController.a().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HYBRID));
 		manipulatorController.b().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID));
 		manipulatorController.y().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.HIGH));
-		manipulatorController.x().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MID_CHARGE_STATION));
+		manipulatorController.x().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.MAX_POWER));
 		manipulatorController.leftBumper().whileTrue(Scoring.spinToRPM(subsystems, GoalShooterRPM.FAR_HYBRID));
 		manipulatorController.rightBumper().whileTrue(Scoring.intake(subsystems));
 		// manipulatorController.leftStick().onTrue(new RainbowCycle(subsystems.leds);
