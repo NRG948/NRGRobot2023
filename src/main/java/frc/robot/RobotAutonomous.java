@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.ShooterSubsystem.GoalShooterRPM;
 
 /**
  * This class creates and manages the user interface operators use to select
@@ -72,6 +73,7 @@ public class RobotAutonomous {
   private final SendableChooser<Command> autonomousCommandChooser;
   private final SendableChooser<ChooseAutoDelay> autoDelayChooser = new SendableChooser<>();
   private final SendableChooser<Integer> scoreCount = new SendableChooser<>();
+  private final SendableChooser<GoalShooterRPM> firstShotChooser = new SendableChooser<>();
 
   /**
    * Creates a new RobotAutonomous.
@@ -93,10 +95,15 @@ public class RobotAutonomous {
       scoreCount.addOption(String.valueOf(i), 0);
     }
 
+    for (GoalShooterRPM goalRPM : EnumSet.allOf(GoalShooterRPM.class)) {
+      firstShotChooser.addOption(goalRPM.toString(), goalRPM);
+    }
+
+    firstShotChooser.setDefaultOption(GoalShooterRPM.HIGH.toString(), GoalShooterRPM.HIGH);
+
     int numberOfGamePieces = Autos.getNumberOfGamePieces();
 
     scoreCount.setDefaultOption(String.valueOf(numberOfGamePieces), numberOfGamePieces);
-
   }
 
   /**
@@ -112,7 +119,8 @@ public class RobotAutonomous {
     System.out.println(
       "AUTO ROUTINE: " + autoCommand.getName() +
       ", NO. GAME PIECES: " + Autos.getNumberOfGamePieces() +
-      ", BALANCE: " + Autos.getBalanceOnChargingStation());
+      ", BALANCE: " + Autos.getBalanceOnChargingStation() +
+      ", FIRST SHOT" + Autos.getFirstShot());
     return getSelectedDelayCommand().andThen(new ProxyCommand(autoCommand));
   }
 
@@ -149,6 +157,7 @@ public class RobotAutonomous {
     autonomousLayout.add("Delay", autoDelayChooser);
 
     ComplexWidget numberOfGamePiecesWidget = autonomousLayout.add("Number of Game Pieces", scoreCount);
+    ComplexWidget firstShotWidget = autonomousLayout.add("First Shot", firstShotChooser);
     SimpleWidget balanceWidget = autonomousLayout
         .add("Balance", Autos.getBalanceOnChargingStation())
         .withWidget(BuiltInWidgets.kToggleSwitch);
@@ -176,6 +185,20 @@ public class RobotAutonomous {
         balanceTopic,
         EnumSet.of(NetworkTableEvent.Kind.kValueAll, NetworkTableEvent.Kind.kImmediate),
         (event) -> Autos.setBalanceOnChargingStation(event.valueData.value.getBoolean()));
+
+    // Set up a listener to update the type of the first shot depending on
+    // the selected item in the chooser.
+    NetworkTableEntry firstShotEntry = ntInstance
+        .getTable(Shuffleboard.kBaseTableName)
+        .getSubTable(tab.getTitle())
+        .getSubTable(autonomousLayout.getTitle())
+        .getSubTable(firstShotWidget.getTitle())
+        .getEntry("active");
+    
+    ntInstance.addListener(
+        firstShotEntry,
+        EnumSet.of(NetworkTableEvent.Kind.kValueAll, NetworkTableEvent.Kind.kImmediate),
+        (event) -> Autos.setFirstShot(Integer.parseInt(event.valueData.value.getString().substring(0, 1))));
 
     return autonomousLayout;
   }

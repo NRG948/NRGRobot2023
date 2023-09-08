@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.function.BooleanSupplier;
 
+import com.fasterxml.jackson.databind.ser.std.EnumSerializer;
 import com.nrg948.preferences.RobotPreferences;
 import com.nrg948.preferences.RobotPreferencesLayout;
 import com.nrg948.preferences.RobotPreferencesValue;
@@ -60,19 +63,32 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public enum GoalShooterRPM {
     // TODO: get real RPMs
-    STOP(new RobotPreferences.DoubleValue("", "", 0.0), new RobotPreferences.DoubleValue("", "", 0)),
-    HYBRID(HYBRID_RPM, HYBRID_BACKSPIN_FACTOR),
-    MID(MID_RPM, MID_BACKSPIN_FACTOR),
-    HIGH(HIGH_RPM, HIGH_BACKSPIN_FACTOR),
-    MAX_POWER(MAX_POWER_RPM, MAX_POWER_BACKSPIN_FACTOR),
-    FAR_HYBRID(FAR_HYBRID_RPM, FAR_HYBRID_BACKSPIN_FACTOR);
-
+    STOP(new RobotPreferences.DoubleValue("", "", 0.0), new RobotPreferences.DoubleValue("", "", 0), "0. Stop"),
+    HYBRID(HYBRID_RPM, HYBRID_BACKSPIN_FACTOR, "1. Hybrid"),
+    MID(MID_RPM, MID_BACKSPIN_FACTOR, "2. Mid"),
+    HIGH(HIGH_RPM, HIGH_BACKSPIN_FACTOR, "3. High"),
+    MAX_POWER(MAX_POWER_RPM, MAX_POWER_BACKSPIN_FACTOR, "4. Max Power"),
+    FAR_HYBRID(FAR_HYBRID_RPM, FAR_HYBRID_BACKSPIN_FACTOR, "5. Far Hybrid");
+  
     private final RobotPreferences.DoubleValue rpm;
     private final RobotPreferences.DoubleValue backspinFactor;
+    private final String name;
+    private static final ArrayList<GoalShooterRPM> RPMList = new ArrayList<>(EnumSet.allOf(GoalShooterRPM.class));
 
-    GoalShooterRPM(RobotPreferences.DoubleValue rpm, RobotPreferences.DoubleValue backspinFactor) {
+    GoalShooterRPM(RobotPreferences.DoubleValue rpm, RobotPreferences.DoubleValue backspinFactor, String name) {
       this.rpm = rpm;
       this.backspinFactor = backspinFactor;
+      this.name = name;
+    }
+
+    /**
+     * Returns the shooter RPM from the RPMList ArrayList corresponding to the input index.
+     * @param index The index corresponding to the desired RPM
+     * @return
+     */
+    public static GoalShooterRPM convertIntToRPM(int index) {
+      System.out.println(RPMList.get(index));
+      return RPMList.get(index);
     }
 
     /**
@@ -91,6 +107,15 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     private double getBackspinFactor() {
       return backspinFactor.getValue();
+    }
+
+    /**
+     * Returns the name of the RPM preceded by its index.
+     * 
+     * @return The name of the RPM preceded by its index.
+     */
+    public String toString() {
+      return name;
     }
   }
 

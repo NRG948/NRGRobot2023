@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -78,16 +81,6 @@ public final class Scoring {
 
     System.out.println("GOAL POSE = " + goalPose);
 
-    // // Determine the grid scoring level.
-    // GoalState targetState = GoalState.SCORE_MID;
-    // if (pov != -1) {
-    // if (pov <= 45 || pov >= 315) {
-    // targetState = GoalState.SCORE_LOW;
-    // } else if (pov >= 135 && pov <= 225) {
-    // targetState = GoalState.SCORE_HIGH;
-    // }
-    // }
-
     return Commands.sequence(
         new DriveStraight(drivetrain, goalPose, drivetrain.getMaxSpeed() * 0.5));
   }
@@ -115,6 +108,11 @@ public final class Scoring {
         });
   }
 
+  /**
+   * Returns a command sequence to outtake a game piece.
+   * @param subsystems The subsystems container.
+   * @return A command sequence to outtake a game piece.
+   */
   public static Command outake(Subsystems subsystems) {
     IntakeSubsystem intake = subsystems.intake;
     IndexerSubsystem indexer = subsystems.indexer;
@@ -140,6 +138,10 @@ public final class Scoring {
    * @return A command to shoot the cube into the specified target
    */
   public static Command shootToTarget(Subsystems subsystems, ShooterSubsystem.GoalShooterRPM target) {
+    return shootToTarget(subsystems, () -> target);
+  }
+
+  public static Command shootToTarget(Subsystems subsystems, Supplier<GoalShooterRPM> targetSupplier) {
     ShooterSubsystem shooter = subsystems.shooter;
     IndexerSubsystem indexer = subsystems.indexer;
     return Commands.either(
@@ -151,7 +153,7 @@ public final class Scoring {
             Commands.runOnce(() -> shooter.disable(), shooter)),
         Commands.parallel(
             Commands.sequence(
-                Commands.runOnce(() -> shooter.setGoalRPM(target),
+                Commands.runOnce(() -> shooter.setGoalRPM(targetSupplier.get()),
                     shooter),
                 Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0),
                 Commands.waitSeconds(0.5),
@@ -161,7 +163,7 @@ public final class Scoring {
                 Commands.runOnce(() -> indexer.feed(), indexer),
                 Commands.waitUntil(() -> !indexer.isCubeDetected()).withTimeout(1.0), // potentially change to 0.6
                 Commands.runOnce(() -> indexer.disable(), indexer))),
-        () -> shooter.getCurrentGoalRPM() == target);
+        () -> shooter.getCurrentGoalRPM() == targetSupplier.get());
   }
 
   /**

@@ -90,6 +90,7 @@ public final class Autos {
 
   private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
   private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
+  private static AtomicInteger firstShot = new AtomicInteger(1);
 
   /**
    * Returns whether to balance on the charging station at the end of autonomous.
@@ -125,6 +126,23 @@ public final class Autos {
    */
   public static void setNumberOfGamePieces(int number) {
     numberOfGamePieces.set(number);
+  }
+
+  /**
+   * Set the first shot type in autonomous.
+   * 
+   * @param shotType The first shot RPM.
+   */
+  public static void setFirstShot(int shotType) {
+    firstShot.set(shotType);
+  }
+
+  /**
+   * Returns the first shot type.
+   * @return The first shot RPM.
+   */
+  public static int getFirstShot() {
+    return firstShot.get();
   }
 
   /**
@@ -274,7 +292,7 @@ public final class Autos {
           Commands.runOnce(() -> drivetrain.resetPosition(startPose2d), drivetrain),
           // If we're scoring at least one game piece, run the intial scoring sequence.
           Commands.either(
-              Scoring.shootToTarget(subsystems, GoalShooterRPM.HIGH),
+              Scoring.shootToTarget(subsystems, () -> GoalShooterRPM.convertIntToRPM(firstShot.get())),
               Commands.none(),
               () -> getNumberOfGamePieces() != 0),
           // Follow the primary segment of the autonomous path.
