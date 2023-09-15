@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ColorConstants;
@@ -31,6 +32,7 @@ import frc.robot.commands.DriveAndAutoRotate;
 import frc.robot.commands.DriveAndOrientToCube;
 import frc.robot.commands.DriveAndStrafeToCube;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.PinkFlameCycle;
 import frc.robot.commands.FlameCycle;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
@@ -71,7 +73,9 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-
+		//Uncomment this for girls gen
+		//CommandScheduler.getInstance().schedule(new PinkFlameCycle(subsystems.leds));
+		// Comment this for girls gen
 		CommandScheduler.getInstance().schedule(new FlameCycle(subsystems.leds));
 
 		initShuffleboard();
