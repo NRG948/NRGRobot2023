@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 5.23,
-        "y": 2.42
+        "x": 7.42,
+        "y": 2.33
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.4749835594048335,
-        "y": 2.42
+        "x": 6.478160840937068,
+        "y": 1.9558893925480159
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 7.026003059639706,
-        "y": 3.294212084607376
+        "x": 5.283430374553058,
+        "y": 2.3798260096520205
       },
       "prevControl": {
-        "x": 6.873021074286421,
-        "y": 3.2636156875367197
+        "x": 5.1274425101704,
+        "y": 2.377103231351207
       },
       "nextControl": {
-        "x": 6.873021074286421,
-        "y": 3.2636156875367197
+        "x": 5.1274425101704,
+        "y": 2.377103231351207
       },
-      "holonomicAngle": 15.0,
+      "holonomicAngle": 0.0,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -49,12 +49,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.3330024217300345,
-        "y": 3.2432180894896145
+        "x": 7.114065766593072,
+        "y": 3.410762783064029
       },
       "prevControl": {
-        "x": 5.08823124516478,
-        "y": 3.1106337021834363
+        "x": 5.967509915789065,
+        "y": 3.256604013208027
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -72,21 +72,15 @@
   ],
   "markers": [
     {
-      "position": 0.5696969696969597,
-      "names": [
-        "SetFarHybridRPM"
-      ]
-    },
-    {
-      "position": 0.3,
+      "position": 1.2552746165882138,
       "names": [
         "IntakeGamePiece"
       ]
     },
     {
-      "position": 1.96,
+      "position": 0.3,
       "names": [
-        "ScoreGamePieceFarHybrid"
+        "SetFarHybridRPM"
       ]
     }
   ]
