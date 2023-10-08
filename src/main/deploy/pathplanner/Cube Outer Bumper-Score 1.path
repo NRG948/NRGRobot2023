@@ -24,37 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.95,
-        "y": 2.151946593969525
+        "x": 7.4223833063050755,
+        "y": 2.3316513940720203
       },
       "prevControl": {
-        "x": 6.705228823434747,
-        "y": 2.1417477949459722
-      },
-      "nextControl": {
-        "x": 6.705228823434747,
-        "y": 2.1417477949459722
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.231014431494511,
-        "y": 2.4171153685818836
-      },
-      "prevControl": {
-        "x": 5.968121627464631,
-        "y": 2.3151273783463613
+        "x": 7.177612129739822,
+        "y": 2.3214525950484677
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -81,12 +56,6 @@
       "position": 0.6787878787879146,
       "names": [
         "SetFarHybridRPM"
-      ]
-    },
-    {
-      "position": 1.97,
-      "names": [
-        "ScoreGamePieceFarHybrid"
       ]
     }
   ]
