@@ -31,15 +31,12 @@
         "x": 5.154561032758913,
         "y": 1.95
       },
-      "nextControl": {
-        "x": 5.154561032758913,
-        "y": 1.95
-      },
+      "nextControl": null,
       "holonomicAngle": 0,
-      "isReversal": true,
+      "isReversal": false,
       "velOverride": -2.17,
       "isLocked": false,
-      "isStopPoint": true,
+      "isStopPoint": false,
       "stopEvent": {
         "names": [
           "IntakeGamePiece"
@@ -47,28 +44,6 @@
         "executionBehavior": "parallel",
         "waitBehavior": "deadline",
         "waitTime": 1.0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.871160684629063,
-        "y": 2.0329687774760177
-      },
-      "prevControl": {
-        "x": 5.967509915789065,
-        "y": 2.0811433930560184
-      },
-      "nextControl": null,
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
       }
     }
   ],
@@ -80,7 +55,7 @@
       ]
     },
     {
-      "position": 2.0,
+      "position": 1.0,
       "names": [
         "SetHybridRPM"
       ]
