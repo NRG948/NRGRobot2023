@@ -1,0 +1,89 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 3.89,
+        "y": 2.78
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.889999999999998,
+        "y": 2.78
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": 1.36,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.42,
+        "y": 1.95
+      },
+      "prevControl": {
+        "x": 5.154561032758913,
+        "y": 1.95
+      },
+      "nextControl": {
+        "x": 5.154561032758913,
+        "y": 1.95
+      },
+      "holonomicAngle": 0,
+      "isReversal": true,
+      "velOverride": -2.17,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "IntakeGamePiece"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "deadline",
+        "waitTime": 1.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.871160684629063,
+        "y": 2.0329687774760177
+      },
+      "prevControl": {
+        "x": 5.967509915789065,
+        "y": 2.0811433930560184
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.5454545454545763,
+      "names": [
+        "IntakeGamePiece"
+      ]
+    },
+    {
+      "position": 2.0,
+      "names": [
+        "SetHybridRPM"
+      ]
+    }
+  ]
+}
