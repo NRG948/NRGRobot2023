@@ -32,7 +32,6 @@ import frc.robot.commands.DriveAndAutoRotate;
 import frc.robot.commands.DriveAndOrientToCube;
 import frc.robot.commands.DriveAndStrafeToCube;
 import frc.robot.commands.DriveWithController;
-import frc.robot.commands.PinkFlameCycle;
 import frc.robot.commands.FlameCycle;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
