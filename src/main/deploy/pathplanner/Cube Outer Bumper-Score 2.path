@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 7.42,
-        "y": 2.33
+        "x": 6.15,
+        "y": 2.45
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.651589457025069,
-        "y": 1.9558893925480159
+        "x": 6.019328441576712,
+        "y": 2.4313328727087518
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -16,7 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "SetFarHybridRPM"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -24,64 +26,28 @@
     },
     {
       "anchorPoint": {
-        "x": 5.244890682089059,
-        "y": 2.3220164709560205
+        "x": 5.321970067017059,
+        "y": 3.36
       },
       "prevControl": {
-        "x": 5.119636681581058,
-        "y": 2.2738418553760202
-      },
-      "nextControl": {
-        "x": 5.119636681581058,
-        "y": 2.2738418553760202
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 7.15,
-        "y": 3.35
-      },
-      "prevControl": {
-        "x": 6.003444149195993,
-        "y": 3.1958412301439982
+        "x": 5.45685899064106,
+        "y": 3.244380922607999
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": [
-    {
-      "position": 1.2552746165882138,
-      "names": [
-        "IntakeGamePiece"
-      ]
-    },
-    {
-      "position": 0.3,
-      "names": [
-        "SetFarHybridRPM"
-      ]
-    }
-  ]
+  "markers": []
 }

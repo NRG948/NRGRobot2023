@@ -2,16 +2,43 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 5.33,
-        "y": 3.24
+        "x": 5.32,
+        "y": 3.36
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.281490730920393,
-        "y": 4.660851153763377
+        "x": 6.208382993689066,
+        "y": 3.3914929368320283
       },
       "holonomicAngle": 0,
       "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "IntakeGamePiece"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.2,
+        "y": 3.362588167484028
+      },
+      "prevControl": {
+        "x": 6.352906840429068,
+        "y": 3.3914929368320283
+      },
+      "nextControl": {
+        "x": 6.352906840429068,
+        "y": 3.3914929368320283
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -24,26 +51,35 @@
     },
     {
       "anchorPoint": {
-        "x": 7.40335862351114,
-        "y": 5.72152625221281
+        "x": 5.341239913249059,
+        "y": 3.3336833981360274
       },
       "prevControl": {
-        "x": 7.036201858663261,
-        "y": 5.27277909517651
+        "x": 5.50503360622106,
+        "y": 3.352953244368028
       },
       "nextControl": null,
-      "holonomicAngle": 8.235619324209623,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 1.0370927984063825,
+      "names": [
+        "SetFarHybridRPM"
+      ]
+    }
+  ]
 }
