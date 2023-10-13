@@ -87,8 +87,8 @@ public final class Autos {
    * speed. We must use a value lower than maximum to allow headroom for course
    * corrections.
    */
-  private static final double OUTER_SPEED_PERCENT = 0.8;
-  private static final double COOP_SPEED_PERCENT = 0.55;
+  private static final double OUTER_SPEED_PERCENT = 0.8; // look into increasing this value
+  private static final double COOP_SPEED_PERCENT = 0.55; // look into increasing this value
 
   private static final AtomicBoolean balanceOnChargingStation = new AtomicBoolean(true);
   private static final AtomicInteger numberOfGamePieces = new AtomicInteger(1);
