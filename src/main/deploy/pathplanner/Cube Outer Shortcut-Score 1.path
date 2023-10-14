@@ -1,0 +1,58 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 7.2,
+        "y": 4.6
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.060272073621073,
+        "y": 4.480239248940037
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.35,
+        "y": 3.5841913991520298
+      },
+      "prevControl": {
+        "x": 5.45685899064106,
+        "y": 3.7190803227760307
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "ScoreGamePieceFarHybrid"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.22763730829412493,
+      "names": [
+        "SetFarHybridRPM"
+      ]
+    }
+  ]
+}
