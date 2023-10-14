@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.15,
-        "y": 2.45
+        "x": 5.26,
+        "y": 0.92
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.019328441576712,
-        "y": 2.4313328727087518
+        "x": 6.016321956308035,
+        "y": 1.3870366672031056
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -16,9 +16,7 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "SetFarHybridRPM"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -26,28 +24,58 @@
     },
     {
       "anchorPoint": {
-        "x": 5.321970067017059,
-        "y": 3.36
+        "x": 7.48,
+        "y": 2.48
       },
       "prevControl": {
-        "x": 5.45685899064106,
-        "y": 3.244380922607999
+        "x": 7.235228823434747,
+        "y": 2.4698012009764474
+      },
+      "nextControl": {
+        "x": 7.235228823434747,
+        "y": 2.4698012009764474
+      },
+      "holonomicAngle": 41.35528601787607,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.078032446141228,
+        "y": 0.6833195345780007
+      },
+      "prevControl": {
+        "x": 6.281490730920393,
+        "y": 0.5813315443424789
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "ScoreGamePieceFarHybrid"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.4,
+      "names": [
+        "IntakeGamePiece"
+      ]
+    }
+  ]
 }
