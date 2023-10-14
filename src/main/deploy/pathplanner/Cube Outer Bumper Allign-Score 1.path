@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 7.09,
+        "x": 7.2,
         "y": 0.92
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.058368211545584,
+        "x": 9.168368211545584,
         "y": 0.92
       },
       "holonomicAngle": 0.0,
@@ -16,7 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "SetFarHybridRPM"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -24,11 +26,11 @@
     },
     {
       "anchorPoint": {
-        "x": 7.2,
+        "x": 5.31,
         "y": 0.9249526191360088
       },
       "prevControl": {
-        "x": 5.183524365252658,
+        "x": 3.293524365252657,
         "y": 0.9249526191360088
       },
       "nextControl": null,
@@ -39,10 +41,10 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "IntakeGamePiece"
+          "ScoreGamePieceFarHybrid"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "deadline",
+        "waitBehavior": "none",
         "waitTime": 1.0
       }
     }
@@ -51,7 +53,7 @@
     {
       "position": 0.6181818181818515,
       "names": [
-        "IntakeGamePiece"
+        "SetFarHybridRPM"
       ]
     }
   ]
