@@ -18,7 +18,13 @@ public class PinkFlameCycle extends CommandBase {
 
   private int step;
 
-  /** Creates a new FlameCycle. */
+  /**
+   * Creates a new PinkFlameCycle.
+   * 
+   * Alternates the LEDs between purple and pink.
+   * 
+   * @param led The LED subsystem.
+   */
   public PinkFlameCycle(AdressableLEDSubsystem led) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.led = led;

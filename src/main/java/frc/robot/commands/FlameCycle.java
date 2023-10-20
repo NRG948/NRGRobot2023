@@ -18,7 +18,13 @@ public class FlameCycle extends CommandBase {
 
   private int step;
 
-  /** Creates a new FlameCycle. */
+  /**
+   * Creates a new FlameCycle.
+   * 
+   * Alternates LEDS between red and yellow.
+   * 
+   * @param led The LED Subsystem.
+   */
   public FlameCycle(AdressableLEDSubsystem led) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.led = led;

@@ -16,6 +16,12 @@ public class IndexByController extends CommandBase {
   private static final double DEADBAND = 0.1;
   private static final double INDEX_SPEED = 0.5;
 
+  /**
+   * Runs the Indexer upon pressing the D-pad.
+   * 
+   * @param indexSubsystem The Indexer Subsystem.
+   * @param controller The Xbox controller.
+   */
   public IndexByController(IndexerSubsystem indexSubsystem, CommandXboxController controller) {
     this.controller = controller;
     this.indexSubsystem = indexSubsystem;

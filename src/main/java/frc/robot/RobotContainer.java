@@ -99,7 +99,6 @@ public class RobotContainer {
 	 * joysticks}.
 	 */
 	private void configureCommandBindings() {
-
 		driveController.rightBumper()
 				.whileTrue(new DriveAndOrientToCube(subsystems.drivetrain, subsystems.cubeVision, driveController));
 		driveController.leftBumper()

@@ -72,7 +72,7 @@ public class CubeVisionSubsystem extends PhotonVisionSubsystemBase {
     targetLayout.addDouble("Distance", this::getDistanceToBestTarget);
     targetLayout.addDouble("Angle", this::getAngleToBestTarget);
 
-    VideoSource video = new HttpCamera("photonvision_Port_1183_MJPEG_Server", "http://10.9.48.11:1183/?action=stream",
+    VideoSource video = new HttpCamera("photonvision_Port_1182_MJPEG_Server", "http://10.9.48.11:1182/?action=stream",
         HttpCameraKind.kMJPGStreamer);
     visionTab.add("CubeVision", video)
         .withWidget(BuiltInWidgets.kCameraStream)

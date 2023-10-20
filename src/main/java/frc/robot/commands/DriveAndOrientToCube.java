@@ -4,6 +4,10 @@
 
 package frc.robot.commands;
 
+import com.nrg948.preferences.RobotPreferences;
+import com.nrg948.preferences.RobotPreferencesLayout;
+import com.nrg948.preferences.RobotPreferencesValue;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,8 +16,19 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.CubeVisionSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
+@RobotPreferencesLayout(groupName = "Cube Vision", row = 0, column = 4, width = 2, height = 3)
 public class DriveAndOrientToCube extends CommandBase {
   public static final double DEADBAND = 0.1;
+  @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue kP = new RobotPreferences.DoubleValue(
+      "Cube Vision", "kP", 0.1);
+      @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue kI = new RobotPreferences.DoubleValue(
+      "Cube Vision", "kI", 0);
+      @RobotPreferencesValue
+  public static final RobotPreferences.DoubleValue kD = new RobotPreferences.DoubleValue(
+      "Cube Vision", "kD", 0);
+
 
   private final SwerveSubsystem drivetrain;
   private final CubeVisionSubsystem vision;
@@ -33,7 +48,8 @@ public class DriveAndOrientToCube extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    controller = new ProfiledPIDController(1.0, 0, 0, drivetrain.getRotationalConstraints());
+    controller = new ProfiledPIDController(kP.getValue(), kI.getValue(), kD.getValue(), drivetrain.getRotationalConstraints()); // p was 1.0
+    controller.setTolerance(1.5);
     controller.reset(drivetrain.getOrientation().getRadians());
   }
 
