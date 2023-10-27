@@ -118,8 +118,8 @@ public class RobotContainer {
 				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.onTrue(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.GREEN),
-						subsystems.leds));
+				.whileTrue(new GreenPurpleLED(subsystems.leds),
+						subsystems.leds);
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED),
 						subsystems.leds));
