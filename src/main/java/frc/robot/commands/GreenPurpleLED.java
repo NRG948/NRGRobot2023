@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ColorConstants;
 import frc.robot.Constants.RobotConstants;
@@ -25,22 +24,22 @@ public class GreenPurpleLED extends CommandBase {
   public void initialize() {
 
     for (int i = 0; i < 18; i++) {
-        led.setColor(ColorConstants.GREEN, i);
+      led.setColor(ColorConstants.GREEN, i);
     }
     for (int i = 18; i < 35; i++) {
-        led.setColor(ColorConstants.PURPLE, i);
+      led.setColor(ColorConstants.PURPLE, i);
     }
     for (int i = 35; i < 42; i++) {
-        led.setColor(ColorConstants.GREEN, i);
+      led.setColor(ColorConstants.GREEN, i);
     }
     for (int i = 42; i < 49; i++) {
-        led.setColor(ColorConstants.PURPLE, i);
+      led.setColor(ColorConstants.PURPLE, i);
     }
     for (int i = 49; i < 58; i++) {
-        led.setColor(ColorConstants.PURPLE, i);
+      led.setColor(ColorConstants.PURPLE, i);
     }
     for (int i = 58; i < RobotConstants.LED_COUNT; i++) {
-        led.setColor(ColorConstants.GREEN, i);
+      led.setColor(ColorConstants.GREEN, i);
     }
     led.commitColor();
   }
@@ -53,14 +52,17 @@ public class GreenPurpleLED extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    }
+
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    }
+    return false;
+  }
 
   @Override
   public boolean runsWhenDisabled() {
-    }
+    return false;
+  }
 }

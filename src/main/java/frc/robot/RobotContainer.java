@@ -33,6 +33,7 @@ import frc.robot.commands.DriveAndOrientToCube;
 import frc.robot.commands.DriveAndStrafeToCube;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.FlameCycle;
+import frc.robot.commands.GreenPurpleLED;
 import frc.robot.commands.IndexByController;
 import frc.robot.commands.IntakeByController;
 import frc.robot.commands.Scoring;
@@ -72,8 +73,8 @@ public class RobotContainer {
 
 		subsystems.drivetrain
 				.setDefaultCommand(new DriveWithController(subsystems.drivetrain, driveController));
-		//Uncomment this for girls gen
-		//CommandScheduler.getInstance().schedule(new PinkFlameCycle(subsystems.leds));
+		// Uncomment this for girls gen
+		// CommandScheduler.getInstance().schedule(new PinkFlameCycle(subsystems.leds));
 		// Comment this for girls gen
 		CommandScheduler.getInstance().schedule(new FlameCycle(subsystems.leds));
 
@@ -118,8 +119,7 @@ public class RobotContainer {
 				.whileTrue(new DriveAndAutoRotate(subsystems.drivetrain, driveController, Math.toRadians(0)));
 
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
-				.whileTrue(new GreenPurpleLED(subsystems.leds),
-						subsystems.leds);
+				.whileTrue(new GreenPurpleLED(subsystems.leds));
 		new Trigger(() -> subsystems.indexer.isCubeDetected())
 				.onFalse(Commands.runOnce(() -> subsystems.leds.fillAndCommitColor(ColorConstants.RED),
 						subsystems.leds));
@@ -128,7 +128,7 @@ public class RobotContainer {
 						Commands.runOnce(() -> subsystems.leds.stop()),
 						Commands.runOnce(() -> subsystems.leds.start()),
 						() -> subsystems.leds.isEnabled()).ignoringDisable(true));
-		
+
 		subsystems.indexer.setDefaultCommand(
 				new IndexByController(subsystems.indexer, manipulatorController));
 		subsystems.shooter.setDefaultCommand(
