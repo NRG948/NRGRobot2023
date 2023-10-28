@@ -54,7 +54,7 @@ import frc.robot.subsystems.Subsystems;
 public class RobotContainer {
 
 	// The robot's subsystems and commands are defined here...
-	private final Subsystems subsystems = new Subsystems();
+	public final Subsystems subsystems = new Subsystems();
 
 	// Operator Xbox controllers.
 	private final CommandXboxController driveController = new CommandXboxController(XboxControllerPort.DRIVER);

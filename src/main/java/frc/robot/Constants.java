@@ -37,7 +37,6 @@ public final class Constants {
      */
     public static class PWMPort {
 
-      
       public static final int LED = 1;
       public static final int LightningLED = 2;
 
@@ -59,7 +58,7 @@ public final class Constants {
      * Digital I/O port numbers.
      */
     public static class DigitalIO {
-      public static final int INDEXER_BEAM_BREAK = 0; //check with systems if beam break is applicable
+      public static final int INDEXER_BEAM_BREAK = 0; // check with systems if beam break is applicable
     }
 
     /**
@@ -134,8 +133,10 @@ public final class Constants {
     public static final Color8Bit GREEN = new Color8Bit(0, 204, 0);
     public static final Color8Bit BLUE = new Color8Bit(0, 0, 204);
     public static final Color8Bit PURPLE = new Color8Bit(152, 16, 201);
-    public static final Color8Bit PINK = new Color8Bit(252,5,141);
+    public static final Color8Bit PINK = new Color8Bit(252, 5, 141);
+    public static final Color8Bit LIME = new Color8Bit(157, 255, 0);
+    public static final Color8Bit CYAN = new Color8Bit(8, 255, 234);
 
-    public static final Color8Bit COLORS[] = { RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK };
+    public static final Color8Bit COLORS[] = { RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, LIME, CYAN };
   }
 }
