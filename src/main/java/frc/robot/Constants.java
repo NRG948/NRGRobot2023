@@ -33,6 +33,11 @@ public final class Constants {
     public static final double MAX_BATTERY_VOLTAGE = 12.0;
 
     /**
+     * Wheel diameter.
+     */
+    public static final double WHEEL_DIAMETER_INCHES = 4.0;
+
+    /**
      * PWM Ports.
      */
     public static class PWMPort {

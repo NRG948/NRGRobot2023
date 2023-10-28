@@ -5,6 +5,7 @@
 package frc.robot.parameters;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 /**
  * A enum representing the properties on a specific swerve drive module.
@@ -20,18 +21,24 @@ import edu.wpi.first.math.util.Units;
  * FRC Team 449 - The Blair Robot Project.
  */
 public enum SwerveModuleParameters {
+  
+
   /** An MK4 Swerve Module in the L1 - Standard configuration. */
-  MK4Standard(Units.inchesToMeters(3.875), 8.14, 12.8),
+  MK4Standard(Units.inchesToMeters(Constants.RobotConstants.WHEEL_DIAMETER_INCHES), 8.14, 12.8),
 
   /** An MK4 Swerve Module in the L2 - Fast configuration. */
-  MK4Fast(Units.inchesToMeters(3.875), 6.75, 12.8),
+  MK4Fast(Units.inchesToMeters(Constants.RobotConstants.WHEEL_DIAMETER_INCHES), 6.75, 12.8),
 
   /** An MK4 Swerve Module in the L3 - Very Fast configuration. */
-  MK4VeryFast(Units.inchesToMeters(3.875), 6.12, 12.8),
+  MK4VeryFast(Units.inchesToMeters(Constants.RobotConstants.WHEEL_DIAMETER_INCHES), 6.12, 12.8),
 
   /** An MK4 Swerve Module in the L4 - Too Fast configuration. */
-  MK4TooFast(Units.inchesToMeters(3.875), 5.14, 12.8);
+  MK4TooFast(Units.inchesToMeters(Constants.RobotConstants.WHEEL_DIAMETER_INCHES), 5.14, 12.8);
 
+  /**
+   *
+   */
+  
   private final double wheelDiameter;
   private final double driveGearRatio;
   private final double steeringGearRatio;
